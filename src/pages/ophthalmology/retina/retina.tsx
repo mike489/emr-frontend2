@@ -139,6 +139,7 @@ const Retina: React.FC = () => {
     setCurrentAttachments(attachments);
     setAttachModalOpen(true);
   };
+
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newPerPage = parseInt(event.target.value, 10);
     setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));

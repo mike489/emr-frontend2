@@ -28,11 +28,7 @@ import { DepartmentsService } from '../../shared/api/services/departments.servic
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
 import { doctorsService } from '../../shared/api/services/Doctor.service';
-import {
-  sendToDepartmentService,
-  sendToTriageService,
-  UploadService,
-} from '../../shared/api/services/sendTo.service';
+import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
 import SendCrossModal from '../../features/triage/components/SendCrossModal';
 
@@ -243,17 +239,6 @@ const Refraction: React.FC = () => {
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
-    }
-  };
-
-  const sendToTriage = async (id: string) => {
-    try {
-      await sendToTriageService.sendToTriage(id);
-      toast.success('Patient sent to triage successfully');
-      fetchPatients(); // Refresh the patient list after sending to triage
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to send patient to triage');
-      console.error('Error sending patient to triage:', err);
     }
   };
 
@@ -781,6 +766,25 @@ const Refraction: React.FC = () => {
                             ) : (
                               'Attach Files'
                             )}
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => openAttachModal(patient.attachments)}
+                            sx={{
+                              textTransform: 'none',
+                              borderRadius: '16px',
+                              px: 0.8,
+                              py: 0.4,
+                              minWidth: 90,
+                              fontSize: '0.7rem',
+                              backgroundColor: '#fff',
+                              borderColor: '#1976d2',
+                              color: '#1976d2',
+                              '&:hover': { backgroundColor: '#e3f2fd' },
+                            }}
+                          >
+                            View / Download
                           </Button>
                         </Box>
                       </TableCell>
