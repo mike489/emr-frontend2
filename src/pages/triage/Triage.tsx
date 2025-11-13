@@ -28,11 +28,7 @@ import { DepartmentsService } from '../../shared/api/services/departments.servic
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
 import { doctorsService } from '../../shared/api/services/Doctor.service';
-import {
-  sendToDepartmentService,
-  sendToTriageService,
-  UploadService,
-} from '../../shared/api/services/sendTo.service';
+import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
 import SendModal from '../../features/triage/components/sendModal';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
 
@@ -223,7 +219,6 @@ const Triage: React.FC = () => {
     }
   };
 
-  // Wrapper function with hardcoded department for this page
   const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage');
 
   // Then use it

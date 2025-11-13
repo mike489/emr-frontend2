@@ -7,6 +7,7 @@ import FrontDesk from '../pages/front_desk/frontDesk';
 import LoginPage from '../pages/Login'; // Fixed: was Login
 import PatientRegistration from '../pages/new_patient/AddNewPatient';
 import NotFound from '../pages/NotFound';
+import Glaucoma from '../pages/ophthalmology/glaucoma/glaucoma';
 import Retina from '../pages/ophthalmology/retina/retina';
 import Home from '../pages/public/Home';
 import Refraction from '../pages/refraction/refraction';
@@ -92,6 +93,15 @@ export const ROUTES = {
       element: (
         <PrivateRoute>
           <Retina />
+        </PrivateRoute>
+      ),
+    },
+
+    glaucoma: {
+      path: '/glaucoma',
+      element: (
+        <PrivateRoute>
+          <Glaucoma />
         </PrivateRoute>
       ),
     },

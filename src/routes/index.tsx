@@ -10,6 +10,7 @@ import PatientRegistration from '../pages/new_patient/AddNewPatient';
 import Triage from '../pages/triage/Triage';
 import Refraction from '../pages/refraction/refraction';
 import Retina from '../pages/ophthalmology/retina/retina';
+import Glaucoma from '../pages/ophthalmology/glaucoma/glaucoma';
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
@@ -129,6 +130,19 @@ const router = createBrowserRouter([
       {
         path: ROUTES.protected.retina.path,
         element: <Suspense fallback={<Loading />}>{ROUTES.protected.retina.element}</Suspense>,
+      },
+    ],
+  },
+  {
+    element: (
+      <PrivateRoute>
+        <Glaucoma />
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        path: ROUTES.protected.glaucoma.path,
+        element: <Suspense fallback={<Loading />}>{ROUTES.protected.glaucoma.element}</Suspense>,
       },
     ],
   },

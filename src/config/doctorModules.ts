@@ -50,6 +50,12 @@ export const DOCTOR_MODULES = [
     permission: 'read_adnexa_examination',
     route: '/retina',
   },
+  {
+    title: 'GLAUCOMA',
+    icon: Activity,
+    permission: 'read_adnexa_examination',
+    route: '/glaucoma',
+  },
   { title: 'UVEA', icon: EyeOff, permission: 'read_adnexa_examination', route: '/uvea' },
   {
     title: 'PAEDIATRIC OPHTHALMOLOGY',

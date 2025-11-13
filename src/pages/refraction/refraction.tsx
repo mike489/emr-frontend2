@@ -28,8 +28,13 @@ import { DepartmentsService } from '../../shared/api/services/departments.servic
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
 import { doctorsService } from '../../shared/api/services/Doctor.service';
-import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
+import {
+  sendToDepartmentService,
+  sendToTriageService,
+  UploadService,
+} from '../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
+import SendCrossModal from '../../features/triage/components/SendCrossModal';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -50,6 +55,7 @@ interface Patient {
   height: string;
   weight: string;
   national_id: string;
+  constultation_id: string;
   passport_number: string;
   medical_history: string | null;
   allergies: string | null;
@@ -95,6 +101,8 @@ const Refraction: React.FC = () => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
+  const [sendModalOpen, setSendModalOpen] = React.useState(false);
+  const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
     []
@@ -729,7 +737,10 @@ const Refraction: React.FC = () => {
                           <Button
                             variant="contained"
                             size="small"
-                            onClick={() => sendToTriage(patient.id)}
+                            onClick={() => {
+                              setCurrentPatientId(patient.id);
+                              setSendModalOpen(true);
+                            }}
                             sx={{
                               textTransform: 'none',
                               borderRadius: '16px',
@@ -787,6 +798,31 @@ const Refraction: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <SendCrossModal
+            open={sendModalOpen}
+            onClose={() => setSendModalOpen(false)}
+            onSend={(department, doctor_id) => {
+              if (currentPatientId) {
+                const patientToSend = patients.find(p => p.id === currentPatientId);
+                if (!patientToSend) return;
+
+                sendToDepartmentService
+                  .sendToDepartment(currentPatientId, {
+                    department,
+                    doctor_id,
+                    from: patientToSend.constultation_id,
+                  })
+                  .then(() => {
+                    toast.success('Patient sent to department successfully');
+                    fetchPatients();
+                  })
+                  .catch((err: any) => {
+                    toast.error(err.response?.data?.message || 'Failed to send patient');
+                  });
+              }
+            }}
+          />
 
           <AttachmentsModal
             open={attachModalOpen}

@@ -34,7 +34,6 @@ import {
 } from '../../../shared/api/services/sendTo.service';
 import SendModal from '../../../features/triage/components/sendModal';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
-import SendCrossModal from '../../../features/triage/components/SendCrossModal';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -89,7 +88,7 @@ interface Attachment {
   url: string;
 }
 
-const Retina: React.FC = () => {
+const Glaucoma: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -113,7 +112,7 @@ const Retina: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: 'Retina',
+    department: 'Glaucoma',
     search: '',
     gender: '',
     doctor_id: '',
@@ -289,7 +288,7 @@ const Retina: React.FC = () => {
               gutterBottom
               sx={{ fontWeight: 'bold', color: '#333' }}
             >
-              Retina Dashboard
+              Glaucoma Dashboard
             </Typography>
             {/* <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
               Real-time patient flow and management - Total: {total}
@@ -809,7 +808,7 @@ const Retina: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <SendCrossModal
+          <SendModal
             open={sendModalOpen}
             onClose={() => setSendModalOpen(false)}
             onSend={(department, doctor_id) => {
@@ -853,4 +852,4 @@ const Retina: React.FC = () => {
   );
 };
 
-export default Retina;
+export default Glaucoma;
