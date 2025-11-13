@@ -1,0 +1,31 @@
+export const MODULE_PERMISSIONS = {
+  OPHTHALMOLOGY: 'eye-smart:access',
+  'FRONT DESK': 'front-desk:access',
+  COUNSELOR: 'counselor:access',
+  DIAGNOSTIC: 'diagnostic:access',
+  PHARMACY: 'pharmacy:access',
+  OPTICALS: 'opticals:access',
+  'IN PATIENT': 'inpatient:access',
+  'CLINICAL RESEARCH': 'research:access',
+  'CLINICAL AUDIT': 'audit:access',
+  'VISION TECHNICIAN': 'vision-tech:access',
+  'VISION GUARDIAN': 'vision-guardian:access',
+  'NUTRITION & DIETETICS': 'nutrition:access',
+  ANAESTHETIST: 'anaesthetist:access',
+} as const;
+
+export const MODULE_ROUTES = {
+  OPHTHALMOLOGY: '/eye-smart',
+  'FRONT DESK': '/front-desk',
+  COUNSELOR: '/counselor',
+  DIAGNOSTIC: '/diagnostic',
+  PHARMACY: '/pharmacy',
+  OPTICALS: '/opticals',
+  'IN PATIENT': '/inpatient',
+  'CLINICAL RESEARCH': '/research',
+  'CLINICAL AUDIT': '/audit',
+  'VISION TECHNICIAN': '/vision-tech',
+  'VISION GUARDIAN': '/vision-guardian',
+  'NUTRITION & DIETETICS': '/nutrition',
+  ANAESTHETIST: '/anaesthetist',
+} as const;

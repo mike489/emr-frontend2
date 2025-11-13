@@ -1,0 +1,15 @@
+import { createApiClient } from '../interceptors';
+
+const patientApi = createApiClient(import.meta.env.VITE_EMS_URL);
+
+export const PatientService = {
+  getAll: () => patientApi.get('/patients'),
+  getList: (filters?: Record<string, any>) => {
+    return patientApi.get('/patient-lists', { params: filters });
+  },
+  getById: (id: string) => patientApi.get(`/patients/${id}`),
+  create: (data: any) => patientApi.post('/patients', data, { timeout: 30000 }),
+  update: (id: string, data: any) => patientApi.put(`/patients/${id}`, data),
+  delete: (id: string) => patientApi.delete(`/patients/${id}`),
+  getVisits: () => patientApi.get('/get-visits'),
+};
