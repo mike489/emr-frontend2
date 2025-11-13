@@ -2,9 +2,10 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 import React from 'react';
 
 interface ModuleCardProps {
-  title: string;
-  image: string; 
+  title?: string;
+  image?: string;
   onClick?: () => void;
+  icon?: React.ReactNode;
 }
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({ title, image, onClick }) => {
