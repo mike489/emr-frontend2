@@ -32,7 +32,6 @@ import {
   sendToDepartmentService,
   UploadService,
 } from '../../../shared/api/services/sendTo.service';
-import SendModal from '../../../features/triage/components/sendModal';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
 import SendCrossModal from '../../../features/triage/components/SendCrossModal';
 
@@ -93,7 +92,7 @@ const Retina: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [total, setTotal] = React.useState<number>(0);
+  const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
   const [departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
