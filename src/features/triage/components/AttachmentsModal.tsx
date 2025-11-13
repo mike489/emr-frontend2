@@ -8,7 +8,6 @@ import {
   ListItemText,
   IconButton,
   Typography,
-  Box,
 } from '@mui/material';
 import { Download } from '@mui/icons-material';
 

@@ -14,7 +14,6 @@ import {
   Grid,
   Divider,
   InputAdornment,
-  Checkbox,
 } from '@mui/material';
 import { CalendarToday } from '@mui/icons-material';
 import AppLayout from '../../layouts/AppLayout';
@@ -65,7 +64,7 @@ const PatientRegistration: React.FC = () => {
   const [patientCategories, setPatientCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [total, setTotal] = useState(0);
+  const [_total, setTotal] = useState(0);
 
   // Fetch patient categories on component mount
   useEffect(() => {
@@ -149,8 +148,6 @@ const PatientRegistration: React.FC = () => {
   const genders = ['Male', 'Female'];
   const paymentMethods = ['Cash', 'Insurance', 'Card', 'Mobile'];
   const visitTypes = ['New', 'Follow-up', 'Emergency', 'Review'];
-  const departments = ['General', 'Cardiology', 'Neurology', 'Orthopedic'];
-  const doctors = ['Dr. John Doe', 'Dr. Sarah Smith', 'Dr. Raj Patel'];
 
   const cities = ['Addis Ababa', 'Dire Dawa', 'Hawassa', 'Bahir Dar', 'Mekelle', 'Jimma'];
   const kifleKetemas = ['Kirkos', 'Arada', 'Bole', 'Lideta', 'Yeka', 'Nifas Silk'];
