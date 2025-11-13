@@ -1,7 +1,6 @@
 import {
   Activity,
   Microscope,
-  LayoutDashboard,
   BookCheck,
   Baby,
   Brain,
