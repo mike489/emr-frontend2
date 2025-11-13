@@ -83,7 +83,7 @@ export default function TopBar({
           sx={{ flexGrow: 1, cursor: 'pointer' }}
           onClick={() => navigate('/')}
         >
-          EMR System
+          EMR System {user?.name}
         </Typography>
 
         {/* Clock */}
@@ -128,7 +128,7 @@ export default function TopBar({
           </MenuItem>
         </Menu>
       </Toolbar>
-      {/* <TabBar/> */}
+      {/* <TabBar tabsData={DOCTOR_TABS} /> */}
     </AppBar>
   );
 }

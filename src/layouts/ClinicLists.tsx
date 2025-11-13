@@ -48,9 +48,9 @@ const ClinicLists = () => {
         <Outlet />
       ) : (
         <Container
-          sx={{ mt: 4, mb: 6, display: 'center', justifyContent: 'center', alignItems: 'center' }}
+          sx={{ mt: 4, mb: 20, display: 'center', justifyContent: 'center', alignItems: 'center' }}
         >
-          <Grid container spacing={2}>
+          <Grid container spacing={2} mb={200}>
             {accessibleModules.map(mod => {
               const Icon = mod.icon;
               return (

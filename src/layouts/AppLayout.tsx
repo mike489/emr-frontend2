@@ -31,8 +31,9 @@ export default function AppLayout({ children }: Props) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          mt: { xs: 7, md: 8 },
+          // p: 3,
+          // mt: { xs: 7, md: 8 },
+          pt:5.4,
           width: { md: '100%' },
           ml: 0,
           transition: theme.transitions.create(['margin', 'width'], {

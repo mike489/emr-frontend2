@@ -30,6 +30,8 @@ import { PatientSummaryService } from '../../shared/api/services/patientsSummary
 import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
+import TabBar from '../../layouts/TabBar';
+import { FRONT_DESK_TABS } from '../../data/data';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -282,8 +284,9 @@ const FrontDesk: React.FC = () => {
     <AppLayout>
       <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ mb: 4 }}>
+        <TabBar tabsData={FRONT_DESK_TABS}/>
+        <Box sx={{ display: 'flex',  p:2, alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ }}>
             <Typography
               variant="h4"
               component="h1"

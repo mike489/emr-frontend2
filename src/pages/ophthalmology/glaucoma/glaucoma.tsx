@@ -34,6 +34,8 @@ import {
 } from '../../../shared/api/services/sendTo.service';
 import SendModal from '../../../features/triage/components/sendModal';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
+import TabBar from '../../../layouts/TabBar';
+import { DOCTOR_TABS } from '../../../data/data';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -280,8 +282,10 @@ const Glaucoma: React.FC = () => {
     <AppLayout>
       <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ mb: 4 }}>
+        <TabBar tabsData={DOCTOR_TABS}/>
+
+        <Box sx={{ display: 'flex', p:2, alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ }}>
             <Typography
               variant="h4"
               component="h1"

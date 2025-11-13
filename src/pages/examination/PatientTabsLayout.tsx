@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import ExaminationForm from '../../features/examination/ExaminationForm';
 import { useLocation, useNavigate } from 'react-router-dom';
+import TabBar from '../../layouts/TabBar';
+import { DOCTOR_TABS } from '../../data/data';
 
 const PatientTabsLayout: React.FC = () => {
   const location = useLocation();
@@ -24,8 +26,11 @@ const PatientTabsLayout: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         bgcolor: 'background.paper',
+        p:4,
       }}
     >
+      
+              <TabBar tabsData={DOCTOR_TABS} />
       <Box sx={{ flex: 1, p: 3, overflowY: 'auto' }}>
         {consultation_id ? (
           <ExaminationForm consultationId={consultation_id} />

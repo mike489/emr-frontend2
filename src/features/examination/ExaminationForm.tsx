@@ -7,23 +7,40 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Chip,
   Switch,
   FormControlLabel,
   Typography,
   Grid,
   CircularProgress,
+  Card,
+  CardContent,
+  Paper,
+  Chip,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Fade,
 } from '@mui/material';
+import { 
+  Add as AddIcon, 
+  ExpandMore as ExpandMoreIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  MedicalInformation as MedicalIcon,
+  Visibility as VisibilityIcon,
+  Favorite as FavoriteIcon,
+  Psychology as PsychologyIcon,
+  Straighten as StraightenIcon,
+  Biotech as BiotechIcon,
+} from '@mui/icons-material';
 import { Formik, Form, Field, ErrorMessage, type FieldProps, getIn } from 'formik';
 import { toast } from 'react-toastify';
-
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { validationSchema } from './validationSchema';
 import dayjs from 'dayjs';
 import { PatientService } from '../../shared/api/services/patient.service';
 import type { ExaminationData } from '../../shared/api/types/examination.types';
-
 
 interface ExaminationFormProps {
   consultationId: string;
@@ -36,6 +53,7 @@ const DILATED_OPTIONS = ['Yes', 'No'] as const;
 // === DEFAULT INITIAL VALUES ===
 const defaultInitialValues: ExaminationData = {
   primary_complaint: '',
+  // complaint_details: '',
   current_oscular_medication: '',
   current_contact_lense_use: false,
   lens_type: '',
@@ -133,6 +151,7 @@ const defaultInitialValues: ExaminationData = {
 const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => {
   const [initialValues, setInitialValues] = useState<ExaminationData>(defaultInitialValues);
   const [loading, setLoading] = useState(true);
+  const [expandedSection, setExpandedSection] = useState<string | false>('patient-history');
 
   const quillModules = useMemo(
     () => ({
@@ -161,7 +180,6 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
         const res = await PatientService.getExaminationData(consultationId);
         const data = res.data.data.examination_data;
 
-        // Normalize data: convert empty strings to null
         const normalized = Object.fromEntries(
           Object.entries(data).map(([key, value]) => [key, value === '' ? null : value])
         ) as any as ExaminationData;
@@ -195,28 +213,19 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
 
     const examination_data = {
       ...values,
-
-      // Flatten vitals
       heart_rate: values.heart_rate || null,
       temperature: values.temperature || null,
       respiratory_rate: values.respiratory_rate || null,
       oxygen_saturation: values.oxygen_saturation || null,
       blood_pressure: values.blood_pressure || null,
-
-      // Format times
       time_of_measurement: formatTime(values.time_of_measurement),
       dilation_time: values.dilated === 'Yes' ? formatTime(values.dilation_time) : null,
-
-      // IOP method
       methods: values.methods?.value
         ? { value: values.methods.value, other: values.methods.other || null }
         : null,
     };
 
-    const payload = {
-      consultation_id: consultationId,
-      examination_data,
-    };
+    const payload = { consultation_id: consultationId, examination_data };
 
     try {
       await PatientService.createExamination(payload);
@@ -227,6 +236,10 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleSectionChange = (section: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpandedSection(isExpanded ? section : false);
   };
 
   // === LOADING STATE ===
@@ -245,256 +258,61 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ values, setFieldValue, isSubmitting, touched, errors }) => (
+      {({ values, isSubmitting, touched, errors }) => (
         <Form>
-          <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-            <Typography variant="h5" gutterBottom color="primary">
-              {initialValues.primary_complaint ? 'Edit Examination' : 'New Examination Record'}
-            </Typography>
-            {/* === SUBMIT === */}
-            <Box sx={{ mt: 6, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button
-                variant="outlined"
-                onClick={() => window.history.back()}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Examination'}
-              </Button>
-            </Box>
+          <Box sx={{ 
+            p: { xs: 2, md: 4 }, 
+            maxWidth: 1400, 
+            mx: 'auto', 
+            // pb: 15,
+            backgroundColor: 'grey.50',
+            minHeight: '100vh'
+          }}>
+            
+            {/* Header Section */}
+            <Card sx={{ mb: 4, backgroundColor: 'primary.main', color: 'white' }}>
+              <CardContent sx={{ py: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <MedicalIcon />
+                  <Box>
+                    <Typography variant="h5" gutterBottom fontWeight="bold">
+                      {initialValues.primary_complaint ? 'Edit Examination' : 'New Examination Record'}
+                    </Typography>
+                    <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                      Comprehensive Ophthalmic Assessment
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+
             {/* === VITAL SIGNS === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Vital Signs
-            </Typography>
-            <Grid container spacing={2}>
-              {[
-                { name: 'heart_rate', label: 'Heart Rate (bpm)' },
-                { name: 'temperature', label: 'Temperature (°C)' },
-                { name: 'respiratory_rate', label: 'Respiratory Rate (breaths/min)' },
-                { name: 'oxygen_saturation', label: 'O2 Saturation (%)' },
-                { name: 'blood_pressure', label: 'Blood Pressure (e.g. 120/80)' },
-              ].map(({ name, label }) => (
-                <Grid size={{ xs: 12, sm: 6, md: 3 }} key={name}>
-                  <Field name={name}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={label}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, name) && !!getIn(errors, name)}
-                        helperText={<ErrorMessage name={name} />}
-                      />
-                    )}
-                  </Field>
-                </Grid>
-              ))}
-            </Grid>
-
-            {/* === TIME OF MEASUREMENT === */}
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <Field name="time_of_measurement">
-                  {({ field }: FieldProps) => (
-                    <TextField
-                      {...field}
-                      label="Time of Measurement"
-                      placeholder="14:30"
-                      size="small"
-                      fullWidth
-                      value={field.value ?? ''}
-                      error={
-                        getIn(touched, 'time_of_measurement') &&
-                        !!getIn(errors, 'time_of_measurement')
-                      }
-                      helperText={<ErrorMessage name="time_of_measurement" />}
-                    />
-                  )}
-                </Field>
-              </Grid>
-            </Grid>
-
-            {/* === PATIENT HISTORY === */}
-            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-              Patient History
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Field name="primary_complaint">
-                  {({ field }: FieldProps) => (
-                    <TextField
-                      {...field}
-                      label="Primary Complaint"
-                      fullWidth
-                      size="small"
-                      margin="dense"
-                      error={
-                        getIn(touched, 'primary_complaint') && !!getIn(errors, 'primary_complaint')
-                      }
-                      helperText={<ErrorMessage name="primary_complaint" />}
-                    />
-                  )}
-                </Field>
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Field name="current_oscular_medication">
-                  {({ field }: FieldProps) => (
-                    <TextField
-                      {...field}
-                      label="Current Ocular Medication"
-                      fullWidth
-                      size="small"
-                      margin="dense"
-                    />
-                  )}
-                </Field>
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Field name="current_contact_lense_use">
-                  {({ field }: FieldProps) => (
-                    <FormControlLabel
-                      control={<Switch {...field} checked={field.value} />}
-                      label="Current Contact Lens Use"
-                    />
-                  )}
-                </Field>
-              </Grid>
-
-              {values.current_contact_lense_use && (
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Field name="lens_type">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label="Lens Type"
-                        fullWidth
-                        size="small"
-                        margin="dense"
-                        error={getIn(touched, 'lens_type') && !!getIn(errors, 'lens_type')}
-                        helperText={<ErrorMessage name="lens_type" />}
-                      />
-                    )}
-                  </Field>
-                </Grid>
-              )}
-
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Field name="current_systemic_medication">
-                  {({ field }: FieldProps) => (
-                    <TextField
-                      {...field}
-                      label="Current Systemic Medication"
-                      fullWidth
-                      size="small"
-                      margin="dense"
-                    />
-                  )}
-                </Field>
-              </Grid>
-            </Grid>
-
-            {/* === ARRAY FIELDS === */}
-            {(['family_history', 'systemic_conditions', 'allergies'] as const).map(field => (
-              <FormControl key={field} fullWidth sx={{ mt: 2 }}>
-                <InputLabel>{field.replace(/_/g, ' ').toUpperCase()}</InputLabel>
-                <Field name={field}>
-                  {({ field: formikField }: FieldProps) => (
-                    <Select
-                      {...formikField}
-                      multiple
-                      value={formikField.value || []}
-                      renderValue={(selected: any) => (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                          {selected.map((v: string) => (
-                            <Chip key={v} label={v} size="small" />
-                          ))}
-                        </Box>
-                      )}
-                    >
-                      {field === 'family_history' &&
-                        ['Glaucoma', 'Cataract', 'Macular Degeneration', 'Retinal Detachment'].map(
-                          o => (
-                            <MenuItem key={o} value={o}>
-                              {o}
-                            </MenuItem>
-                          )
-                        )}
-                      {field === 'systemic_conditions' &&
-                        ['Hypertension', 'Diabetes', 'Thyroid', 'Arthritis'].map(o => (
-                          <MenuItem key={o} value={o}>
-                            {o}
-                          </MenuItem>
-                        ))}
-                      {field === 'allergies' &&
-                        ['Penicillin', 'Sulfa', 'Latex', 'Dust', 'Pollen'].map(o => (
-                          <MenuItem key={o} value={o}>
-                            {o}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                  )}
-                </Field>
-              </FormControl>
-            ))}
-
-            {/* === VISUAL ACUITY === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Visual Acuity
-            </Typography>
-            <Grid container spacing={1}>
-              {['distance', 'near'].map(dist => (
-                <Grid size={{ xs: 12 }} key={dist}>
-                  <Typography variant="subtitle2" sx={{ textTransform: 'capitalize' }}>
-                    {dist} Vision
-                  </Typography>
-                  <Grid container spacing={1}>
-                    {['od', 'os'].map(eye =>
-                      ['ucva', 'scva', 'bcva'].map(type => {
-                        const name = `${dist}_${eye}_${type}`;
-                        return (
-                          <Grid size={{ xs: 4, sm: 2 }} key={name}>
-                            <Field name={name}>
-                              {({ field }: FieldProps) => (
-                                <TextField
-                                  {...field}
-                                  label={`${eye.toUpperCase()} ${type.toUpperCase()}`}
-                                  size="small"
-                                  fullWidth
-                                  value={field.value ?? ''}
-                                  error={getIn(touched, name) && !!getIn(errors, name)}
-                                  helperText={<ErrorMessage name={name} />}
-                                />
-                              )}
-                            </Field>
-                          </Grid>
-                        );
-                      })
-                    )}
-                  </Grid>
-                </Grid>
-              ))}
-            </Grid>
-
-            {/* === PUPIL & MOTILITY === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Pupil & Ocular Motility
-            </Typography>
-            <Grid container spacing={2}>
-              {['od', 'os'].map(eye =>
-                ['ucva', 'scva', 'bcva'].map(type => {
-                  const name = `pupil_reaction_${eye}_${type}`;
-                  return (
-                    <Grid size={{ xs: 12, sm: 4 }} key={name}>
+            <Accordion 
+              expanded={expandedSection === 'vital-signs'} 
+              onChange={handleSectionChange('vital-signs')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <FavoriteIcon color="error" />
+                  <Typography variant="h6">Vital Signs</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  {[
+                    { name: 'heart_rate', label: 'Heart Rate (bpm)' },
+                    { name: 'temperature', label: 'Temperature (°C)' },
+                    { name: 'respiratory_rate', label: 'Respiratory Rate (breaths/min)' },
+                    { name: 'oxygen_saturation', label: 'O2 Saturation (%)' },
+                    { name: 'blood_pressure', label: 'Blood Pressure (e.g. 120/80)' },
+                  ].map(({ name, label }) => (
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }} key={name}>
                       <Field name={name}>
                         {({ field }: FieldProps) => (
                           <TextField
                             {...field}
-                            label={`Pupil ${eye.toUpperCase()} ${type.toUpperCase()}`}
+                            label={label}
                             size="small"
                             fullWidth
                             value={field.value ?? ''}
@@ -504,399 +322,816 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
                         )}
                       </Field>
                     </Grid>
-                  );
-                })
-              )}
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <Field name="eom">
-                  {({ field }: FieldProps) => (
-                    <FormControl fullWidth size="small">
-                      <InputLabel>EOM</InputLabel>
-                      <Select {...field} label="EOM" value={field.value ?? ''}>
-                        {EOM_OPTIONS.map(opt => (
-                          <MenuItem key={opt} value={opt}>
-                            {opt}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  )}
-                </Field>
-              </Grid>
-              {['eom_gaze', 'eom_eye'].map(name => (
-                <Grid size={{ xs: 12, sm: 4 }} key={name}>
-                  <Field name={name}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={name.replace(/_/g, ' ').toUpperCase()}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, name) && !!getIn(errors, name)}
-                        helperText={<ErrorMessage name={name} />}
-                      />
-                    )}
-                  </Field>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
+
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <Field name="time_of_measurement">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          label="Time of Measurement"
+                          placeholder="14:30"
+                          size="small"
+                          fullWidth
+                          value={field.value ?? ''}
+                          error={getIn(touched, 'time_of_measurement') && !!getIn(errors, 'time_of_measurement')}
+                          helperText={<ErrorMessage name="time_of_measurement" />}
+                        />
+                      )}
+                    </Field>
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* === PATIENT HISTORY === */}
+            <Accordion 
+              expanded={expandedSection === 'patient-history'} 
+              onChange={handleSectionChange('patient-history')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <PsychologyIcon color="primary" />
+                  <Typography variant="h6">Patient History</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Field name="primary_complaint">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          label="Primary Complaint"
+                          fullWidth
+                          size="small"
+                          margin="dense"
+                          error={getIn(touched, 'primary_complaint') && !!getIn(errors, 'primary_complaint')}
+                          helperText={<ErrorMessage name="primary_complaint" />}
+                        />
+                      )}
+                    </Field>
+                  </Grid>
+
+                  {/* Complaint Details - Rich Text Editor */}
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+                      Complaint Details
+                    </Typography>
+                    <Field name="complaint_details">
+                      {({ field, form }: FieldProps) => (
+                        <Paper elevation={1} sx={{ borderRadius: 1, overflow: 'hidden' }}>
+                          <ReactQuill
+                            theme="snow"
+                            value={field.value || ''}
+                            onChange={(value) => form.setFieldValue('complaint_details', value)}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            style={{ 
+                              height: 200, 
+                              border: 'none'
+                            }}
+                            placeholder="Provide detailed information about the complaint, including duration, severity, associated symptoms, and any relevant history..."
+                          />
+                          {getIn(form.touched, 'complaint_details') && getIn(form.errors, 'complaint_details') && (
+                            <Typography color="error" variant="caption" sx={{ ml: 2, mt: 0.5, display: 'block' }}>
+                              {getIn(form.errors, 'complaint_details')}
+                            </Typography>
+                          )}
+                        </Paper>
+                      )}
+                    </Field>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Field name="current_oscular_medication">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          label="Current Ocular Medication"
+                          fullWidth
+                          size="small"
+                          margin="dense"
+                        />
+                      )}
+                    </Field>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Field name="current_contact_lense_use">
+                      {({ field }: FieldProps) => (
+                        <FormControlLabel
+                          control={<Switch {...field} checked={field.value} />}
+                          label="Current Contact Lens Use"
+                        />
+                      )}
+                    </Field>
+                  </Grid>
+
+                  {values.current_contact_lense_use && (
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Field name="lens_type">
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label="Lens Type"
+                            fullWidth
+                            size="small"
+                            margin="dense"
+                            error={getIn(touched, 'lens_type') && !!getIn(errors, 'lens_type')}
+                            helperText={<ErrorMessage name="lens_type" />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                  )}
+
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Field name="current_systemic_medication">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          label="Current Systemic Medication"
+                          fullWidth
+                          size="small"
+                          margin="dense"
+                        />
+                      )}
+                    </Field>
+                  </Grid>
+                </Grid>
+
+                {/* Dynamic Multi-input Fields */}
+                {(['systemic_conditions', 'allergies', 'family_history'] as const).map((field) => {
+                  const label = field
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (l) => l.toUpperCase());
+
+                  return (
+                    <Box key={field} sx={{ mt: 3 }}>
+                      <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+                        {label}
+                      </Typography>
+
+                      <Field name={field}>
+                        {({ field: formikField, form }: FieldProps<string[]>) => {
+                          const items = formikField.value || [];
+                          const [inputValue, setInputValue] = useState('');
+
+                          const handleAdd = () => {
+                            const trimmed = inputValue.trim();
+                            if (trimmed && !items.includes(trimmed)) {
+                              form.setFieldValue(field, [...items, trimmed]);
+                              setInputValue('');
+                            }
+                          };
+
+                          const handleRemove = (index: number) => {
+                            form.setFieldValue(
+                              field,
+                              items.filter((_, i) => i !== index)
+                            );
+                          };
+
+                          const handleKeyDown = (e: React.KeyboardEvent) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAdd();
+                            }
+                          };
+
+                          return (
+                            <Box>
+                              <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                                <TextField
+                                  size="small"
+                                  placeholder={`Add ${label.toLowerCase()}...`}
+                                  value={inputValue}
+                                  onChange={(e) => setInputValue(e.target.value)}
+                                  onKeyDown={handleKeyDown}
+                                  sx={{ flexGrow: 1 }}
+                                  inputProps={{ maxLength: 100 }}
+                                />
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  onClick={handleAdd}
+                                  disabled={!inputValue.trim()}
+                                  sx={{ minWidth: 40, height: 40 }}
+                                >
+                                  <AddIcon fontSize="small" />
+                                </Button>
+                              </Box>
+
+                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                {items.length === 0 ? (
+                                  <Typography variant="body2" color="text.secondary">
+                                    No {label.toLowerCase()} added.
+                                  </Typography>
+                                ) : (
+                                  items.map((item, index) => (
+                                    <Chip
+                                      key={index}
+                                      label={item}
+                                      onDelete={() => handleRemove(index)}
+                                      color="primary"
+                                      variant="outlined"
+                                    />
+                                  ))
+                                )}
+                              </Box>
+
+                              {getIn(form.touched, field) && getIn(form.errors, field) && (
+                                <Typography color="error" variant="caption" sx={{ ml: 1, mt: 0.5 }}>
+                                  {getIn(form.errors, field)}
+                                </Typography>
+                              )}
+                            </Box>
+                          );
+                        }}
+                      </Field>
+                    </Box>
+                  );
+                })}
+              </AccordionDetails>
+            </Accordion>
+
+            {/* === VISUAL ACUITY === */}
+            <Accordion 
+              expanded={expandedSection === 'visual-acuity'} 
+              onChange={handleSectionChange('visual-acuity')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <VisibilityIcon color="primary" />
+                  <Typography variant="h6">Visual Acuity</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={1}>
+                  {['distance', 'near'].map((dist) => (
+                    <Grid size={{ xs: 12 }} key={dist}>
+                      <Typography variant="subtitle2" sx={{ textTransform: 'capitalize', mb: 2 }}>
+                        {dist} Vision
+                      </Typography>
+                      <Grid container spacing={1}>
+                        {['od', 'os'].map((eye) =>
+                          ['ucva', 'scva', 'bcva'].map((type) => {
+                            const name = `${dist}_${eye}_${type}`;
+                            return (
+                              <Grid size={{ xs: 4, sm: 2 }} key={name}>
+                                <Field name={name}>
+                                  {({ field }: FieldProps) => (
+                                    <TextField
+                                      {...field}
+                                      label={`${eye.toUpperCase()} ${type.toUpperCase()}`}
+                                      size="small"
+                                      fullWidth
+                                      value={field.value ?? ''}
+                                      error={getIn(touched, name) && !!getIn(errors, name)}
+                                      helperText={<ErrorMessage name={name} />}
+                                    />
+                                  )}
+                                </Field>
+                              </Grid>
+                            );
+                          })
+                        )}
+                      </Grid>
+                    </Grid>
+                  ))}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* === PUPIL & MOTILITY === */}
+            <Accordion 
+              expanded={expandedSection === 'pupil-motility'} 
+              onChange={handleSectionChange('pupil-motility')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <StraightenIcon color="primary" />
+                  <Typography variant="h6">Pupil & Ocular Motility</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  {['od', 'os'].map((eye) =>
+                    ['ucva', 'scva', 'bcva'].map((type) => {
+                      const name = `pupil_reaction_${eye}_${type}`;
+                      return (
+                        <Grid size={{ xs: 12, sm: 4 }} key={name}>
+                          <Field name={name}>
+                            {({ field }: FieldProps) => (
+                              <TextField
+                                {...field}
+                                label={`Pupil ${eye.toUpperCase()} ${type.toUpperCase()}`}
+                                size="small"
+                                fullWidth
+                                value={field.value ?? ''}
+                                error={getIn(touched, name) && !!getIn(errors, name)}
+                                helperText={<ErrorMessage name={name} />}
+                              />
+                            )}
+                          </Field>
+                        </Grid>
+                      );
+                    })
+                  )}
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <Field name="eom">
+                      {({ field }: FieldProps) => (
+                        <FormControl fullWidth size="small">
+                          <InputLabel>EOM</InputLabel>
+                          <Select {...field} label="EOM" value={field.value ?? ''}>
+                            {EOM_OPTIONS.map((opt) => (
+                              <MenuItem key={opt} value={opt}>
+                                {opt}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                    </Field>
+                  </Grid>
+                  {['eom_gaze', 'eom_eye'].map((name) => (
+                    <Grid size={{ xs: 12, sm: 4 }} key={name}>
+                      <Field name={name}>
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label={name.replace(/_/g, ' ').toUpperCase()}
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, name) && !!getIn(errors, name)}
+                            helperText={<ErrorMessage name={name} />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                  ))}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
 
             {/* === ALIGNMENT TESTS === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Alignment Tests
-            </Typography>
-            <Grid container spacing={2}>
-              {[
-                'hirschberg_test',
-                'hirschberg_test_eye',
-                'hirschberg_test_deviation',
-                'cover_uncover_test',
-                'cover_uncover_test_phoria',
-                'cover_uncover_test_tropia',
-                'cover_uncover_test_direction',
-                'cover_uncover_test_distance',
-                'cover_uncover_test_near',
-              ].map(name => (
-                <Grid size={{ xs: 12, sm: 4 }} key={name}>
-                  <Field name={name}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={name.replace(/_/g, ' ').toUpperCase()}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, name) && !!getIn(errors, name)}
-                        helperText={<ErrorMessage name={name} />}
-                      />
-                    )}
-                  </Field>
+            <Accordion 
+              expanded={expandedSection === 'alignment-tests'} 
+              onChange={handleSectionChange('alignment-tests')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <BiotechIcon color="primary" />
+                  <Typography variant="h6">Alignment Tests</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  {[
+                    'hirschberg_test',
+                    'hirschberg_test_eye',
+                    'hirschberg_test_deviation',
+                    'cover_uncover_test',
+                    'cover_uncover_test_phoria',
+                    'cover_uncover_test_tropia',
+                    'cover_uncover_test_direction',
+                    'cover_uncover_test_distance',
+                    'cover_uncover_test_near',
+                  ].map((name) => (
+                    <Grid size={{ xs: 12, sm: 4 }} key={name}>
+                      <Field name={name}>
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label={name.replace(/_/g, ' ').toUpperCase()}
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, name) && !!getIn(errors, name)}
+                            helperText={<ErrorMessage name={name} />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
+              </AccordionDetails>
+            </Accordion>
 
             {/* === STEREOPSIS === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Stereopsis
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Field name="stereopsis">
-                  {({ field }: FieldProps) => (
-                    <TextField
-                      {...field}
-                      label="Stereopsis"
-                      size="small"
-                      fullWidth
-                      value={field.value ?? ''}
-                      error={getIn(touched, 'stereopsis') && !!getIn(errors, 'stereopsis')}
-                      helperText={<ErrorMessage name="stereopsis" />}
-                    />
-                  )}
-                </Field>
-              </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Field name="stereopsis_test">
-                  {({ field }: FieldProps) => (
-                    <TextField
-                      {...field}
-                      label="Test Used"
-                      size="small"
-                      fullWidth
-                      value={field.value ?? ''}
-                      error={
-                        getIn(touched, 'stereopsis_test') && !!getIn(errors, 'stereopsis_test')
-                      }
-                      helperText={<ErrorMessage name="stereopsis_test" />}
-                    />
-                  )}
-                </Field>
-              </Grid>
-            </Grid>
+            <Accordion 
+              expanded={expandedSection === 'stereopsis'} 
+              onChange={handleSectionChange('stereopsis')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <VisibilityIcon color="primary" />
+                  <Typography variant="h6">Stereopsis</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Field name="stereopsis">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          label="Stereopsis"
+                          size="small"
+                          fullWidth
+                          value={field.value ?? ''}
+                          error={getIn(touched, 'stereopsis') && !!getIn(errors, 'stereopsis')}
+                          helperText={<ErrorMessage name="stereopsis" />}
+                        />
+                      )}
+                    </Field>
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Field name="stereopsis_test">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          label="Test Used"
+                          size="small"
+                          fullWidth
+                          value={field.value ?? ''}
+                          error={getIn(touched, 'stereopsis_test') && !!getIn(errors, 'stereopsis_test')}
+                          helperText={<ErrorMessage name="stereopsis_test" />}
+                        />
+                      )}
+                    </Field>
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
 
             {/* === IOP === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Intraocular Pressure
-            </Typography>
-            <Grid container spacing={2} alignItems="center">
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <Field name="methods.value">
-                  {({ field }: FieldProps) => (
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Method</InputLabel>
-                      <Select {...field} label="Method" value={field.value ?? ''}>
-                        <MenuItem value="Applanation">Applanation</MenuItem>
-                        <MenuItem value="Tonopen">Tonopen</MenuItem>
-                        <MenuItem value="Schiotz">Schiotz</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
-                      </Select>
-                    </FormControl>
+            <Accordion 
+              expanded={expandedSection === 'iop'} 
+              onChange={handleSectionChange('iop')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <BiotechIcon color="primary" />
+                  <Typography variant="h6">Intraocular Pressure</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <Field name="methods.value">
+                      {({ field }: FieldProps) => (
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Method</InputLabel>
+                          <Select {...field} label="Method" value={field.value ?? ''}>
+                            <MenuItem value="Applanation">Applanation</MenuItem>
+                            <MenuItem value="Tonopen">Tonopen</MenuItem>
+                            <MenuItem value="Schiotz">Schiotz</MenuItem>
+                            <MenuItem value="Other">Other</MenuItem>
+                          </Select>
+                        </FormControl>
+                      )}
+                    </Field>
+                  </Grid>
+
+                  {values.methods?.value === 'Other' && (
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <Field name="methods.other">
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label="Other Method"
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, 'methods.other') && !!getIn(errors, 'methods.other')}
+                            helperText={<ErrorMessage name="methods.other" />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
                   )}
-                </Field>
-              </Grid>
 
-              {values.methods?.value === 'Other' && (
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Field name="methods.other">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label="Other Method"
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, 'methods.other') && !!getIn(errors, 'methods.other')}
-                        helperText={<ErrorMessage name="methods.other" />}
-                      />
-                    )}
-                  </Field>
+                  {['left_eye', 'right_eye'].map((name) => (
+                    <Grid size={{ xs: 12, sm: 4 }} key={name}>
+                      <Field name={name}>
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label={name === 'left_eye' ? 'Left Eye (mmHg)' : 'Right Eye (mmHg)'}
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, name) && !!getIn(errors, name)}
+                            helperText={<ErrorMessage name={name} />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                  ))}
                 </Grid>
-              )}
-
-              {['left_eye', 'right_eye'].map(name => (
-                <Grid size={{ xs: 12, sm: 4 }} key={name}>
-                  <Field name={name}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={name === 'left_eye' ? 'Left Eye (mmHg)' : 'Right Eye (mmHg)'}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, name) && !!getIn(errors, name)}
-                        helperText={<ErrorMessage name={name} />}
-                      />
-                    )}
-                  </Field>
-                </Grid>
-              ))}
-            </Grid>
+              </AccordionDetails>
+            </Accordion>
 
             {/* === ANTERIOR SEGMENT === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Anterior Segment
-            </Typography>
-            {[
-              'lids',
-              'lashes',
-              'conjunctiva',
-              'sclera',
-              'lacrimal_system',
-              'cornea',
-              'anterior_chamber',
-              'iris',
-              'lens',
-              'vitreous',
-            ].map(part => (
-              <Grid container spacing={2} key={part} sx={{ mt: 1 }}>
-                <Grid size={{ xs: 6 }}>
-                  <Field name={`${part}_od`}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={`${part.replace(/_/g, ' ')} OD`.toUpperCase()}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, `${part}_od`) && !!getIn(errors, `${part}_od`)}
-                        helperText={<ErrorMessage name={`${part}_od`} />}
-                      />
-                    )}
-                  </Field>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Field name={`${part}_os`}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={`${part.replace(/_/g, ' ')} OS`.toUpperCase()}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, `${part}_os`) && !!getIn(errors, `${part}_os`)}
-                        helperText={<ErrorMessage name={`${part}_os`} />}
-                      />
-                    )}
-                  </Field>
-                </Grid>
-              </Grid>
-            ))}
+            <Accordion 
+              expanded={expandedSection === 'anterior-segment'} 
+              onChange={handleSectionChange('anterior-segment')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <VisibilityIcon color="primary" />
+                  <Typography variant="h6">Anterior Segment</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                {[
+                  'lids',
+                  'lashes',
+                  'conjunctiva',
+                  'sclera',
+                  'lacrimal_system',
+                  'cornea',
+                  'anterior_chamber',
+                  'iris',
+                  'lens',
+                  'vitreous',
+                ].map((part) => (
+                  <Grid container spacing={2} key={part} sx={{ mt: 1 }}>
+                    <Grid size={{ xs: 6 }}>
+                      <Field name={`${part}_od`}>
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label={`${part.replace(/_/g, ' ')} OD`.toUpperCase()}
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, `${part}_od`) && !!getIn(errors, `${part}_od`)}
+                            helperText={<ErrorMessage name={`${part}_od`} />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                      <Field name={`${part}_os`}>
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label={`${part.replace(/_/g, ' ')} OS`.toUpperCase()}
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, `${part}_os`) && !!getIn(errors, `${part}_os`)}
+                            helperText={<ErrorMessage name={`${part}_os`} />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                  </Grid>
+                ))}
+              </AccordionDetails>
+            </Accordion>
 
             {/* === DILATION === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Dilation
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <Field name="dilated">
-                  {({ field }: FieldProps) => (
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Dilated</InputLabel>
-                      <Select {...field} label="Dilated" value={field.value ?? ''}>
-                        {DILATED_OPTIONS.map(opt => (
-                          <MenuItem key={opt} value={opt}>
-                            {opt}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  )}
-                </Field>
-              </Grid>
+            <Accordion 
+              expanded={expandedSection === 'dilation'} 
+              onChange={handleSectionChange('dilation')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <MedicalIcon color="primary" />
+                  <Typography variant="h6">Dilation</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <Field name="dilated">
+                      {({ field }: FieldProps) => (
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Dilated</InputLabel>
+                          <Select {...field} label="Dilated" value={field.value ?? ''}>
+                            {DILATED_OPTIONS.map((opt) => (
+                              <MenuItem key={opt} value={opt}>
+                                {opt}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                    </Field>
+                  </Grid>
 
-              {values.dilated === 'Yes' && (
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Field name="dilation_time">
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label="Dilation Time"
-                        placeholder="15:00"
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, 'dilation_time') && !!getIn(errors, 'dilation_time')}
-                        helperText={<ErrorMessage name="dilation_time" />}
-                      />
-                    )}
-                  </Field>
+                  {values.dilated === 'Yes' && (
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <Field name="dilation_time">
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label="Dilation Time"
+                            placeholder="15:00"
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, 'dilation_time') && !!getIn(errors, 'dilation_time')}
+                            helperText={<ErrorMessage name="dilation_time" />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                  )}
+
+                  <Grid size={{ xs: 12, sm: 4 }}>
+                    <Field name="dilation_drops_used">
+                      {({ field }: FieldProps) => (
+                        <TextField
+                          {...field}
+                          label="Drops Used"
+                          size="small"
+                          fullWidth
+                          value={field.value ?? ''}
+                          error={getIn(touched, 'dilation_drops_used') && !!getIn(errors, 'dilation_drops_used')}
+                          helperText={<ErrorMessage name="dilation_drops_used" />}
+                        />
+                      )}
+                    </Field>
+                  </Grid>
                 </Grid>
-              )}
-
-              <Grid size={{ xs: 12, sm: 4 }}>
-                <Field name="dilation_drops_used">
-                  {({ field }: FieldProps) => (
-                    <TextField
-                      {...field}
-                      label="Drops Used"
-                      size="small"
-                      fullWidth
-                      value={field.value ?? ''}
-                      error={
-                        getIn(touched, 'dilation_drops_used') &&
-                        !!getIn(errors, 'dilation_drops_used')
-                      }
-                      helperText={<ErrorMessage name="dilation_drops_used" />}
-                    />
-                  )}
-                </Field>
-              </Grid>
-            </Grid>
+              </AccordionDetails>
+            </Accordion>
 
             {/* === POSTERIOR SEGMENT === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Posterior Segment
-            </Typography>
-            {['optic_disc', 'macula', 'vessels', 'periphery'].map(part => (
-              <Grid container spacing={2} key={part} sx={{ mt: 1 }}>
-                <Grid size={{ xs: 6 }}>
-                  <Field name={`${part}_od`}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={`${part.replace(/_/g, ' ')} OD`.toUpperCase()}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, `${part}_od`) && !!getIn(errors, `${part}_od`)}
-                        helperText={<ErrorMessage name={`${part}_od`} />}
-                      />
-                    )}
-                  </Field>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Field name={`${part}_os`}>
-                    {({ field }: FieldProps) => (
-                      <TextField
-                        {...field}
-                        label={`${part.replace(/_/g, ' ')} OS`.toUpperCase()}
-                        size="small"
-                        fullWidth
-                        value={field.value ?? ''}
-                        error={getIn(touched, `${part}_os`) && !!getIn(errors, `${part}_os`)}
-                        helperText={<ErrorMessage name={`${part}_os`} />}
-                      />
-                    )}
-                  </Field>
-                </Grid>
-              </Grid>
-            ))}
+            <Accordion 
+              expanded={expandedSection === 'posterior-segment'} 
+              onChange={handleSectionChange('posterior-segment')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <VisibilityIcon color="primary" />
+                  <Typography variant="h6">Posterior Segment</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                {['optic_disc', 'macula', 'vessels', 'periphery'].map((part) => (
+                  <Grid container spacing={2} key={part} sx={{ mt: 1 }}>
+                    <Grid size={{ xs: 6 }}>
+                      <Field name={`${part}_od`}>
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label={`${part.replace(/_/g, ' ')} OD`.toUpperCase()}
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, `${part}_od`) && !!getIn(errors, `${part}_od`)}
+                            helperText={<ErrorMessage name={`${part}_od`} />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                      <Field name={`${part}_os`}>
+                        {({ field }: FieldProps) => (
+                          <TextField
+                            {...field}
+                            label={`${part.replace(/_/g, ' ')} OS`.toUpperCase()}
+                            size="small"
+                            fullWidth
+                            value={field.value ?? ''}
+                            error={getIn(touched, `${part}_os`) && !!getIn(errors, `${part}_os`)}
+                            helperText={<ErrorMessage name={`${part}_os`} />}
+                          />
+                        )}
+                      </Field>
+                    </Grid>
+                  </Grid>
+                ))}
+              </AccordionDetails>
+            </Accordion>
 
             {/* === DIAGNOSIS & PLAN === */}
-            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-              Diagnosis & Management
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Primary Diagnosis
-                </Typography>
-                <Field name="primary_diagnosis">
-                  {({ field }: FieldProps) => (
-                    <div>
-                      <ReactQuill
-                        theme="snow"
-                        value={field.value || ''}
-                        onChange={v => setFieldValue('primary_diagnosis', v)}
-                        modules={quillModules}
-                        formats={quillFormats}
-                        style={{ height: 180, marginBottom: 50 }}
-                        placeholder="Enter primary diagnosis..."
-                      />
-                      {getIn(touched, 'primary_diagnosis') &&
-                        getIn(errors, 'primary_diagnosis') && (
-                          <Typography color="error" variant="caption" sx={{ ml: 1 }}>
-                            {getIn(errors, 'primary_diagnosis')}
-                          </Typography>
-                        )}
-                    </div>
-                  )}
-                </Field>
-              </Grid>
-
-              <Grid size={{ xs: 12 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Management Plan
-                </Typography>
-                <Field name="plan">
-                  {({ field }: FieldProps) => (
-                    <div>
-                      <ReactQuill
-                        theme="snow"
-                        value={field.value || ''}
-                        onChange={v => setFieldValue('plan', v)}
-                        modules={quillModules}
-                        formats={quillFormats}
-                        style={{ height: 180, marginBottom: 50 }}
-                        placeholder="Enter detailed management plan..."
-                      />
-                      {getIn(touched, 'plan') && getIn(errors, 'plan') && (
-                        <Typography color="error" variant="caption" sx={{ ml: 1 }}>
-                          {getIn(errors, 'plan')}
-                        </Typography>
+            <Accordion 
+              expanded={expandedSection === 'diagnosis-plan'} 
+              onChange={handleSectionChange('diagnosis-plan')}
+              sx={{ mb: 2 }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <MedicalIcon color="primary" />
+                  <Typography variant="h6">Diagnosis & Management</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
+                      Primary Diagnosis
+                    </Typography>
+                    <Field name="primary_diagnosis">
+                      {({ field, form }: FieldProps) => (
+                        <div>
+                          <ReactQuill
+                            theme="snow"
+                            value={field.value || ''}
+                            onChange={(value) => form.setFieldValue('primary_diagnosis', value)}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            style={{ height: 180, marginBottom: 50 }}
+                            placeholder="Enter primary diagnosis..."
+                          />
+                          {getIn(form.touched, 'primary_diagnosis') && getIn(form.errors, 'primary_diagnosis') && (
+                            <Typography color="error" variant="caption" sx={{ ml: 1 }}>
+                              {getIn(form.errors, 'primary_diagnosis')}
+                            </Typography>
+                          )}
+                        </div>
                       )}
-                    </div>
-                  )}
-                </Field>
-              </Grid>
-            </Grid>
+                    </Field>
+                  </Grid>
 
-            {/* === SUBMIT === */}
-            <Box sx={{ mt: 6, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button
-                variant="outlined"
-                onClick={() => window.history.back()}
-                disabled={isSubmitting}
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
+                      Management Plan
+                    </Typography>
+                    <Field name="plan">
+                      {({ field, form }: FieldProps) => (
+                        <div>
+                          <ReactQuill
+                            theme="snow"
+                            value={field.value || ''}
+                            onChange={(value) => form.setFieldValue('plan', value)}
+                            modules={quillModules}
+                            formats={quillFormats}
+                            style={{ height: 180, marginBottom: 50 }}
+                            placeholder="Enter detailed management plan..."
+                          />
+                          {getIn(form.touched, 'plan') && getIn(form.errors, 'plan') && (
+                            <Typography color="error" variant="caption" sx={{ ml: 1 }}>
+                              {getIn(form.errors, 'plan')}
+                            </Typography>
+                          )}
+                        </div>
+                      )}
+                    </Field>
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* === FLOATING SAVE BUTTON === */}
+            <Fade in={true}>
+              <Box
+                sx={{
+                  position: 'fixed',
+                  bottom: 24,
+                  right: 24,
+                  zIndex: 1300,
+                  display: 'flex',
+                  gap: 2,
+                  bgcolor: 'background.paper',
+                  p: 2,
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
               >
-                Cancel
-              </Button>
-              <Box sx={{position:'relative'}}>
-              <Button type="submit" variant="contained" color="primary"  disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Examination'}
-              </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => window.history.back()}
+                  disabled={isSubmitting}
+                  size="large"
+                  startIcon={<CancelIcon />}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={isSubmitting}
+                  size="large"
+                  startIcon={isSubmitting ? <CircularProgress size={20} /> : <SaveIcon />}
+                  sx={{ minWidth: 200 }}
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Examination'}
+                </Button>
               </Box>
-            </Box>
+            </Fade>
           </Box>
         </Form>
       )}
