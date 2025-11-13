@@ -1,8 +1,7 @@
 import {
-  Activity,
   Microscope,
-  BookCheck,
   Baby,
+  Activity,
   Brain,
   Dna,
   Eye,
@@ -25,12 +24,12 @@ export const DOCTOR_MODULES = [
   //   permission: 'read_adnexa_examination',
   //   route: '/dashboard',
   // },
-  {
-    title: 'Examinations',
-    icon: BookCheck,
-    permission: 'read_adnexa_examination',
-    route: '/examinations',
-  },
+  // {
+  //   title: 'Examinations',
+  //   icon: BookCheck,
+  //   permission: 'read_adnexa_examination',
+  //   route: '/examinations',
+  // },
   // {
   //   title: 'My Patients',
   //   icon: Activity,

@@ -1,13 +1,13 @@
 import { Box, Card, CardContent, Typography } from '@mui/material';
-import type { ReactNode } from 'react';
+import React from 'react';
 
 interface ModuleCardProps {
   title: string;
-  icon: ReactNode;
+  image: string; 
   onClick?: () => void;
 }
 
-export const ModuleCard: React.FC<ModuleCardProps> = ({ title, icon, onClick }) => {
+export const ModuleCard: React.FC<ModuleCardProps> = ({ title, image, onClick }) => {
   return (
     <Card
       onClick={onClick}
@@ -44,16 +44,29 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ title, icon, onClick }) 
       >
         <Box
           sx={{
-            fontSize: 56,
+            width: 80,
+            height: 80,
             mb: 1.5,
-            color: 'primary.main',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            // borderRadius: '50%',
+            overflow: 'hidden',
+            // backgroundColor: '#ffffff',
+            // boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
           }}
         >
-          {icon}
+          <img
+            src={image}
+            alt={title}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+            }}
+          />
         </Box>
+
         <Typography
           variant="subtitle2"
           fontWeight="bold"

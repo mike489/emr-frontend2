@@ -17,8 +17,10 @@ import {
   Divider,
   CircularProgress,
   TablePagination,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
-
+import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
 import { Search, ArrowDropDown } from '@mui/icons-material';
 import AppLayout from '../../layouts/AppLayout';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +33,7 @@ import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
 import SendModal from '../../features/triage/components/sendModal';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
+import TabBar from '../../layouts/TabBar';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -276,6 +279,7 @@ const Triage: React.FC = () => {
     <AppLayout>
       <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
         {/* Header */}
+        <TabBar />
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ mb: 4 }}>
             <Typography
@@ -719,75 +723,97 @@ const Triage: React.FC = () => {
                           {patient.status === '1' ? 'Active' : 'Inactive'}
                         </Box>
                       </TableCell>
+
                       <TableCell sx={{ gap: 1 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => {
-                              setCurrentPatientId(patient.id);
-                              setSendModalOpen(true);
-                            }}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 0.8,
-                              py: 0.4,
-                              minWidth: 70,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#1976d2',
-                              '&:hover': { backgroundColor: '#1565c0' },
-                            }}
-                          >
-                            Send to
-                          </Button>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            disabled={uploadingId === patient.id}
-                            onClick={() => {
-                              if (fileInputRef.current) {
-                                fileInputRef.current.onchange = (e: any) =>
-                                  handleFileChange(e, patient.id);
-                                fileInputRef.current.click();
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                          {/* -------------------- SEND TO -------------------- */}
+                          <Tooltip title="Send to doctor or department" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                setCurrentPatientId(patient.id);
+                                setSendModalOpen(true);
+                              }}
+                              sx={{
+                                backgroundColor: '#1976d2',
+                                color: 'white',
+                                '&:hover': { backgroundColor: '#1565c0' },
+                              }}
+                            >
+                              <Send size={18} />
+                            </IconButton>
+                          </Tooltip>
+
+                          {/* -------------------- EXAMINATIONS -------------------- */}
+                          <Tooltip title="Open Examination Form" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                navigate('/examinations', {
+                                  state: { consultation_id: patient.constultation_id },
+                                })
                               }
-                            }}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 0.8,
-                              py: 0.4,
-                              minWidth: 70,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#626568',
-                              '&:hover': { backgroundColor: '#000000' },
-                            }}
-                          >
-                            {uploadingId === patient.id ? (
-                              <CircularProgress size={16} color="inherit" />
-                            ) : (
-                              'Attach Files'
-                            )}
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => openAttachModal(patient.attachments)}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 0.8,
-                              py: 0.4,
-                              minWidth: 90,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#fff',
-                              borderColor: '#1976d2',
-                              color: '#1976d2',
-                              '&:hover': { backgroundColor: '#e3f2fd' },
-                            }}
-                          >
-                            View / Download
-                          </Button>
+                              sx={{
+                                backgroundColor: '#1976d2',
+                                color: 'white',
+                                '&:hover': { backgroundColor: '#1565c0' },
+                              }}
+                            >
+                              <Eye size={18} />
+                            </IconButton>
+                          </Tooltip>
+
+                          {/* -------------------- ATTACH FILES -------------------- */}
+                          <Tooltip title="Attach files for this patient" arrow>
+                            <span>
+                              <IconButton
+                                size="small"
+                                disabled={uploadingId === patient.id}
+                                onClick={() => {
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.onchange = (e: any) =>
+                                      handleFileChange(e, patient.id);
+                                    fileInputRef.current.click();
+                                  }
+                                }}
+                                sx={{
+                                  backgroundColor: '#626568',
+                                  color: 'white',
+                                  '&:hover': { backgroundColor: '#000000' },
+                                }}
+                              >
+                                {uploadingId === patient.id ? (
+                                  <CircularProgress size={16} color="inherit" />
+                                ) : (
+                                  <FileUp size={18} />
+                                )}
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+
+                          {/* -------------------- VIEW / DOWNLOAD -------------------- */}
+                          <Tooltip title="View or download attachments" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() => openAttachModal(patient.attachments)}
+                              sx={{
+                                border: '1px solid #1976d2',
+                                color: '#1976d2',
+                                backgroundColor: '#fff',
+                                '&:hover': { backgroundColor: '#e3f2fd' },
+                              }}
+                            >
+                              <FileSearch size={18} />
+                            </IconButton>
+                          </Tooltip>
+
+                          {/* Hidden File Input */}
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            accept="*/*"
+                          />
                         </Box>
                       </TableCell>
                     </TableRow>

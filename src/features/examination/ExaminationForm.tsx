@@ -232,7 +232,7 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
   // === LOADING STATE ===
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" p={4}>
+      <Box display="flex" justifyContent="center" alignItems="center" height={1000} p={4}>
         <CircularProgress />
       </Box>
     );
@@ -891,9 +891,11 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
               >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
+              <Box sx={{position:'relative'}}>
+              <Button type="submit" variant="contained" color="primary"  disabled={isSubmitting}>
                 {isSubmitting ? 'Saving...' : 'Save Examination'}
               </Button>
+              </Box>
             </Box>
           </Box>
         </Form>
