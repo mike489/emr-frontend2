@@ -1,8 +1,5 @@
 import {
-  Activity,
   Microscope,
-  LayoutDashboard,
-  BookCheck,
   Baby,
   Brain,
   Dna,
@@ -26,12 +23,12 @@ export const DOCTOR_MODULES = [
   //   permission: 'read_adnexa_examination',
   //   route: '/dashboard',
   // },
-  {
-    title: 'Examinations',
-    icon: BookCheck,
-    permission: 'read_adnexa_examination',
-    route: '/examinations',
-  },
+  // {
+  //   title: 'Examinations',
+  //   icon: BookCheck,
+  //   permission: 'read_adnexa_examination',
+  //   route: '/examinations',
+  // },
   // {
   //   title: 'My Patients',
   //   icon: Activity,

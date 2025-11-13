@@ -2,8 +2,9 @@ import { Box, Grid, Container, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 
-
-import { Building2, Shield } from 'lucide-react';
+;
+import Clinic from '../../assets/icons/Clinic.svg'
+import Admin from '../../assets/icons/Administration.svg'
 import { ModuleCard } from '../../features/shared/components/ModuleCard';
 
 const Home = () => {
@@ -57,7 +58,7 @@ const Home = () => {
             <Grid >
               <ModuleCard
                 title="CLINICS"
-                icon={<Building2 size={60} color="#1976d2" />}
+                image={Clinic}
                 onClick={() => navigate('/clinics')}
               />
             </Grid>
@@ -66,7 +67,7 @@ const Home = () => {
             <Grid >
               <ModuleCard
                 title="ADMINISTRATION"
-                icon={<Shield size={60} color="#9c27b0" />}
+                image={Admin}
                 onClick={() => navigate('/administration')}
               />
             </Grid>

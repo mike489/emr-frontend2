@@ -34,7 +34,7 @@ const Clinics = () => {
               >
                 <ModuleCard
                   title={mod?.title}
-                  icon={<Icon size={60} color="#1976d2" strokeWidth={1.5} />}
+                  image={Icon}
                   onClick={() => handleClick(mod.entryRoute)}
                 />
               </Grid>
