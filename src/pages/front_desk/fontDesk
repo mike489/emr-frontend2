@@ -992,3 +992,4 @@ const FrontDesk: React.FC = () => {
 };
 
 export default FrontDesk;
+<TabBar tabsData={FRONT_DESK_TABS} />;
