@@ -91,18 +91,18 @@ const PatientRegistration: React.FC = () => {
     }));
   };
 
-  const handleArrayInputChange =
-    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      const arrayValue = value
-        .split(',')
-        .map(item => item.trim())
-        .filter(item => item);
-      setFormData(prev => ({
-        ...prev,
-        [field]: arrayValue,
-      }));
-    };
+  // const handleArrayInputChange =
+  //   (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  //     const value = event.target.value;
+  //     const arrayValue = value
+  //       .split(',')
+  //       .map(item => item.trim())
+  //       .filter(item => item);
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       [field]: arrayValue,
+  //     }));
+  //   };
 
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
@@ -293,7 +293,7 @@ const PatientRegistration: React.FC = () => {
   return (
     <AppLayout tabsData={FRONT_DESK_TABS}>
       {/* <TabBar tabsData={FRONT_DESK_TABS}/> */}
-      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt:-10  }}>
+      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
           Patient Registration
         </Typography>
@@ -373,7 +373,7 @@ const PatientRegistration: React.FC = () => {
                   />
                 </Grid>
 
-                <Grid size={{ xs: 12, sm: 6 }}>
+                {/* <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     select
                     fullWidth
@@ -388,9 +388,9 @@ const PatientRegistration: React.FC = () => {
                       </MenuItem>
                     ))}
                   </TextField>
-                </Grid>
+                </Grid> */}
 
-                <Grid size={{ xs: 12, sm: 6 }}>
+                {/* <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     select
                     fullWidth
@@ -405,9 +405,9 @@ const PatientRegistration: React.FC = () => {
                       </MenuItem>
                     ))}
                   </TextField>
-                </Grid>
+                </Grid> */}
 
-                <Grid size={{ xs: 12 }}>
+                {/* <Grid size={{ xs: 12 }}>
                   <TextField
                     select
                     fullWidth
@@ -422,9 +422,9 @@ const PatientRegistration: React.FC = () => {
                       </MenuItem>
                     ))}
                   </TextField>
-                </Grid>
+                </Grid> */}
 
-                <Grid size={{ xs: 12 }}>
+                {/* <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -432,7 +432,7 @@ const PatientRegistration: React.FC = () => {
                     value={formData.occupation}
                     onChange={handleInputChange('occupation')}
                   />
-                </Grid>
+                </Grid> */}
 
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -601,7 +601,7 @@ const PatientRegistration: React.FC = () => {
                   />
                 </Grid>
 
-                <Grid size={{ xs: 12 }}>
+                {/* <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -609,17 +609,17 @@ const PatientRegistration: React.FC = () => {
                     value={formData.referral_doctor_name}
                     onChange={handleInputChange('referral_doctor_name')}
                   />
-                </Grid>
+                </Grid> */}
               </Grid>
 
               <Divider sx={{ my: 3 }} />
 
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                Appointment Information
+                Other Information
               </Typography>
 
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                {/* <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     select
                     fullWidth
@@ -634,7 +634,7 @@ const PatientRegistration: React.FC = () => {
                       </MenuItem>
                     ))}
                   </TextField>
-                </Grid>
+                </Grid> */}
 
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -653,7 +653,7 @@ const PatientRegistration: React.FC = () => {
                   </TextField>
                 </Grid>
 
-                <Grid size={{ xs: 12 }}>
+                {/* <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -661,9 +661,9 @@ const PatientRegistration: React.FC = () => {
                     value={formData.appointed_to}
                     onChange={handleInputChange('appointed_to')}
                   />
-                </Grid>
+                </Grid> */}
 
-                <Grid size={{ xs: 12 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     select
                     fullWidth
@@ -690,7 +690,7 @@ const PatientRegistration: React.FC = () => {
 
               <Divider sx={{ my: 3 }} />
 
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+              {/* <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
                 Medical Information
               </Typography>
 
@@ -733,7 +733,7 @@ const PatientRegistration: React.FC = () => {
                     rows={2}
                   />
                 </Grid>
-              </Grid>
+              </Grid> */}
 
               <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
                 <Button variant="contained" color="primary" onClick={handleSubmit}>
