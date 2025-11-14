@@ -30,7 +30,6 @@ import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { PatientService } from '../../../shared/api/services/patient.service';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
-import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
 import { FileSearch } from 'lucide-react';
 
 // Updated Type definitions to match your API response
