@@ -5,7 +5,6 @@ import { Box, CircularProgress } from '@mui/material';
 import AppLayout from '../layouts/AppLayout';
 import { FRONT_DESK_TABS, DOCTOR_TABS, TRIAGE_TABS, REFRACTION_TABS } from '../data/data';
 
-
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
     <CircularProgress />
@@ -16,19 +15,19 @@ const router = createBrowserRouter([
   // 🔹 Public
   {
     path: '/',
-    element: <Suspense fallback={<Loading />}>{ROUTES.public.home.element}</Suspense>
+    element: <Suspense fallback={<Loading />}>{ROUTES.public.home.element}</Suspense>,
   },
   {
     path: '/clinics',
-    element: <Suspense fallback={<Loading />}>{ROUTES.public.clinics.element}</Suspense>
+    element: <Suspense fallback={<Loading />}>{ROUTES.public.clinics.element}</Suspense>,
   },
   {
     path: '/administration',
-    element: <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>
+    element: <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>,
   },
   {
     path: '/login',
-    element: <Suspense fallback={<Loading />}>{ROUTES.auth.login.element}</Suspense>
+    element: <Suspense fallback={<Loading />}>{ROUTES.auth.login.element}</Suspense>,
   },
 
   // 🔹 Protected routes with tabs
@@ -40,17 +39,23 @@ const router = createBrowserRouter([
     path: ROUTES.protected.checkout.path,
     element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.checkout.element}</AppLayout>,
   },
-   {
+  {
     path: ROUTES.protected.archivedPatients.path,
-    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.archivedPatients.element}</AppLayout>,
+    element: (
+      <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.archivedPatients.element}</AppLayout>
+    ),
   },
   {
     path: ROUTES.protected.appointmentsLists.path,
-    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.appointmentsLists.element}</AppLayout>,
+    element: (
+      <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.appointmentsLists.element}</AppLayout>
+    ),
   },
-    {
+  {
     path: ROUTES.protected.createAppointment.path,
-    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.createAppointment.element}</AppLayout>,
+    element: (
+      <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.createAppointment.element}</AppLayout>
+    ),
   },
   {
     path: ROUTES.protected.examinations.path,
@@ -62,32 +67,57 @@ const router = createBrowserRouter([
   },
   {
     path: ROUTES.protected.refraction.path,
-    element: <AppLayout tabsData={REFRACTION_TABS}>{ROUTES.protected.refraction.element}</AppLayout>,
+    element: (
+      <AppLayout tabsData={REFRACTION_TABS}>{ROUTES.protected.refraction.element}</AppLayout>
+    ),
   },
   {
     path: ROUTES.protected.retina.path,
     element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.retina.element}</AppLayout>,
   },
-  
+
   {
     path: ROUTES.protected.glaucoma.path,
     element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.glaucoma.element}</AppLayout>,
   },
- 
+
+  {
+    path: ROUTES.protected.pediatric.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.pediatric.element}</AppLayout>,
+  },
+
+  {
+    path: ROUTES.protected.opd1.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.opd1.element}</AppLayout>,
+  },
+
+  {
+    path: ROUTES.protected.opd2.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.opd2.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.opd2.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.opd2.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.opd3.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.opd3.element}</AppLayout>,
+  },
+
   // 🔹 Dashboard and ClinicLists (no tabs)
   {
     path: ROUTES.protected.dashboard.path,
-    element: <Suspense fallback={<Loading />}>{ROUTES.protected.dashboard.element}</Suspense>
+    element: <Suspense fallback={<Loading />}>{ROUTES.protected.dashboard.element}</Suspense>,
   },
   {
     path: ROUTES.protected.eyeSmart.path,
-    element: <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>
+    element: <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>,
   },
 
   // 🔹 New Patient / Registration
   {
     path: ROUTES.protected.newPatient.path,
-    element: <Suspense fallback={<Loading />}>{ROUTES.protected.newPatient.element}</Suspense>
+    element: <Suspense fallback={<Loading />}>{ROUTES.protected.newPatient.element}</Suspense>,
   },
 
   // 🔹 404 fallback

@@ -1,9 +1,8 @@
 import Retina from '../assets/icons/Retina.svg';
 import OPD from '../assets/icons/OPD.svg';
 
- import Glacoma from '../assets/icons/Glacoma.svg';
- import Periatic from '../assets/icons/Pediatrics-Ophtamology.svg';
-
+import Glacoma from '../assets/icons/Glacoma.svg';
+import Periatic from '../assets/icons/Pediatrics-Ophtamology.svg';
 
 export const DOCTOR_MODULES = [
   // {
@@ -55,18 +54,18 @@ export const DOCTOR_MODULES = [
   //   permission: 'read_adnexa_examination',
   //   route: '/comprehensive',
   // },
-  { title: 'ODP1', icon: OPD, permission: 'read_adnexa_examination', route: '/odp1' },
+  { title: 'OPD 1', icon: OPD, permission: 'read_adnexa_examination', route: '/opd-one' },
   {
-    title: 'ODP2',
+    title: 'OPD 2',
     icon: OPD,
     permission: 'read_adnexa_examination',
-    route: '/odp2',
+    route: '/opd-two',
   },
   {
-    title: 'ODP3',
+    title: 'OPD 3',
     icon: OPD,
     permission: 'read_adnexa_examination',
-    route: '/odp3',
+    route: '/opd-three',
   },
   // {
   //   title: 'CATARACT',

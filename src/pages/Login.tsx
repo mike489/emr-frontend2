@@ -41,7 +41,7 @@ const LoginPage = () => {
       try {
         await login(values.email, values.password);
         toast.success('Login successful!', { autoClose: 2000 });
-        navigate('/clinic-lists', { replace: true });
+        navigate('/clinics', { replace: true });
       } catch (error: any) {
         const msg =
           error?.response?.data?.data?.message ||

@@ -16,21 +16,25 @@ import {
   CircularProgress,
   TablePagination,
   Chip,
-  IconButton,
   Tooltip,
+  IconButton,
 } from '@mui/material';
 
 import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../shared/api/services/patient.service';
+import { PatientService } from '../../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
-import { DepartmentsService } from '../../shared/api/services/departments.service';
-import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
-import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
-import { doctorsService } from '../../shared/api/services/Doctor.service';
-import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
-import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
-import { FileSearch, FileUp, Send } from 'lucide-react';
+import { DepartmentsService } from '../../../shared/api/services/departments.service';
+import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
+import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
+import { doctorsService } from '../../../shared/api/services/Doctor.service';
+import {
+  sendToDepartmentService,
+  UploadService,
+} from '../../../shared/api/services/sendTo.service';
+import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
+import SendCrossModal from '../../../features/triage/components/SendCrossModal';
+import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -85,7 +89,7 @@ interface Attachment {
   url: string;
 }
 
-const FrontDesk: React.FC = () => {
+const Opd2: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -96,6 +100,8 @@ const FrontDesk: React.FC = () => {
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
+  const [sendModalOpen, setSendModalOpen] = React.useState(false);
+  const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
   const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
@@ -108,7 +114,7 @@ const FrontDesk: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: 'Reception',
+    department: 'OPD2',
     search: '',
     gender: '',
     doctor_id: '',
@@ -132,15 +138,13 @@ const FrontDesk: React.FC = () => {
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
   };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newPerPage = parseInt(event.target.value, 10);
-    setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
-  };
-
   const openAttachModal = (attachments: Attachment[]) => {
     setCurrentAttachments(attachments);
     setAttachModalOpen(true);
+  };
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPerPage = parseInt(event.target.value, 10);
+    setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
   };
 
   const clearFilters = () => {
@@ -149,8 +153,7 @@ const FrontDesk: React.FC = () => {
       per_page: 25,
       sort_by: 'full_name',
       sort_order: 'asc',
-      sort_dir: 'asc',
-      department: 'Reception',
+      department: 'OPD2',
       search: '',
       gender: '',
       doctor_id: '',
@@ -161,6 +164,7 @@ const FrontDesk: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
+      sort_dir: 'asc',
     });
     fetchPatients();
   };
@@ -222,10 +226,14 @@ const FrontDesk: React.FC = () => {
     }
   };
 
+  // Wrapper function with hardcoded department for this page
+  const getFrontDeskSummary = () => PatientSummaryService.getAll('OPD2');
+
+  // Then use it
   const fetchSummary = async () => {
     setSummaryLoading(true);
     try {
-      const res = await PatientSummaryService.getAll('Reception');
+      const res = await getFrontDeskSummary();
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
@@ -244,17 +252,6 @@ const FrontDesk: React.FC = () => {
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
-    }
-  };
-
-  const sendToTriage = async (id: string) => {
-    try {
-      await sendToTriageService.sendToTriage(id);
-      toast.success('Patient sent to triage successfully');
-      fetchPatients(); // Refresh the patient list after sending to triage
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to send patient to triage');
-      console.error('Error sending patient to triage:', err);
     }
   };
 
@@ -295,7 +292,34 @@ const FrontDesk: React.FC = () => {
   };
 
   return (
-    <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -10 }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
+      {/* Header */}
+      {/* <TabBar tabsData={DOCTOR_TABS}/> */}
+
+      <Box sx={{ display: 'flex', p: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{}}>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: 'bold', color: '#333' }}
+          >
+            OPD Two Dashboard
+          </Typography>
+          {/* <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
+              Real-time patient flow and management - Total: {total}
+            </Typography> */}
+        </Box>
+        {/* <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate('/new-patient')}
+            sx={{ textTransform: 'none', borderRadius: '20px', px: 3, height: '40px' }}
+          >
+            + New Patient
+          </Button> */}
+      </Box>
+
       {/* Search and Filter Section */}
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Header with Back Button and Summary Stats */}
@@ -354,6 +378,7 @@ const FrontDesk: React.FC = () => {
           </Box>
         </Box>
 
+        {/* Patient Category Cards */}
         <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
           {summaryLoading ? (
             <Box
@@ -579,20 +604,20 @@ const FrontDesk: React.FC = () => {
 
           {/* Department */}
           {/* <TextField
-              size="small"
-              select
-              value={filters.department}
-              onChange={e => setFilters({ ...filters, department: e.target.value })}
-              placeholder="Department"
-              sx={{ minWidth: 150 }}
-            >
-              <MenuItem value="">All Departments</MenuItem>
-              {departments.map((dept, index) => (
-                <MenuItem key={index} value={dept}>
-                  {dept}
-                </MenuItem>
-              ))}
-            </TextField> */}
+                      size="small"
+                      select
+                      value={filters.department}
+                      onChange={e => setFilters({ ...filters, department: e.target.value })}
+                      placeholder="Department"
+                      sx={{ minWidth: 150 }}
+                    >
+                      <MenuItem value="">All Departments</MenuItem>
+                      {departments.map((dept, index) => (
+                        <MenuItem key={index} value={dept}>
+                          {dept}
+                        </MenuItem>
+                      ))}
+                    </TextField> */}
 
           {/* Patient Category */}
           <TextField
@@ -624,8 +649,8 @@ const FrontDesk: React.FC = () => {
       </Paper>
 
       {/* Patient Table */}
-      <Paper sx={{ p: 0, borderRadius: '8px', overflow: 'hidden' }}>
-        <input type="file" ref={fileInputRef} style={{ display: 'none' }} multiple />
+      <Paper sx={{ p: 0 }}>
+        <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
 
         <TableContainer>
           <Table>
@@ -813,18 +838,9 @@ const FrontDesk: React.FC = () => {
                 </TableRow>
               ) : patients.length > 0 ? (
                 patients.map((patient, index) => (
-                  <TableRow
-                    key={patient.id || index}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: '#f8f9fa',
-                      },
-                      '&:nth-of-type(even)': {
-                        backgroundColor: '#fafafa',
-                      },
-                    }}
-                  >
+                  <TableRow key={patient.id || index}>
                     <TableCell>
+                      {' '}
                       <Box
                         sx={{
                           width: 16,
@@ -832,8 +848,8 @@ const FrontDesk: React.FC = () => {
                           borderRadius: '10%',
                           backgroundColor: patient.patient_category?.color || '#ccc',
                           display: 'inline-block',
+                          mr: 1,
                           border: '1px solid #e0e0e0',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                         }}
                       />
                     </TableCell>
@@ -845,80 +861,44 @@ const FrontDesk: React.FC = () => {
                         {patient.title}
                       </Typography>
                     </TableCell>
+                    <TableCell>{patient.emr_number}</TableCell>
+                    <TableCell>{patient.age} years</TableCell>
+                    <TableCell>{patient.gender}</TableCell>
+                    <TableCell>{patient.phone}</TableCell>
+                    <TableCell>{patient.address?.city}</TableCell>
+                    <TableCell>{patient.blood_type}</TableCell>
                     <TableCell>
-                      <Typography
-                        variant="body2"
-                        sx={{ fontFamily: 'monospace', fontWeight: '500' }}
+                      {patient.current_doctor && typeof patient.current_doctor === 'object'
+                        ? patient.current_doctor.name
+                        : patient.current_doctor || 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: 'inline-block',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          backgroundColor: patient.status === '1' ? '#e8f5e8' : '#fff3e0',
+                          color: patient.status === '1' ? '#2e7d32' : '#f57c00',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                        }}
                       >
-                        {patient.emr_number}
-                      </Typography>
+                        {patient.status === '1' ? 'Active' : 'Inactive'}
+                      </Box>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: '500' }}>
-                        {patient.age} years
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={patient.gender}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          height: '24px',
-                          fontSize: '0.75rem',
-                          borderColor: patient.gender === 'Male' ? '#2196f3' : '#e91e63',
-                          color: patient.gender === 'Male' ? '#2196f3' : '#e91e63',
-                          fontWeight: '500',
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                        {patient.phone}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">{patient.address?.city}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={patient.blood_type || 'N/A'}
-                        size="small"
-                        sx={{
-                          height: '24px',
-                          fontSize: '0.75rem',
-                          backgroundColor: '#ffebee',
-                          color: '#c62828',
-                          fontWeight: 'bold',
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: '500' }}>
-                        {patient.current_doctor && typeof patient.current_doctor === 'object'
-                          ? patient.current_doctor.name
-                          : patient.current_doctor || 'N/A'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={patient.status === '1' ? 'Active' : 'Inactive'}
-                        size="small"
-                        color={patient.status === '1' ? 'success' : 'warning'}
-                        sx={{
-                          height: '24px',
-                          fontSize: '0.75rem',
-                          fontWeight: 'bold',
-                          minWidth: '70px',
-                        }}
-                      />
-                    </TableCell>
+
                     <TableCell sx={{ gap: 1 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        <Tooltip title="Send to Triage or department" arrow>
+                        {/* -------------------- SEND TO -------------------- */}
+                        <Tooltip title="Send to doctor or department" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => sendToTriage(patient.id)}
+                            onClick={() => {
+                              setCurrentPatientId(patient.id);
+                              setSendModalOpen(true);
+                            }}
                             sx={{
                               backgroundColor: '#1976d2',
                               color: 'white',
@@ -930,7 +910,7 @@ const FrontDesk: React.FC = () => {
                         </Tooltip>
 
                         {/* -------------------- EXAMINATIONS -------------------- */}
-                        {/* <Tooltip title="Open Examination Form" arrow>
+                        <Tooltip title="Open Examination Form" arrow>
                           <IconButton
                             size="small"
                             onClick={() =>
@@ -946,36 +926,8 @@ const FrontDesk: React.FC = () => {
                           >
                             <Eye size={18} />
                           </IconButton>
-                        </Tooltip> */}
+                        </Tooltip>
 
-                        {/* <Button
-                            variant="contained"
-                            size="small"
-                            disabled={uploadingId === patient.id}
-                            onClick={() => {
-                              if (fileInputRef.current) {
-                                fileInputRef.current.onchange = (e: any) =>
-                                  handleFileChange(e, patient.id);
-                                fileInputRef.current.click();
-                              }
-                            }}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 1,
-                              py: 0.5,
-                              minWidth: 80,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#626568',
-                              '&:hover': { backgroundColor: '#424242' },
-                            }}
-                          >
-                            {uploadingId === patient.id ? (
-                              <CircularProgress size={16} color="inherit" />
-                            ) : (
-                              'Attach Files'
-                            )}
-                          </Button> */}
                         {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
@@ -1019,13 +971,21 @@ const FrontDesk: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
+
+                        {/* Hidden File Input */}
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          style={{ display: 'none' }}
+                          accept="*/*"
+                        />
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       No patients found.
                     </Typography>
@@ -1035,12 +995,36 @@ const FrontDesk: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <SendCrossModal
+          open={sendModalOpen}
+          onClose={() => setSendModalOpen(false)}
+          onSend={(department, doctor_id) => {
+            if (currentPatientId) {
+              const patientToSend = patients.find(p => p.id === currentPatientId);
+              if (!patientToSend) return;
+
+              sendToDepartmentService
+                .sendToDepartment(currentPatientId, {
+                  department,
+                  doctor_id,
+                  from: patientToSend.constultation_id,
+                })
+                .then(() => {
+                  toast.success('Patient sent to department successfully');
+                  fetchPatients();
+                })
+                .catch((err: any) => {
+                  toast.error(err.response?.data?.message || 'Failed to send patient');
+                });
+            }
+          }}
+        />
+
         <AttachmentsModal
           open={attachModalOpen}
           onClose={() => setAttachModalOpen(false)}
           attachments={currentAttachments}
         />
-
         <TablePagination
           component="div"
           count={pagination.total}
@@ -1054,4 +1038,4 @@ const FrontDesk: React.FC = () => {
   );
 };
 
-export default FrontDesk;
+export default Opd2;
