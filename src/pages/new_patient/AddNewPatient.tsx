@@ -134,20 +134,20 @@ const PatientRegistration: React.FC = () => {
   // Options for dropdowns
   const titles = ['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'];
   const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'];
-  const maritalStatuses = ['Single', 'Married', 'Divorced', 'Widowed', 'N/A'];
-  const religions = ['Christian', 'Muslim', 'Jewish', 'Hindu', 'Buddhist', 'Other', 'N/A'];
-  const educationLevels = [
-    'None',
-    'Primary',
-    'Secondary',
-    'Diploma',
-    'Bachelor',
-    'Master',
-    'PhD',
-    'N/A',
-  ];
+  // const maritalStatuses = ['Single', 'Married', 'Divorced', 'Widowed', 'N/A'];
+  // const religions = ['Christian', 'Muslim', 'Jewish', 'Hindu', 'Buddhist', 'Other', 'N/A'];
+  // const educationLevels = [
+  //   'None',
+  //   'Primary',
+  //   'Secondary',
+  //   'Diploma',
+  //   'Bachelor',
+  //   'Master',
+  //   'PhD',
+  //   'N/A',
+  // ];
   const genders = ['Male', 'Female'];
-  const paymentMethods = ['Cash', 'Insurance', 'Card', 'Mobile'];
+  // const paymentMethods = ['Cash', 'Insurance', 'Card', 'Mobile'];
   const visitTypes = ['New', 'Follow-up', 'Emergency', 'Review'];
 
   const cities = ['Addis Ababa', 'Dire Dawa', 'Hawassa', 'Bahir Dar', 'Mekelle', 'Jimma'];
