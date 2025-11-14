@@ -1,11 +1,9 @@
-import {
-  Baby,
-  Activity,
-  Eye,
-  Glasses,
-  ScanEye,
-  Syringe,
-} from 'lucide-react';
+import Retina from '../assets/icons/Retina.svg';
+import OPD from '../assets/icons/OPD.svg';
+
+ import Glacoma from '../assets/icons/Glacoma.svg';
+ import Periatic from '../assets/icons/Pediatrics-Ophtamology.svg';
+
 
 export const DOCTOR_MODULES = [
   // {
@@ -34,20 +32,20 @@ export const DOCTOR_MODULES = [
   // },
   {
     title: 'RETINA',
-    icon: ScanEye,
+    icon: Retina,
     permission: 'read_adnexa_examination',
     route: '/retina',
   },
   {
     title: 'GLAUCOMA',
-    icon: Activity,
+    icon: Glacoma,
     permission: 'read_adnexa_examination',
     route: '/glaucoma',
   },
   // { title: 'UVEA', icon: EyeOff, permission: 'read_adnexa_examination', route: '/uvea' },
   {
     title: 'PEDIATRIC OPHTHALMOLOGY',
-    icon: Baby,
+    icon: Periatic,
     permission: 'read_adnexa_examination',
     route: '/pediatric',
   },
@@ -57,16 +55,16 @@ export const DOCTOR_MODULES = [
   //   permission: 'read_adnexa_examination',
   //   route: '/comprehensive',
   // },
-  { title: 'ODP1', icon: Eye, permission: 'read_adnexa_examination', route: '/odp1' },
+  { title: 'ODP1', icon: OPD, permission: 'read_adnexa_examination', route: '/odp1' },
   {
     title: 'ODP2',
-    icon: Glasses,
+    icon: OPD,
     permission: 'read_adnexa_examination',
     route: '/odp2',
   },
   {
     title: 'ODP3',
-    icon: Syringe,
+    icon: OPD,
     permission: 'read_adnexa_examination',
     route: '/odp3',
   },

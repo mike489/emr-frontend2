@@ -1,372 +1,487 @@
-
-
-
 export interface TabItem {
   label: string;
-  children?: string[];
+  path: string;
+  children?: {
+    label: string;
+    path: string;
+  }[];
 }
 
-// ──────────────────────────────────────────────────────────────
-//  FRONT DESK – Patient Flow & Admin
-// ──────────────────────────────────────────────────────────────
-
-
+// ───────────────────────────────────────────
+// FRONT DESK
+// ───────────────────────────────────────────
 export const FRONT_DESK_TABS: TabItem[] = [
   {
-    label: "Today's Patients",
+    label: "Patient",
+    path: "/front-desk",
     children: [
-      "Add New Patient",
-      "Add Emergency Patient",
-      "Attach Documents",
-      "Patient Search",
-    ],
-  },
-  {
-    label: "Patient Flow",
-    children: [
-      "Time Spent in Hospital",
-      "Patient Search",
-      "Patients Without Appointment",
-      "Upload ID",
+      { label: "All Patients", path: "/front-desk" },
+      { label: "Add new patients", path: "/new-patient" },
+      { label: "Checkout Patients", path: "/front-desk/checkout" },
+      { label: "Archived patients", path: "/front-desk/archived-patients" },
     ],
   },
   {
     label: "Appointments",
+    path: "/front-desk/appointments",
     children: [
-      "Book Appointment",
-      "Reschedule Appointment",
-      "Cancel Appointment",
-      "View Calendar",
-      "Check-In / Check-Out",
+      { label: "Appointment Lists", path: "/front-desk/appointments-lists" },
+      { label: "Create appointment", path: "/front-desk/appointments-create" },
+      { label: "Reschedule Appointment", path: "/front-desk/appointments-reschedule" },
+      { label: "Doctors Availability", path: "/front-desk/appointments-doctors" },
     ],
   },
   {
-    label: "Patient Data",
+    label: "Bills",
+    path: "/front-desk/bills",
     children: [
-      "Medical Records",
-      "Lab Results",
-      "Prescriptions",
-      "Insurance Details",
-      "Emergency Contacts",
+      { label: "Patient Payments ", path: "/front-desk/patient-payments" },
+      { label: "Pending Payments ", path: "/front-desk/pending-payments" },
+      { label: "Requested Payments ", path: "/front-desk/requested-payments" },
     ],
   },
   {
     label: "Notifications",
+    path: "/front-desk/notifications",
     children: [
-      "Appointment Reminders",
-      "Follow-Up Alerts",
-      "System Updates",
-      "Messages from Doctors",
+      { label: "Appointment Reminders", path: "/front-desk/notifications/reminders" },
+      { label: "Follow-Up Alerts", path: "/front-desk/notifications/followups" },
+      { label: "System Updates", path: "/front-desk/notifications/updates" },
+      { label: "Messages from Doctors", path: "/front-desk/notifications/messages" },
     ],
   },
-  {
-    label: "Patient Checkout",
-    children: [
-      "Generate Bill",
-      "Process Payment",
-      "Print Receipt",
-      "Discharge Summary",
-      "Export CSV",
-    ],
-  },
+  
   {
     label: "Settings",
+    path: "/front-desk/settings",
     children: [
-      "User Profile",
-      "Printer Settings",
-      "Department Preferences",
-      "Change Password",
-      "Notification Settings",
+      { label: "User Profile", path: "/front-desk/profile" },
+      { label: "Change Password", path: "/front-desk/change-password" },
+      { label: "Logout ", path: "/" },
+     
     ],
   },
-  {
-    label: "Logout",
-  },
+  
 ];
 
-// ──────────────────────────────────────────────────────────────
-//  TRIAGE – Quick Assessment
-// ──────────────────────────────────────────────────────────────
+
+// ───────────────────────────────────────────
+// TRIAGE
+// ───────────────────────────────────────────
 
 export const TRIAGE_TABS: TabItem[] = [
   {
     label: "Patients",
+    path: "/triage/patients",
     children: [
-      "Waiting Queue",
-      "Under Assessment",
-      "Completed Assessments",
-      "Escalated Cases",
+      { label: "Waiting Queue", path: "/triage/patients/waiting" },
+      { label: "Under Assessment", path: "/triage/patients/assessment" },
+      { label: "Completed Assessments", path: "/triage/patients/completed" },
+      { label: "Escalated Cases", path: "/triage/patients/escalated" },
     ],
   },
   {
     label: "Vital Signs",
+    path: "/triage/vitals",
     children: [
-      "Blood Pressure",
-      "Heart Rate",
-      "Temperature",
-      "Oxygen Saturation (SpO₂)",
-      "Height & Weight",
+      { label: "Blood Pressure", path: "/triage/vitals/bp" },
+      { label: "Heart Rate", path: "/triage/vitals/hr" },
+      { label: "Temperature", path: "/triage/vitals/temp" },
+      { label: "Oxygen Saturation (SpO₂)", path: "/triage/vitals/spo2" },
+      { label: "Height & Weight", path: "/triage/vitals/hw" },
     ],
   },
   {
     label: "Chief Complaint",
+    path: "/triage/complaint",
     children: [
-      "Eye Pain",
-      "Blurred Vision",
-      "Redness / Discharge",
-      "Headache",
-      "Injury or Trauma",
+      { label: "Eye Pain", path: "/triage/complaint/eye-pain" },
+      { label: "Blurred Vision", path: "/triage/complaint/blurred" },
+      { label: "Redness / Discharge", path: "/triage/complaint/redness" },
+      { label: "Headache", path: "/triage/complaint/headache" },
+      { label: "Injury or Trauma", path: "/triage/complaint/injury" },
     ],
   },
   {
     label: "Priority",
+    path: "/triage/priority",
     children: [
-      "Emergency",
-      "Urgent",
-      "Routine",
-      "Follow-up / Revisit",
+      { label: "Emergency", path: "/triage/priority/emergency" },
+      { label: "Urgent", path: "/triage/priority/urgent" },
+      { label: "Routine", path: "/triage/priority/routine" },
+      { label: "Follow-up / Revisit", path: "/triage/priority/followup" },
     ],
   },
   {
     label: "Assign To",
+    path: "/triage/assign",
     children: [
-      "Dr. Ahmed",
-      "Dr. Sarah",
-      "Dr. Khan",
-      "On-Call Specialist",
+      { label: "Dr. Ahmed", path: "/triage/assign/ahmed" },
+      { label: "Dr. Sarah", path: "/triage/assign/sarah" },
+      { label: "Dr. Khan", path: "/triage/assign/khan" },
+      { label: "On-Call Specialist", path: "/triage/assign/specialist" },
     ],
   },
   {
     label: "Notifications",
+    path: "/triage/notifications",
     children: [
-      "Critical Vital Alerts",
-      "Pending Review",
-      "Doctor Ready",
-      "Follow-up Due",
+      { label: "Critical Vital Alerts", path: "/triage/notifications/critical" },
+      { label: "Pending Review", path: "/triage/notifications/pending" },
+      { label: "Doctor Ready", path: "/triage/notifications/ready" },
+      { label: "Follow-up Due", path: "/triage/notifications/followup" },
     ],
   },
   {
     label: "History",
+    path: "/triage/history",
     children: [
-      "Previous Visits",
-      "Allergies",
-      "Current Medications",
-      "Family History",
-      "Surgical History",
+      { label: "Previous Visits", path: "/triage/history/visits" },
+      { label: "Allergies", path: "/triage/history/allergies" },
+      { label: "Current Medications", path: "/triage/history/medications" },
+      { label: "Family History", path: "/triage/history/family" },
+      { label: "Surgical History", path: "/triage/history/surgical" },
     ],
   },
   {
     label: "Settings",
+    path: "/triage/settings",
     children: [
-      "User Profile",
-      "Quick Notes Templates",
-      "Triage Preferences",
-      "Display Options",
+      { label: "User Profile", path: "/triage/profile" },
+      { label: "Quick Notes Templates", path: "/triage/templates" },
+      { label: "Triage Preferences", path: "/triage/preferences" },
+      { label: "Display Options", path: "/triage/display" },
     ],
   },
-  {
-    label: "Logout",
-  },
+  { label: "Logout", path: "/logout" },
 ];
 
 
+// ───────────────────────────────────────────
+// REFRACTION
+// ───────────────────────────────────────────
 
 export const REFRACTION_TABS: TabItem[] = [
   {
     label: "Patients",
+    path: "/refraction/patients",
     children: [
-      "Waiting Queue",
-      "In Progress",
-      "Completed Refractions",
-      "Referred Cases",
+      { label: "Waiting Queue", path: "/refraction/patients/waiting" },
+      { label: "In Progress", path: "/refraction/patients/in-progress" },
+      { label: "Completed Refractions", path: "/refraction/patients/completed" },
+      { label: "Referred Cases", path: "/refraction/patients/referred" },
     ],
   },
   {
     label: "Vision Assessment",
+    path: "/refraction/vision",
     children: [
-      "Visual Acuity",
-      "Near Vision",
-      "Pinhole Test",
-      "Contrast Sensitivity",
-      "Color Vision",
+      { label: "Visual Acuity", path: "/refraction/vision/acuity" },
+      { label: "Near Vision", path: "/refraction/vision/near" },
+      { label: "Pinhole Test", path: "/refraction/vision/pinhole" },
+      { label: "Contrast Sensitivity", path: "/refraction/vision/contrast" },
+      { label: "Color Vision", path: "/refraction/vision/color" },
     ],
   },
   {
     label: "Objective Refraction",
+    path: "/refraction/objective",
     children: [
-      "Auto Refractometer",
-      "Retinoscopy",
-      "Keratometry",
-      "Cycloplegic Refraction",
+      { label: "Auto Refractometer", path: "/refraction/objective/auto" },
+      { label: "Retinoscopy", path: "/refraction/objective/retinoscopy" },
+      { label: "Keratometry", path: "/refraction/objective/keratometry" },
+      { label: "Cycloplegic Refraction", path: "/refraction/objective/cycloplegic" },
     ],
   },
   {
     label: "Subjective Refraction",
+    path: "/refraction/subjective",
     children: [
-      "Trial Lens Test",
-      "Refinement",
-      "Final Prescription",
-      "Binocular Balance",
+      { label: "Trial Lens Test", path: "/refraction/subjective/trial" },
+      { label: "Refinement", path: "/refraction/subjective/refinement" },
+      { label: "Final Prescription", path: "/refraction/subjective/final" },
+      { label: "Binocular Balance", path: "/refraction/subjective/binocular" },
     ],
   },
   {
     label: "Lens Prescription",
+    path: "/refraction/prescription",
     children: [
-      "Distance Glasses",
-      "Reading Glasses",
-      "Bifocal / Progressive",
-      "Contact Lens Trial",
-      "Prescription Print",
+      { label: "Distance Glasses", path: "/refraction/prescription/distance" },
+      { label: "Reading Glasses", path: "/refraction/prescription/reading" },
+      { label: "Bifocal / Progressive", path: "/refraction/prescription/bifocal" },
+      { label: "Contact Lens Trial", path: "/refraction/prescription/contact-lens" },
+      { label: "Prescription Print", path: "/refraction/prescription/print" },
     ],
   },
   {
     label: "Patient Counseling",
+    path: "/refraction/counseling",
     children: [
-      "Frame Selection",
-      "Lens Type Advice",
-      "Contact Lens Care",
-      "Visual Hygiene Tips",
+      { label: "Frame Selection", path: "/refraction/counseling/frame" },
+      { label: "Lens Type Advice", path: "/refraction/counseling/lens-type" },
+      { label: "Contact Lens Care", path: "/refraction/counseling/care" },
+      { label: "Visual Hygiene Tips", path: "/refraction/counseling/hygiene" },
     ],
   },
   {
     label: "Notifications",
+    path: "/refraction/notifications",
     children: [
-      "Pending Refractions",
-      "Doctor Ready",
-      "Follow-up Due",
-      "Urgent Recheck",
+      { label: "Pending Refractions", path: "/refraction/notifications/pending" },
+      { label: "Doctor Ready", path: "/refraction/notifications/ready" },
+      { label: "Follow-up Due", path: "/refraction/notifications/followup" },
+      { label: "Urgent Recheck", path: "/refraction/notifications/urgent" },
     ],
   },
   {
     label: "History",
+    path: "/refraction/history",
     children: [
-      "Previous Refractions",
-      "Old Prescriptions",
-      "Lens Usage History",
-      "Patient Remarks",
+      { label: "Previous Refractions", path: "/refraction/history/previous" },
+      { label: "Old Prescriptions", path: "/refraction/history/old" },
+      { label: "Lens Usage History", path: "/refraction/history/usage" },
+      { label: "Patient Remarks", path: "/refraction/history/remarks" },
     ],
   },
   {
     label: "Settings",
+    path: "/refraction/settings",
     children: [
-      "User Profile",
-      "Refraction Preferences",
-      "Device Integration",
-      "Printer Settings",
+      { label: "User Profile", path: "/refraction/settings/profile" },
+      { label: "Refraction Preferences", path: "/refraction/settings/preferences" },
+      { label: "Device Integration", path: "/refraction/settings/devices" },
+      { label: "Printer Settings", path: "/refraction/settings/printer" },
     ],
   },
-  {
-    label: "Logout",
-  },
+  { label: "Logout", path: "/logout" },
 ];
 
-// ──────────────────────────────────────────────────────────────
-//  DOCTOR – Full Examination & Diagnosis
-// ──────────────────────────────────────────────────────────────
+
+// ───────────────────────────────────────────
+// DOCTOR
+// ───────────────────────────────────────────
+
 export const DOCTOR_TABS: TabItem[] = [
   {
     label: "My Patients",
-    children: ["My Patient","Today's List", "Follow-up"],
+    path: "/doctor/my-patients",
+    children: [
+      { label: "My Patient", path: "/doctor/my-patients/mine" },
+      { label: "Today's List", path: "/doctor/my-patients/today" },
+      { label: "Follow-up", path: "/doctor/my-patients/followup" },
+    ],
   },
   {
     label: "Examination",
-    // children: [
-    //   "Visual Acuity",
-    //   "Refraction",
-    //   "Slit Lamp",
-    //   "Fundus",
-    //   "IOP",
-    //   "Diagnosis",
-    // ],
+    path: "/doctor/examination",
   },
   {
     label: "Checkout Patient",
-    children: ["Glasses", "Medications", "Drops", "Print Rx"],
+    path: "/doctor/checkout",
+    children: [
+      { label: "Glasses", path: "/doctor/checkout/glasses" },
+      { label: "Medications", path: "/doctor/checkout/medications" },
+      { label: "Drops", path: "/doctor/checkout/drops" },
+      { label: "Print Rx", path: "/doctor/checkout/print" },
+    ],
   },
-  
-  
   {
     label: "Discussion",
-    children: ["Voice Notes", "Dictate", "Share Case"],
+    path: "/doctor/discussion",
+    children: [
+      { label: "Voice Notes", path: "/doctor/discussion/voice" },
+      { label: "Dictate", path: "/doctor/discussion/dictate" },
+      { label: "Share Case", path: "/doctor/discussion/share" },
+    ],
   },
   {
     label: "Notifications",
-    children: ["Lab Results", "Patient Arrived", "Urgent"],
+    path: "/doctor/notifications",
+    children: [
+      { label: "Lab Results", path: "/doctor/notifications/labs" },
+      { label: "Patient Arrived", path: "/doctor/notifications/arrived" },
+      { label: "Urgent", path: "/doctor/notifications/urgent" },
+    ],
   },
   {
     label: "Settings",
-    children: ["Signature", "Favorites", "Profile"],
+    path: "/doctor/settings",
+    children: [
+      { label: "Signature", path: "/doctor/settings/signature" },
+      { label: "Favorites", path: "/doctor/settings/favorites" },
+      { label: "Profile", path: "/doctor/settings/profile" },
+    ],
   },
-  { label: "Logout" },
+  { label: "Logout", path: "/logout" },
 ];
 
-// ──────────────────────────────────────────────────────────────
-//  DIAGNOSIS / SPECIALIST – Advanced Care
-// ──────────────────────────────────────────────────────────────
+
+// ───────────────────────────────────────────
+// DIAGNOSIS / SPECIALIST
+// ───────────────────────────────────────────
+
 export const DIAGNOSIS_TABS: TabItem[] = [
   {
     label: "Cases",
-    children: ["Pending Review", "In Progress", "Completed", "Flagged"],
+    path: "/diagnosis/cases",
+    children: [
+      { label: "Pending Review", path: "/diagnosis/cases/pending" },
+      { label: "In Progress", path: "/diagnosis/cases/in-progress" },
+      { label: "Completed", path: "/diagnosis/cases/completed" },
+      { label: "Flagged", path: "/diagnosis/cases/flagged" },
+    ],
   },
   {
     label: "Diagnosis",
+    path: "/diagnosis/list",
     children: [
-      "Cataract",
-      "Glaucoma",
-      "DR",
-      "AMD",
-      "Cornea",
-      "Pediatric",
-      "Neuro",
+      { label: "Cataract", path: "/diagnosis/list/cataract" },
+      { label: "Glaucoma", path: "/diagnosis/list/glaucoma" },
+      { label: "DR", path: "/diagnosis/list/dr" },
+      { label: "AMD", path: "/diagnosis/list/amd" },
+      { label: "Cornea", path: "/diagnosis/list/cornea" },
+      { label: "Pediatric", path: "/diagnosis/list/pediatric" },
+      { label: "Neuro", path: "/diagnosis/list/neuro" },
     ],
   },
   {
     label: "Investigations",
-    children: ["OCT", "VF", "Corneal Topo", "Blood Tests", "Reports"],
+    path: "/diagnosis/investigations",
+    children: [
+      { label: "OCT", path: "/diagnosis/investigations/oct" },
+      { label: "VF", path: "/diagnosis/investigations/vf" },
+      { label: "Corneal Topo", path: "/diagnosis/investigations/topo" },
+      { label: "Blood Tests", path: "/diagnosis/investigations/blood" },
+      { label: "Reports", path: "/diagnosis/investigations/reports" },
+    ],
   },
   {
     label: "Management",
-    children: ["Medical", "Laser", "Surgery", "Injection", "Observation"],
+    path: "/diagnosis/management",
+    children: [
+      { label: "Medical", path: "/diagnosis/management/medical" },
+      { label: "Laser", path: "/diagnosis/management/laser" },
+      { label: "Surgery", path: "/diagnosis/management/surgery" },
+      { label: "Injection", path: "/diagnosis/management/injection" },
+      { label: "Observation", path: "/diagnosis/management/observation" },
+    ],
   },
   {
     label: "OR List",
-    children: ["Today's OR", "My Cases", "GA List", "Schedule"],
+    path: "/diagnosis/or",
+    children: [
+      { label: "Today's OR", path: "/diagnosis/or/today" },
+      { label: "My Cases", path: "/diagnosis/or/my-cases" },
+      { label: "GA List", path: "/diagnosis/or/ga" },
+      { label: "Schedule", path: "/diagnosis/or/schedule" },
+    ],
   },
   {
     label: "Research",
-    children: ["Power BI", "Patient Search", "Cross Info", "Export"],
+    path: "/diagnosis/research",
+    children: [
+      { label: "Power BI", path: "/diagnosis/research/powerbi" },
+      { label: "Patient Search", path: "/diagnosis/research/search" },
+      { label: "Cross Info", path: "/diagnosis/research/cross-info" },
+      { label: "Export", path: "/diagnosis/research/export" },
+    ],
   },
   {
     label: "Referrals",
-    children: ["To Surgeon", "From Clinic", "Telemedicine"],
+    path: "/diagnosis/referrals",
+    children: [
+      { label: "To Surgeon", path: "/diagnosis/referrals/surgeon" },
+      { label: "From Clinic", path: "/diagnosis/referrals/clinic" },
+      { label: "Telemedicine", path: "/diagnosis/referrals/telemedicine" },
+    ],
   },
   {
     label: "Templates",
-    children: ["Consent", "Discharge", "Referral Letter"],
+    path: "/diagnosis/templates",
+    children: [
+      { label: "Consent", path: "/diagnosis/templates/consent" },
+      { label: "Discharge", path: "/diagnosis/templates/discharge" },
+      { label: "Referral Letter", path: "/diagnosis/templates/referral" },
+    ],
   },
   {
     label: "Settings",
-    children: ["Profile", "Dashboard", "Alerts"],
+    path: "/diagnosis/settings",
+    children: [
+      { label: "Profile", path: "/diagnosis/settings/profile" },
+      { label: "Dashboard", path: "/diagnosis/settings/dashboard" },
+      { label: "Alerts", path: "/diagnosis/settings/alerts" },
+    ],
   },
-  { label: "Logout" },
+  { label: "Logout", path: "/logout" },
 ];
 
-// ──────────────────────────────────────────────────────────────
-//  DEFAULT / MIXED (Fallback)
-// ──────────────────────────────────────────────────────────────
+
+// ───────────────────────────────────────────
+// DEFAULT TABS
+// ───────────────────────────────────────────
+
 export const DEFAULT_TABS: TabItem[] = [
-  { label: "Patients", children: ["All Patients", "New Patient", "Follow-up"] },
+  {
+    label: "Patients",
+    path: "/default/patients",
+    children: [
+      { label: "All Patients", path: "/default/patients/all" },
+      { label: "New Patient", path: "/default/patients/new" },
+      { label: "Follow-up", path: "/default/patients/followup" },
+    ],
+  },
   {
     label: "Examinations",
-    children: ["Visual Acuity", "Refraction", "Fundus", "Reports"],
+    path: "/default/exams",
+    children: [
+      { label: "Visual Acuity", path: "/default/exams/acuity" },
+      { label: "Refraction", path: "/default/exams/refraction" },
+      { label: "Fundus", path: "/default/exams/fundus" },
+      { label: "Reports", path: "/default/exams/reports" },
+    ],
   },
   {
     label: "Referrals",
-    children: ["To Specialist", "Vision Guardian", "Teleophthalmology"],
+    path: "/default/referrals",
+    children: [
+      { label: "To Specialist", path: "/default/referrals/specialist" },
+      { label: "Vision Guardian", path: "/default/referrals/guardian" },
+      { label: "Teleophthalmology", path: "/default/referrals/teleophth" },
+    ],
   },
-  { label: "Checkedout Patients", children: ["Today", "This Week"] },
-  { label: "Notifications", children: ["Critical", "Reminders"] },
-  { label: "Discussion", children: ["Voice Notes", "Dictations"] },
-  { label: "Settings", children: ["Profile", "Preferences"] },
-  { label: "Logout" },
+  {
+    label: "Checkedout Patients",
+    path: "/default/checkedout",
+    children: [
+      { label: "Today", path: "/default/checkedout/today" },
+      { label: "This Week", path: "/default/checkedout/week" },
+    ],
+  },
+  {
+    label: "Notifications",
+    path: "/default/notifications",
+    children: [
+      { label: "Critical", path: "/default/notifications/critical" },
+      { label: "Reminders", path: "/default/notifications/reminders" },
+    ],
+  },
+  {
+    label: "Discussion",
+    path: "/default/discussion",
+    children: [
+      { label: "Voice Notes", path: "/default/discussion/voice" },
+      { label: "Dictations", path: "/default/discussion/dictations" },
+    ],
+  },
+  {
+    label: "Settings",
+    path: "/default/settings",
+    children: [
+      { label: "Profile", path: "/default/settings/profile" },
+      { label: "Preferences", path: "/default/settings/preferences" },
+    ],
+  },
+  { label: "Logout", path: "/logout" },
 ];

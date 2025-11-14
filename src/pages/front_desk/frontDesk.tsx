@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 
 import { Search, ArrowDropDown } from '@mui/icons-material';
-import AppLayout from '../../layouts/AppLayout';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -30,8 +29,6 @@ import { PatientSummaryService } from '../../shared/api/services/patientsSummary
 import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
-import TabBar from '../../layouts/TabBar';
-import { FRONT_DESK_TABS } from '../../data/data';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -281,34 +278,8 @@ const FrontDesk: React.FC = () => {
   };
 
   return (
-    <AppLayout>
-      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
-        {/* Header */}
-        <TabBar tabsData={FRONT_DESK_TABS}/>
-        <Box sx={{ display: 'flex',  p:2, alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ }}>
-            <Typography
-              variant="h4"
-              component="h1"
-              gutterBottom
-              sx={{ fontWeight: 'bold', color: '#333' }}
-            >
-              Front Desk Dashboard
-            </Typography>
-            {/* <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
-              Real-time patient flow and management - Total: {total}
-            </Typography> */}
-          </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate('/new-patient')}
-            sx={{ textTransform: 'none', borderRadius: '20px', px: 3, height: '40px' }}
-          >
-            + New Patient
-          </Button>
-        </Box>
-
+ 
+      <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt:-10  }}>
         {/* Search and Filter Section */}
         <Paper sx={{ p: 3, mb: 3 }}>
           <Box sx={{ mb: 2 }}>
@@ -852,7 +823,7 @@ const FrontDesk: React.FC = () => {
           />
         </Paper>
       </Box>
-    </AppLayout>
+   
   );
 };
 

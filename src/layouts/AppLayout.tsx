@@ -1,45 +1,46 @@
 import { Box, CssBaseline, useTheme, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import TopBar from './TopBar';
-import { usePreventBackToPublic } from '../hooks/usePreventBackToPublic';
+import type { TabItem } from '../data/data';
 
 interface Props {
   children: React.ReactNode;
+  tabsData?: TabItem[]; // optional, pages without tabs can skip
 }
 
-export default function AppLayout({ children }: Props) {
+export default function AppLayout({ children, tabsData = [] }: Props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
   const [darkMode, setDarkMode] = useState(false);
-  usePreventBackToPublic();
-  const toggleDrawer = () => setDrawerOpen(v => !v);
-  const toggleTheme = () => setDarkMode(v => !v);
+
+  const toggleDrawer = () => setDrawerOpen((v) => !v);
+  const toggleTheme = () => setDarkMode((v) => !v);
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', }}>
       <CssBaseline />
+
+      {/* TopBar */}
       <TopBar
         drawerOpen={drawerOpen}
         onToggleDrawer={toggleDrawer}
         onToggleTheme={toggleTheme}
         darkMode={darkMode}
+        tabsData={tabsData} // pass to TopBar if you want TabBar inside TopBar
       />
-      {/* <SideBar open={drawerOpen} onClose={toggleDrawer} /> */}
+
+      {/* TabBar (below TopBar) */}
+     
+
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
-          // p: 3,
-          // mt: { xs: 7, md: 8 },
-          pt:5.4,
-          width: { md: '100%' },
-          ml: 0,
-          transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
+          // flexGrow: 1,
+          // pt: 5.4,
+         
         }}
       >
         {children}

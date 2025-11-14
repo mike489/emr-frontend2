@@ -20,6 +20,7 @@ import AppLayout from '../../layouts/AppLayout';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
+import { FRONT_DESK_TABS } from '../../data/data';
 
 const PatientRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -290,8 +291,9 @@ const PatientRegistration: React.FC = () => {
   };
 
   return (
-    <AppLayout>
-      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+    <AppLayout tabsData={FRONT_DESK_TABS}>
+      {/* <TabBar tabsData={FRONT_DESK_TABS}/> */}
+      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt:-10  }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
           Patient Registration
         </Typography>

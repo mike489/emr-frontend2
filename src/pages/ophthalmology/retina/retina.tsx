@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 
 import { Search, ArrowDropDown } from '@mui/icons-material';
-import AppLayout from '../../../layouts/AppLayout';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -34,8 +33,6 @@ import {
 } from '../../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
 import SendCrossModal from '../../../features/triage/components/SendCrossModal';
-import TabBar from '../../../layouts/TabBar';
-import { DOCTOR_TABS } from '../../../data/data';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -280,10 +277,10 @@ const Retina: React.FC = () => {
   };
 
   return (
-    <AppLayout>
-      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+   
+      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh',mt:-10  }}>
         {/* Header */}
-        <TabBar tabsData={DOCTOR_TABS}/>
+        {/* <TabBar tabsData={DOCTOR_TABS}/> */}
         <Box sx={{ display: 'flex', p:2, alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{  }}>
             <Typography
@@ -298,14 +295,14 @@ const Retina: React.FC = () => {
               Real-time patient flow and management - Total: {total}
             </Typography> */}
           </Box>
-          <Button
+          {/* <Button
             variant="contained"
             color="primary"
             onClick={() => navigate('/new-patient')}
             sx={{ textTransform: 'none', borderRadius: '20px', px: 3, height: '40px' }}
           >
             + New Patient
-          </Button>
+          </Button> */}
         </Box>
 
         {/* Search and Filter Section */}
@@ -852,7 +849,7 @@ const Retina: React.FC = () => {
           />
         </Paper>
       </Box>
-    </AppLayout>
+   
   );
 };
 

@@ -3,6 +3,10 @@ import DashboardLayout from '../layouts/DashboardLayout'; // Fixed: was Dashboar
 import Administration from '../pages/Administration';
 import Clinics from '../pages/Clinics';
 import PatientTabsLayout from '../pages/examination/PatientTabsLayout';
+import AppointmentsLists from '../pages/front_desk/appointments-lists/AppointmentsLists';
+import CreateAppointment from '../pages/front_desk/appointments-lists/CreateAppointment';
+import ArchivedPatients from '../pages/front_desk/archived-patients/PrchivedPatients';
+import Checkout from '../pages/front_desk/checkout/checkout';
 import FrontDesk from '../pages/front_desk/frontDesk';
 import LoginPage from '../pages/Login'; // Fixed: was Login
 import PatientRegistration from '../pages/new_patient/AddNewPatient';
@@ -102,6 +106,38 @@ export const ROUTES = {
       element: (
         <PrivateRoute>
           <Glaucoma />
+        </PrivateRoute>
+      ),
+    },
+     checkout: {
+      path: '/front-desk/checkout',
+      element: (
+        <PrivateRoute>
+          <Checkout />
+        </PrivateRoute>
+      ),
+    },
+     archivedPatients: {
+      path: '/front-desk/archived-patients',
+      element: (
+        <PrivateRoute>
+          <ArchivedPatients />
+        </PrivateRoute>
+      ),
+    },
+     appointmentsLists: {
+      path: '/front-desk/appointments-lists',
+      element: (
+        <PrivateRoute>
+          <AppointmentsLists />
+        </PrivateRoute>
+      ),
+    },
+      createAppointment: {
+      path: '/front-desk/appointments-create',
+      element: (
+        <PrivateRoute>
+          <CreateAppointment />
         </PrivateRoute>
       ),
     },

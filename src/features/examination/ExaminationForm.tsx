@@ -151,7 +151,7 @@ const defaultInitialValues: ExaminationData = {
 const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => {
   const [initialValues, setInitialValues] = useState<ExaminationData>(defaultInitialValues);
   const [loading, setLoading] = useState(true);
-  const [expandedSection, setExpandedSection] = useState<string | false>('patient-history');
+  const [expandedSection, setExpandedSection] = useState<string | false>('vital-signs');
 
   const quillModules = useMemo(
     () => ({
@@ -306,8 +306,10 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
                     { name: 'respiratory_rate', label: 'Respiratory Rate (breaths/min)' },
                     { name: 'oxygen_saturation', label: 'O2 Saturation (%)' },
                     { name: 'blood_pressure', label: 'Blood Pressure (e.g. 120/80)' },
+                    { name: 'time_of_measurement', label: 'Time of Measurement' },
+
                   ].map(({ name, label }) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 3 }} key={name}>
+                    <Grid size={{ xs: 12, sm: 6,  }} key={name}>
                       <Field name={name}>
                         {({ field }: FieldProps) => (
                           <TextField
@@ -323,25 +325,6 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
                       </Field>
                     </Grid>
                   ))}
-                </Grid>
-
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  <Grid size={{ xs: 12, sm: 4 }}>
-                    <Field name="time_of_measurement">
-                      {({ field }: FieldProps) => (
-                        <TextField
-                          {...field}
-                          label="Time of Measurement"
-                          placeholder="14:30"
-                          size="small"
-                          fullWidth
-                          value={field.value ?? ''}
-                          error={getIn(touched, 'time_of_measurement') && !!getIn(errors, 'time_of_measurement')}
-                          helperText={<ErrorMessage name="time_of_measurement" />}
-                        />
-                      )}
-                    </Field>
-                  </Grid>
                 </Grid>
               </AccordionDetails>
             </Accordion>
@@ -360,7 +343,7 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
               </AccordionSummary>
               <AccordionDetails>
                 <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 6 }}>
+                  {/* <Grid size={{ xs: 12, md: 6 }}>
                     <Field name="primary_complaint">
                       {({ field }: FieldProps) => (
                         <TextField
@@ -374,12 +357,12 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
                         />
                       )}
                     </Field>
-                  </Grid>
+                  </Grid> */}
 
                   {/* Complaint Details - Rich Text Editor */}
                   <Grid size={{ xs: 12 }}>
                     <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
-                      Complaint Details
+                      Complaint 
                     </Typography>
                     <Field name="complaint_details">
                       {({ field, form }: FieldProps) => (
@@ -465,97 +448,111 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
                 </Grid>
 
                 {/* Dynamic Multi-input Fields */}
-                {(['systemic_conditions', 'allergies', 'family_history'] as const).map((field) => {
-                  const label = field
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (l) => l.toUpperCase());
+             <Grid container spacing={3}>
+  {(['systemic_conditions', 'allergies', 'family_history'] as const).map((field) => {
+    const label = field
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase());
 
-                  return (
-                    <Box key={field} sx={{ mt: 3 }}>
-                      <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                        {label}
-                      </Typography>
+    return (
+      <Grid size={{ xs: 12, md: 4 }} key={field}>
+        <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+          {label}
+        </Typography>
 
-                      <Field name={field}>
-                        {({ field: formikField, form }: FieldProps<string[]>) => {
-                          const items = formikField.value || [];
-                          const [inputValue, setInputValue] = useState('');
+        <Field name={field}>
+          {({ field: formikField, form }: FieldProps<string[]>) => {
+            const items = formikField.value || [];
+            const [inputValue, setInputValue] = useState('');
 
-                          const handleAdd = () => {
-                            const trimmed = inputValue.trim();
-                            if (trimmed && !items.includes(trimmed)) {
-                              form.setFieldValue(field, [...items, trimmed]);
-                              setInputValue('');
-                            }
-                          };
+            const handleAdd = () => {
+              const trimmed = inputValue.trim();
+              if (trimmed && !items.includes(trimmed)) {
+                form.setFieldValue(field, [...items, trimmed]);
+                setInputValue('');
+              }
+            };
 
-                          const handleRemove = (index: number) => {
-                            form.setFieldValue(
-                              field,
-                              items.filter((_, i) => i !== index)
-                            );
-                          };
+            const handleRemove = (index: number) => {
+              form.setFieldValue(
+                field,
+                items.filter((_, i) => i !== index)
+              );
+            };
 
-                          const handleKeyDown = (e: React.KeyboardEvent) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              handleAdd();
-                            }
-                          };
+            const handleKeyDown = (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAdd();
+              }
+            };
 
-                          return (
-                            <Box>
-                              <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                                <TextField
-                                  size="small"
-                                  placeholder={`Add ${label.toLowerCase()}...`}
-                                  value={inputValue}
-                                  onChange={(e) => setInputValue(e.target.value)}
-                                  onKeyDown={handleKeyDown}
-                                  sx={{ flexGrow: 1 }}
-                                  inputProps={{ maxLength: 100 }}
-                                />
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  onClick={handleAdd}
-                                  disabled={!inputValue.trim()}
-                                  sx={{ minWidth: 40, height: 40 }}
-                                >
-                                  <AddIcon fontSize="small" />
-                                </Button>
-                              </Box>
+            return (
+              <Grid container spacing={1}>
+                {/* Input + Add Button */}
+                <Grid size={{ xs: 9, md: 10 }}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    placeholder={`Add ${label.toLowerCase()}...`}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    inputProps={{ maxLength: 100 }}
+                  />
+                </Grid>
 
-                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {items.length === 0 ? (
-                                  <Typography variant="body2" color="text.secondary">
-                                    No {label.toLowerCase()} added.
-                                  </Typography>
-                                ) : (
-                                  items.map((item, index) => (
-                                    <Chip
-                                      key={index}
-                                      label={item}
-                                      onDelete={() => handleRemove(index)}
-                                      color="primary"
-                                      variant="outlined"
-                                    />
-                                  ))
-                                )}
-                              </Box>
+                <Grid size={{ xs: 3, md: 2 }}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="small"
+                    onClick={handleAdd}
+                    disabled={!inputValue.trim()}
+                    sx={{ height: '40px' }}
+                  >
+                    <AddIcon fontSize="small" />
+                  </Button>
+                </Grid>
 
-                              {getIn(form.touched, field) && getIn(form.errors, field) && (
-                                <Typography color="error" variant="caption" sx={{ ml: 1, mt: 0.5 }}>
-                                  {getIn(form.errors, field)}
-                                </Typography>
-                              )}
-                            </Box>
-                          );
-                        }}
-                      </Field>
+                {/* Chips */}
+                <Grid size={{ xs: 12 }}>
+                  {items.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary">
+                      No {label.toLowerCase()} added.
+                    </Typography>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {items.map((item, index) => (
+                        <Chip
+                          key={index}
+                          label={item}
+                          onDelete={() => handleRemove(index)}
+                          color="primary"
+                          variant="outlined"
+                        />
+                      ))}
                     </Box>
-                  );
-                })}
+                  )}
+                </Grid>
+
+                {/* Error */}
+                <Grid size={{ xs: 12 }}>
+                  {getIn(form.touched, field) && getIn(form.errors, field) && (
+                    <Typography color="error" variant="caption">
+                      {getIn(form.errors, field)}
+                    </Typography>
+                  )}
+                </Grid>
+              </Grid>
+            );
+          }}
+        </Field>
+      </Grid>
+    );
+  })}
+</Grid>
+
               </AccordionDetails>
             </Accordion>
 

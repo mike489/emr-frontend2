@@ -9,6 +9,7 @@ import Pharmacy from '../assets/icons/Pharmacy.svg';
 
 import InPatient from '../assets/icons/In-patient.svg';
 import Ophthalmic from '../assets/icons/Ophthalmic.svg';
+import  Diagnosis from '../assets/icons/Diagnosis.svg';
 
 
 
@@ -18,7 +19,7 @@ export const CLINIC_MODULES = [
   { title: 'Triage', Icon: Triag, entryRoute: '/triage' },
   { title: 'Refraction', Icon: Ophthalmic, entryRoute: '/refraction' },
   { title: 'OPHTHALMOLOGY', Icon: Otham, entryRoute: '/clinic-lists' },
-  // { title: 'COUNSELOR', Icon: User, entryRoute: '/counselor' },
+  { title: 'Diagnosis', Icon: Diagnosis, entryRoute: '/diagnosis' },
   // { title: 'OPHTHALMIC', Icon: Ophthalmic, entryRoute: '/ophthalmic' },
   { title: 'OPTICALS', Icon: Optical, entryRoute: '/opticals' },
   { title: 'PHARMACY', Icon: Pharmacy, entryRoute: '/pharmacy' },

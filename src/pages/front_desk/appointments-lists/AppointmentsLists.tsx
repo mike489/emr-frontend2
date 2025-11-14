@@ -17,21 +17,21 @@ import {
   Divider,
   CircularProgress,
   TablePagination,
-  Tooltip,
-  IconButton,
 } from '@mui/material';
-import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
+
 import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../shared/api/services/patient.service';
+
 import { toast } from 'react-toastify';
-import { DepartmentsService } from '../../shared/api/services/departments.service';
-import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
-import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
-import { doctorsService } from '../../shared/api/services/Doctor.service';
-import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
-import SendModal from '../../features/triage/components/sendModal';
-import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
+import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
+import { DepartmentsService } from '../../../shared/api/services/departments.service';
+import { doctorsService } from '../../../shared/api/services/Doctor.service';
+
+import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
+import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
+import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
+import { AppointmentsService } from '../../../shared/api/services/appointments.serviecs';
+
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -52,7 +52,6 @@ interface Patient {
   height: string;
   weight: string;
   national_id: string;
-  constultation_id: string;
   passport_number: string;
   medical_history: string | null;
   allergies: string | null;
@@ -85,24 +84,27 @@ interface Attachment {
   size: string;
   url: string;
 }
+const sources = [
+  { id: 'Website', name: 'Website' },
+  { id: 'Call Center', name: 'Call Center' },
+  { id: 'In Person', name: 'In Person' },
+];
 
-const Triage: React.FC = () => {
+const AppointmentsLists: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [departments, setDepartments] = React.useState<string[]>([]);
+  const [_departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
-  const [sendModalOpen, setSendModalOpen] = React.useState(false);
-  const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
-  const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
+  const [_patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
     []
   );
   const [filters, setFilters] = React.useState({
@@ -110,12 +112,13 @@ const Triage: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: 'Triage',
+    department: 'Reception',
     search: '',
     gender: '',
     doctor_id: '',
     patient_category_id: '',
     dob_from: '',
+    source:'',
     dob_to: '',
     age_min: '',
     age_max: '',
@@ -133,13 +136,15 @@ const Triage: React.FC = () => {
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
   };
-  const openAttachModal = (attachments: Attachment[]) => {
-    setCurrentAttachments(attachments);
-    setAttachModalOpen(true);
-  };
+
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newPerPage = parseInt(event.target.value, 10);
     setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
+  };
+
+  const openAttachModal = (attachments: Attachment[]) => {
+    setCurrentAttachments(attachments);
+    setAttachModalOpen(true);
   };
 
   const clearFilters = () => {
@@ -151,6 +156,7 @@ const Triage: React.FC = () => {
       department: '',
       search: '',
       gender: '',
+      source:'',
       doctor_id: '',
       patient_category_id: '',
       dob_from: '',
@@ -166,7 +172,7 @@ const Triage: React.FC = () => {
   const fetchPatients = async () => {
     setLoading(true);
     try {
-      const res = await PatientService.getList(filters);
+      const res = await AppointmentsService.getList(filters);
 
       const patientsData = res.data?.data?.data || res.data?.data || [];
       const totalItems = res.data?.data?.total || patientsData.length || 0;
@@ -181,7 +187,7 @@ const Triage: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -220,12 +226,9 @@ const Triage: React.FC = () => {
     }
   };
 
-  const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage');
-
-  // Then use it
   const fetchSummary = async () => {
     try {
-      const res = await getFrontDeskSummary();
+      const res = await PatientSummaryService.getAll('Reception');
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
@@ -242,6 +245,17 @@ const Triage: React.FC = () => {
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
+    }
+  };
+
+  const sendToTriage = async (id: string) => {
+    try {
+      await sendToTriageService.sendToTriage(id);
+      toast.success('Patient sent to triage successfully');
+      fetchPatients(); // Refresh the patient list after sending to triage
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to send patient to triage');
+      console.error('Error sending patient to triage:', err);
     }
   };
 
@@ -274,34 +288,10 @@ const Triage: React.FC = () => {
   };
 
   return (
-  
-      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt:-10  }}>
-        {/* Header */}
-        {/* <TabBar tabsData={TRIAGE_TABS} /> */}
-
-        <Box sx={{ display: 'flex', p:1, alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ }}>
-            <Typography
-              variant="h4"
-              component="h1"
-              gutterBottom
-              sx={{ fontWeight: 'bold', color: '#333' }}
-            >
-              Triage Dashboard
-            </Typography>
-            {/* <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
-              Real-time patient flow and management - Total: {total}
-            </Typography> */}
-          </Box>
-          {/* <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate('/new-patient')}
-            sx={{ textTransform: 'none', borderRadius: '20px', px: 3, height: '40px' }}
-          >
-            + New Patient
-          </Button> */}
-        </Box>
+ 
+      <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt:-10  }}>
+      
+      
 
         {/* Search and Filter Section */}
         <Paper sx={{ p: 3, mb: 3 }}>
@@ -470,6 +460,39 @@ const Triage: React.FC = () => {
                 ))}
               </TextField>
             </Grid>
+{/* Select Source */}
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+    Select Source
+  </Typography>
+  <TextField
+    fullWidth
+    size="small"
+    select
+    value={filters.source}
+    onChange={e => setFilters({ ...filters, source: e.target.value })}
+    SelectProps={{
+      IconComponent: ArrowDropDown,
+    }}
+    sx={{
+      '& .MuiInputBase-root': {
+        height: '32px',
+        fontSize: '0.8rem',
+      },
+      '& .MuiInputBase-input': {
+        py: 0.5,
+      },
+    }}
+  >
+    <MenuItem value="">Select Source</MenuItem>
+    {sources.map(source => (
+      <MenuItem key={source.id} value={source.id}>
+        {source.name}
+      </MenuItem>
+    ))}
+  </TextField>
+</Grid>
+
           </Grid>
 
           {/* Second row of filters */}
@@ -510,42 +533,6 @@ const Triage: React.FC = () => {
               />
             </Grid>
 
-            {/* DOB From */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                DOB From
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="date"
-                value={filters.dob_from}
-                onChange={e => setFilters({ ...filters, dob_from: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              />
-            </Grid>
-
-            {/* DOB To */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                DOB To
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="date"
-                value={filters.dob_to}
-                onChange={e => setFilters({ ...filters, dob_to: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              />
-            </Grid>
-
             {/* Gender */}
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
@@ -569,53 +556,7 @@ const Triage: React.FC = () => {
               </TextField>
             </Grid>
 
-            {/* Department dropdown */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Department
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.department}
-                onChange={e => setFilters({ ...filters, department: e.target.value })}
-                SelectProps={{ IconComponent: ArrowDropDown, displayEmpty: true }}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              >
-                {departments.map((dept, index) => (
-                  <MenuItem key={index} value={dept}>
-                    {dept}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Patient Category
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.patient_category_id}
-                onChange={e => setFilters({ ...filters, patient_category_id: e.target.value })}
-                SelectProps={{ IconComponent: ArrowDropDown, displayEmpty: true }}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              >
-                {patientCategories.map(category => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+         
             <Grid size={{ xs: 12, sm: 6, md: 1 }}>
               <Button
                 variant="outlined"
@@ -631,25 +572,51 @@ const Triage: React.FC = () => {
 
         {/* Patient Table */}
         <Paper sx={{ p: 0 }}>
-          <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
+          <input type="file" ref={fileInputRef} style={{ display: 'none' }} multiple />
 
           <TableContainer>
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Category</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Patient Name</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>MR Number</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Age</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Gender</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Phone</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>City</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Blood Type</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Consultant</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Action</TableCell>
+                  {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 50 }}>
+                    Category
+                  </TableCell> */}
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
+                    Patient Name
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 110 }}>
+                    EMR Number
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 60 }}>Age</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 80 }}>
+                    Gender
+                  </TableCell>
+                  {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
+                    Phone
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>City</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 100 }}>
+                    Blood Type
+                  </TableCell> */}
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 140 }}>
+                    Doctor
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 100 }}>
+                    Status
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: '#333',
+                      width: 200,
+                      textAlign: 'center',
+                    }}
+                  >
+                    Action
+                  </TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {loading ? (
                   <TableRow>
@@ -670,7 +637,7 @@ const Triage: React.FC = () => {
                 ) : patients.length > 0 ? (
                   patients.map((patient, index) => (
                     <TableRow key={patient.id || index}>
-                      <TableCell>
+                      {/* <TableCell>
                         {' '}
                         <Box
                           sx={{
@@ -683,11 +650,11 @@ const Triage: React.FC = () => {
                             border: '1px solid #e0e0e0',
                           }}
                         />
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                        {/* <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                           {patient.patient_category.name}
-                        </Typography>
+                        </Typography> */}
                         <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                           {patient.full_name}
                         </Typography>
@@ -696,11 +663,11 @@ const Triage: React.FC = () => {
                         </Typography>
                       </TableCell>
                       <TableCell>{patient.emr_number}</TableCell>
-                      <TableCell>{patient.age} years</TableCell>
+                      {/* <TableCell>{patient.age} years</TableCell> */}
                       <TableCell>{patient.gender}</TableCell>
                       <TableCell>{patient.phone}</TableCell>
-                      <TableCell>{patient.address?.city}</TableCell>
-                      <TableCell>{patient.blood_type}</TableCell>
+                      {/* <TableCell>{patient.address?.city}</TableCell> */}
+                      {/* <TableCell>{patient.blood_type}</TableCell> */}
                       <TableCell>
                         {patient.current_doctor && typeof patient.current_doctor === 'object'
                           ? patient.current_doctor.name
@@ -722,97 +689,72 @@ const Triage: React.FC = () => {
                           {patient.status === '1' ? 'Active' : 'Inactive'}
                         </Box>
                       </TableCell>
-
-                      <TableCell sx={{ gap: 1 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                          {/* -------------------- SEND TO -------------------- */}
-                          <Tooltip title="Send to doctor or department" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() => {
-                                setCurrentPatientId(patient.id);
-                                setSendModalOpen(true);
-                              }}
-                              sx={{
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                              }}
-                            >
-                              <Send size={18} />
-                            </IconButton>
-                          </Tooltip>
-
-                          {/* -------------------- EXAMINATIONS -------------------- */}
-                          <Tooltip title="Open Examination Form" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                navigate('/examinations', {
-                                  state: { consultation_id: patient.constultation_id },
-                                })
+                      <TableCell>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => sendToTriage(patient.id)}
+                            sx={{
+                              textTransform: 'none',
+                              borderRadius: '16px',
+                              px: 0.8,
+                              py: 0.4,
+                              minWidth: 70,
+                              fontSize: '0.7rem',
+                              backgroundColor: '#1976d2',
+                              '&:hover': { backgroundColor: '#1565c0' },
+                            }}
+                          >
+                            Send to Triage
+                          </Button>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            disabled={uploadingId === patient.id}
+                            onClick={() => {
+                              if (fileInputRef.current) {
+                                fileInputRef.current.onchange = (e: any) =>
+                                  handleFileChange(e, patient.id);
+                                fileInputRef.current.click();
                               }
-                              sx={{
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                              }}
-                            >
-                              <Eye size={18} />
-                            </IconButton>
-                          </Tooltip>
-
-                          {/* -------------------- ATTACH FILES -------------------- */}
-                          <Tooltip title="Attach files for this patient" arrow>
-                            <span>
-                              <IconButton
-                                size="small"
-                                disabled={uploadingId === patient.id}
-                                onClick={() => {
-                                  if (fileInputRef.current) {
-                                    fileInputRef.current.onchange = (e: any) =>
-                                      handleFileChange(e, patient.id);
-                                    fileInputRef.current.click();
-                                  }
-                                }}
-                                sx={{
-                                  backgroundColor: '#626568',
-                                  color: 'white',
-                                  '&:hover': { backgroundColor: '#000000' },
-                                }}
-                              >
-                                {uploadingId === patient.id ? (
-                                  <CircularProgress size={16} color="inherit" />
-                                ) : (
-                                  <FileUp size={18} />
-                                )}
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-
-                          {/* -------------------- VIEW / DOWNLOAD -------------------- */}
-                          <Tooltip title="View or download attachments" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() => openAttachModal(patient.attachments)}
-                              sx={{
-                                border: '1px solid #1976d2',
-                                color: '#1976d2',
-                                backgroundColor: '#fff',
-                                '&:hover': { backgroundColor: '#e3f2fd' },
-                              }}
-                            >
-                              <FileSearch size={18} />
-                            </IconButton>
-                          </Tooltip>
-
-                          {/* Hidden File Input */}
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            accept="*/*"
-                          />
+                            }}
+                            sx={{
+                              textTransform: 'none',
+                              borderRadius: '16px',
+                              px: 0.8,
+                              py: 0.4,
+                              minWidth: 70,
+                              fontSize: '0.7rem',
+                              backgroundColor: '#626568',
+                              '&:hover': { backgroundColor: '#000000' },
+                            }}
+                          >
+                            {uploadingId === patient.id ? (
+                              <CircularProgress size={16} color="inherit" />
+                            ) : (
+                              'Attach Files'
+                            )}
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => openAttachModal(patient.attachments)}
+                            sx={{
+                              textTransform: 'none',
+                              borderRadius: '16px',
+                              px: 0.8,
+                              py: 0.4,
+                              minWidth: 90,
+                              fontSize: '0.7rem',
+                              backgroundColor: '#fff',
+                              borderColor: '#1976d2',
+                              color: '#1976d2',
+                              '&:hover': { backgroundColor: '#e3f2fd' },
+                            }}
+                          >
+                            View / Download
+                          </Button>
                         </Box>
                       </TableCell>
                     </TableRow>
@@ -829,36 +771,12 @@ const Triage: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <SendModal
-            open={sendModalOpen}
-            onClose={() => setSendModalOpen(false)}
-            onSend={(department, doctor_id) => {
-              if (currentPatientId) {
-                const patientToSend = patients.find(p => p.id === currentPatientId);
-                if (!patientToSend) return;
-
-                sendToDepartmentService
-                  .sendToDepartment(currentPatientId, {
-                    department,
-                    doctor_id,
-                    from: patientToSend.constultation_id,
-                  })
-                  .then(() => {
-                    toast.success('Patient sent to department successfully');
-                    fetchPatients();
-                  })
-                  .catch((err: any) => {
-                    toast.error(err.response?.data?.message || 'Failed to send patient');
-                  });
-              }
-            }}
-          />
-
           <AttachmentsModal
             open={attachModalOpen}
             onClose={() => setAttachModalOpen(false)}
             attachments={currentAttachments}
           />
+
           <TablePagination
             component="div"
             count={pagination.total}
@@ -869,8 +787,8 @@ const Triage: React.FC = () => {
           />
         </Paper>
       </Box>
-  
+   
   );
 };
 
-export default Triage;
+export default AppointmentsLists;

@@ -2,15 +2,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ROUTES } from './routes';
 import { Suspense } from 'react';
 import { Box, CircularProgress } from '@mui/material';
-import { PublicLayout } from '../layouts/PublicLayout';
-import PrivateRoute from './PrivateRoute';
-import ClinicLists from '../layouts/ClinicLists';
-import FrontDesk from '../pages/front_desk/frontDesk';
-import PatientRegistration from '../pages/new_patient/AddNewPatient';
-import Triage from '../pages/triage/Triage';
-import Refraction from '../pages/refraction/refraction';
-import Retina from '../pages/ophthalmology/retina/retina';
-import Glaucoma from '../pages/ophthalmology/glaucoma/glaucoma';
+import AppLayout from '../layouts/AppLayout';
+import { FRONT_DESK_TABS, DOCTOR_TABS, TRIAGE_TABS, REFRACTION_TABS } from '../data/data';
+
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
@@ -19,132 +13,81 @@ const Loading = () => (
 );
 
 const router = createBrowserRouter([
-  // 🔹 Public Routes
+  // 🔹 Public
   {
-    element: <PublicLayout />,
-    children: [
-      {
-        path: ROUTES.public.home.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.public.home.element}</Suspense>,
-      },
-      {
-        path: ROUTES.public.clinics.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.public.clinics.element}</Suspense>,
-      },
-      {
-        path: ROUTES.public.administration.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>,
-      },
-      {
-        path: ROUTES.auth.login.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.auth.login.element}</Suspense>,
-      },
-    ],
+    path: '/',
+    element: <Suspense fallback={<Loading />}>{ROUTES.public.home.element}</Suspense>
+  },
+  {
+    path: '/clinics',
+    element: <Suspense fallback={<Loading />}>{ROUTES.public.clinics.element}</Suspense>
+  },
+  {
+    path: '/administration',
+    element: <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>
+  },
+  {
+    path: '/login',
+    element: <Suspense fallback={<Loading />}>{ROUTES.auth.login.element}</Suspense>
   },
 
-  // 🔹 Protected Routes (with ClinicLists as layout)
+  // 🔹 Protected routes with tabs
   {
-    element: (
-      <PrivateRoute>
-        <ClinicLists />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: ROUTES.protected.eyeSmart.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>,
-      },
-      {
-        path: ROUTES.protected.examinations.path,
-        element: (
-          <Suspense fallback={<Loading />}>{ROUTES.protected.examinations.element}</Suspense>
-        ),
-      },
-      {
-        path: ROUTES.protected.dashboard.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.dashboard.element}</Suspense>,
-      },
-    ],
+    path: ROUTES.protected.frontDesk.path,
+    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.frontDesk.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.checkout.path,
+    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.checkout.element}</AppLayout>,
+  },
+   {
+    path: ROUTES.protected.archivedPatients.path,
+    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.archivedPatients.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.appointmentsLists.path,
+    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.appointmentsLists.element}</AppLayout>,
+  },
+    {
+    path: ROUTES.protected.createAppointment.path,
+    element: <AppLayout tabsData={FRONT_DESK_TABS}>{ROUTES.protected.createAppointment.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.examinations.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.examinations.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.triage.path,
+    element: <AppLayout tabsData={TRIAGE_TABS}>{ROUTES.protected.triage.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.refraction.path,
+    element: <AppLayout tabsData={REFRACTION_TABS}>{ROUTES.protected.refraction.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.retina.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.retina.element}</AppLayout>,
+  },
+  
+  {
+    path: ROUTES.protected.glaucoma.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.glaucoma.element}</AppLayout>,
+  },
+ 
+  // 🔹 Dashboard and ClinicLists (no tabs)
+  {
+    path: ROUTES.protected.dashboard.path,
+    element: <Suspense fallback={<Loading />}>{ROUTES.protected.dashboard.element}</Suspense>
+  },
+  {
+    path: ROUTES.protected.eyeSmart.path,
+    element: <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>
   },
 
+  // 🔹 New Patient / Registration
   {
-    element: (
-      <PrivateRoute>
-        <FrontDesk />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: ROUTES.protected.frontDesk.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.frontDesk.element}</Suspense>,
-      },
-    ],
-  },
-
-  {
-    element: (
-      <PrivateRoute>
-        <PatientRegistration />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: ROUTES.protected.newPatient.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.newPatient.element}</Suspense>,
-      },
-    ],
-  },
-  {
-    element: (
-      <PrivateRoute>
-        <Triage />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: ROUTES.protected.triage.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.triage.element}</Suspense>,
-      },
-    ],
-  },
-  {
-    element: (
-      <PrivateRoute>
-        <Refraction />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: ROUTES.protected.refraction.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.refraction.element}</Suspense>,
-      },
-    ],
-  },
-  {
-    element: (
-      <PrivateRoute>
-        <Retina />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: ROUTES.protected.retina.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.retina.element}</Suspense>,
-      },
-    ],
-  },
-  {
-    element: (
-      <PrivateRoute>
-        <Glaucoma />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: ROUTES.protected.glaucoma.path,
-        element: <Suspense fallback={<Loading />}>{ROUTES.protected.glaucoma.element}</Suspense>,
-      },
-    ],
+    path: ROUTES.protected.newPatient.path,
+    element: <Suspense fallback={<Loading />}>{ROUTES.protected.newPatient.element}</Suspense>
   },
 
   // 🔹 404 fallback
