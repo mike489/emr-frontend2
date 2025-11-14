@@ -114,7 +114,7 @@ const Opd1: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: 'Pediatric',
+    department: 'OPD1',
     search: '',
     gender: '',
     doctor_id: '',
