@@ -1,9 +1,8 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import ExaminationForm from '../../features/examination/ExaminationForm';
 import { useLocation, useNavigate } from 'react-router-dom';
-import TabBar from '../../layouts/TabBar';
-import { DOCTOR_TABS } from '../../data/data';
+import Examinations from '../triage/Examinations';
 
 const PatientTabsLayout: React.FC = () => {
   const location = useLocation();
@@ -13,7 +12,6 @@ const PatientTabsLayout: React.FC = () => {
   React.useEffect(() => {
     if (!consultation_id) {
       console.warn('No consultation_id found in navigation state.');
-  
     } else {
       console.log('Loaded consultation ID:', consultation_id);
     }
@@ -26,18 +24,18 @@ const PatientTabsLayout: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         bgcolor: 'background.paper',
-        p:4,
+        p: 4,
+        mt: -10,
       }}
     >
-      
-              <TabBar tabsData={DOCTOR_TABS} />
+      {/* <TabBar tabsData={DOCTOR_TABS} /> */}
       <Box sx={{ flex: 1, p: 3, overflowY: 'auto' }}>
         {consultation_id ? (
           <ExaminationForm consultationId={consultation_id} />
         ) : (
-          <Typography color="text.secondary" align="center" sx={{ mt: 4 }}>
-            No consultation ID provided. Please go back and select a patient.
-          </Typography>
+          <Box>
+            <Examinations />
+          </Box>
         )}
       </Box>
     </Box>

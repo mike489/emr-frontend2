@@ -96,7 +96,7 @@ const AppointmentsLists: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -315,86 +315,7 @@ const AppointmentsLists: React.FC = () => {
             </Button>
           </Box>
           {/* Patient Category Summary Cards */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 3,
-              flexWrap: 'wrap',
-              backgroundColor: '#e0e0e0',
-              p: 1.5,
-              borderRadius: 1,
-              mb: 4,
-            }}
-          >
-            {summary.map((category: any) => (
-              <Box
-                key={category.category_id}
-                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: category.color,
-                    color: '#000000',
-                    textTransform: 'none',
-                    borderRadius: '20px',
-                    px: 3,
-                    '&:hover': {
-                      backgroundColor: category.color,
-                    },
-                  }}
-                >
-                  {category.category_name}
-                </Button>
-                <Typography sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                  {category.patient_count}
-                </Typography>
-              </Box>
-            ))}
-
-            {/* Total Check-ins */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: '#3f97fc',
-                  color: '#fff',
-                  textTransform: 'none',
-                  borderRadius: '20px',
-                  px: 3,
-                  '&:hover': { backgroundColor: '#559ff3' },
-                }}
-              >
-                Total Check-ins
-              </Button>
-              <Typography sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                {summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}
-              </Typography>
-            </Box>
-
-            {/* Total Checkouts (replace with actual backend value if available) */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: '#3f97fc',
-                  color: '#fff',
-                  textTransform: 'none',
-                  borderRadius: '20px',
-                  px: 3,
-                  '&:hover': { backgroundColor: '#559ff3' },
-                }}
-              >
-                Total Checkouts
-              </Button>
-              <Typography sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                {/* Replace 0 with actual total checkouts from backend */}0
-              </Typography>
-            </Box>
-          </Box>
-
+        
           <Divider sx={{ my: 3 }} />
 
           <Grid container spacing={2} alignItems="center">
