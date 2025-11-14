@@ -12,14 +12,13 @@ import {
   TextField,
   MenuItem,
   InputAdornment,
-  Grid,
   Button,
-  Divider,
   CircularProgress,
   TablePagination,
+  Chip,
 } from '@mui/material';
 
-import { Search, ArrowDropDown } from '@mui/icons-material';
+import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
 import AppLayout from '../../../layouts/AppLayout';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../../shared/api/services/patient.service';
@@ -96,7 +95,7 @@ const Retina: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [departments, setDepartments] = React.useState<string[]>([]);
+  const [_departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -104,6 +103,7 @@ const Retina: React.FC = () => {
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
   const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
+  const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
@@ -125,6 +125,7 @@ const Retina: React.FC = () => {
     age_max: '',
     created_from: '',
     created_to: '',
+    sort_dir: 'asc',
   });
 
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -153,7 +154,7 @@ const Retina: React.FC = () => {
       per_page: 25,
       sort_by: 'full_name',
       sort_order: 'asc',
-      department: '',
+      department: 'Retina',
       search: '',
       gender: '',
       doctor_id: '',
@@ -164,6 +165,7 @@ const Retina: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
+      sort_dir: 'asc',
     });
     fetchPatients();
   };
@@ -230,6 +232,7 @@ const Retina: React.FC = () => {
 
   // Then use it
   const fetchSummary = async () => {
+    setSummaryLoading(true);
     try {
       const res = await getFrontDeskSummary();
       const summaryData = res.data?.data?.patient_categories || [];
@@ -237,6 +240,8 @@ const Retina: React.FC = () => {
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
+    } finally {
+      setSummaryLoading(false);
     }
   };
 
@@ -279,13 +284,21 @@ const Retina: React.FC = () => {
     }
   };
 
+  const handleSortByName = () => {
+    setFilters(prev => ({
+      ...prev,
+      sort_by: 'full_name',
+      sort_dir: prev.sort_dir === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
   return (
     <AppLayout>
       <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
         {/* Header */}
-        <TabBar tabsData={DOCTOR_TABS}/>
-        <Box sx={{ display: 'flex', p:2, alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{  }}>
+        <TabBar tabsData={DOCTOR_TABS} />
+        <Box sx={{ display: 'flex', p: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{}}>
             <Typography
               variant="h4"
               component="h1"
@@ -309,329 +322,331 @@ const Retina: React.FC = () => {
         </Box>
 
         {/* Search and Filter Section */}
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Box sx={{ mb: 2 }}>
+        <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+          {/* Header with Back Button and Summary Stats */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              mb: 3,
+            }}
+          >
+            {/* Back Button */}
             <Button
               variant="outlined"
               onClick={() => navigate(-1)}
+              startIcon={<ArrowBackIos sx={{ fontSize: 16 }} />}
               sx={{
                 textTransform: 'none',
-                borderRadius: '20px',
-
+                borderRadius: '8px',
                 borderColor: '#1976d2',
                 color: '#1976d2',
+                px: 2,
+                py: 0.8,
+                fontSize: '0.875rem',
                 '&:hover': {
                   backgroundColor: '#e3f2fd',
                   borderColor: '#1976d2',
                 },
               }}
             >
-              ← Back
+              Back
             </Button>
-          </Box>
-          {/* Patient Category Summary Cards */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 3,
-              flexWrap: 'wrap',
-              backgroundColor: '#e0e0e0',
-              p: 1.5,
-              borderRadius: 1,
-              mb: 4,
-            }}
-          >
-            {summary.map((category: any) => (
-              <Box
-                key={category.category_id}
-                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <Button
-                  variant="contained"
+
+            {/* Summary Stats */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Chip
+                  label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
                   sx={{
-                    backgroundColor: category.color,
-                    color: '#000000',
-                    textTransform: 'none',
-                    borderRadius: '20px',
-                    px: 3,
-                    '&:hover': {
-                      backgroundColor: category.color,
-                    },
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    fontWeight: '600',
+                    fontSize: '0.875rem',
+                  }}
+                />
+                <Chip
+                  label="Total Checkouts: 0"
+                  sx={{
+                    backgroundColor: '#757575',
+                    color: 'white',
+                    fontWeight: '600',
+                    fontSize: '0.875rem',
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Patient Category Cards */}
+          <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
+            {summaryLoading ? (
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  py: 4,
+                }}
+              >
+                <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
+                <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
+              </Box>
+            ) : (
+              summary.map((category: any) => (
+                <Box
+                  key={category.category_id}
+                  sx={{
+                    flex: '1 1 220px',
+                    minWidth: 220,
+                    backgroundColor: '#fff',
+                    borderRadius: 3,
+                    p: 2,
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                    border: '1px solid #ededed',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    height: 120,
                   }}
                 >
-                  {category.category_name}
-                </Button>
-                <Typography sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                  {category.patient_count}
-                </Typography>
-              </Box>
-            ))}
+                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
+                    {category.category_name}
+                  </Typography>
 
-            {/* Total Check-ins */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: '#3f97fc',
-                  color: '#fff',
-                  textTransform: 'none',
-                  borderRadius: '20px',
-                  px: 3,
-                  '&:hover': { backgroundColor: '#559ff3' },
-                }}
-              >
-                Total Check-ins
-              </Button>
-              <Typography sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                {summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}
-              </Typography>
-            </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mt: 1,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: '2rem',
+                        fontWeight: 700,
+                        color: '#1a1a1a',
+                      }}
+                    >
+                      {category.patient_count}
+                    </Typography>
 
-            {/* Total Checkouts (replace with actual backend value if available) */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: '#3f97fc',
-                  color: '#fff',
-                  textTransform: 'none',
-                  borderRadius: '20px',
-                  px: 3,
-                  '&:hover': { backgroundColor: '#559ff3' },
-                }}
-              >
-                Total Checkouts
-              </Button>
-              <Typography sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                {/* Replace 0 with actual total checkouts from backend */}0
-              </Typography>
-            </Box>
+                    <Box
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '10%',
+                        backgroundColor: `${category.color}20`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: '10%',
+                          backgroundColor: category.color,
+                        }}
+                      />
+                    </Box>
+                  </Box>
+
+                  <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
+                    {category.percentage_text}
+                  </Typography>
+                </Box>
+              ))
+            )}
+          </Box>
+        </Paper>
+
+        <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+          {/* Compact Filter Row */}
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end' }}>
+            {/* Search */}
+            <TextField
+              size="small"
+              placeholder="Search patients..."
+              value={filters.search}
+              onChange={e => setFilters({ ...filters, search: e.target.value })}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ minWidth: 200, flex: 1 }}
+            />
+
+            {/* Consultant */}
+            <TextField
+              size="small"
+              select
+              value={filters.doctor_id}
+              onChange={e => setFilters({ ...filters, doctor_id: e.target.value })}
+              placeholder="Consultant"
+              SelectProps={{
+                IconComponent: ArrowDropDown,
+                displayEmpty: true, // Add this
+                renderValue: selected => {
+                  if (selected === '') {
+                    return 'All Consultants';
+                  }
+                  return doctors.find(doctor => doctor.id === selected)?.name || selected;
+                },
+              }}
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="">All Consultants</MenuItem>
+              {doctors.map(doctor => (
+                <MenuItem key={doctor.id} value={doctor.id}>
+                  {doctor.name}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            {/* Gender */}
+            <TextField
+              size="small"
+              select
+              value={filters.gender}
+              onChange={e => setFilters({ ...filters, gender: e.target.value })}
+              SelectProps={{
+                displayEmpty: true,
+                renderValue: (selected: unknown) => {
+                  if (selected === '' || !selected) {
+                    return <span>All Genders</span>;
+                  }
+                  return <span>{selected as string}</span>;
+                },
+              }}
+              sx={{ minWidth: 120 }}
+            >
+              <MenuItem value="">All Genders</MenuItem>
+              <MenuItem value="Male">Male</MenuItem>
+              <MenuItem value="Female">Female</MenuItem>
+            </TextField>
+
+            {/* Clear Button */}
+            <Button
+              variant="outlined"
+              onClick={clearFilters}
+              sx={{
+                height: '40px',
+                borderColor: '#d32f2f',
+                color: '#d32f2f',
+                fontSize: '0.875rem',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Clear Filters
+            </Button>
           </Box>
 
-          <Divider sx={{ my: 3 }} />
-
-          <Grid container spacing={2} alignItems="center">
-            {/* Search */}
-            <Grid size={{ xs: 12, sm: 6, md: 5 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Search
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search"
-                value={filters.search}
-                onChange={e => setFilters({ ...filters, search: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiInputBase-root': {
-                    height: '32px',
-                    fontSize: '0.8rem',
-                  },
-                  '& .MuiInputBase-input': {
-                    py: 0.5,
-                  },
-                }}
-              />
-            </Grid>
-
-            {/* Select Consultant */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Select Consultant
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.doctor_id}
-                onChange={e => setFilters({ ...filters, doctor_id: e.target.value })}
-                SelectProps={{
-                  IconComponent: ArrowDropDown,
-                }}
-                sx={{
-                  '& .MuiInputBase-root': {
-                    height: '32px',
-                    fontSize: '0.8rem',
-                  },
-                  '& .MuiInputBase-input': {
-                    py: 0.5,
-                  },
-                }}
+          {/* Secondary Filters */}
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end', mt: 1.5 }}>
+            {/* Date Range */}
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: '600', color: '#666', whiteSpace: 'nowrap' }}
               >
-                <MenuItem value="">Select Consultant</MenuItem>
-                {doctors.map(doctor => (
-                  <MenuItem key={doctor.id} value={doctor.id}>
-                    {doctor.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-          </Grid>
-
-          {/* Second row of filters */}
-          <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
-            {/* Created From */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Created From
+                Created:
               </Typography>
               <TextField
-                fullWidth
                 size="small"
                 type="date"
                 value={filters.created_from}
                 onChange={e => setFilters({ ...filters, created_from: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
+                InputLabelProps={{ shrink: true }}
+                sx={{ width: 140 }}
               />
-            </Grid>
-
-            {/* Created To */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Created To
-              </Typography>
               <TextField
-                fullWidth
                 size="small"
                 type="date"
                 value={filters.created_to}
                 onChange={e => setFilters({ ...filters, created_to: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
+                InputLabelProps={{ shrink: true }}
+                sx={{ width: 140 }}
               />
-            </Grid>
+            </Box>
 
-            {/* DOB From */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                DOB From
+            {/* DOB Range */}
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: '600', color: '#666', whiteSpace: 'nowrap' }}
+              >
+                DOB:
               </Typography>
               <TextField
-                fullWidth
                 size="small"
                 type="date"
                 value={filters.dob_from}
                 onChange={e => setFilters({ ...filters, dob_from: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
+                InputLabelProps={{ shrink: true }}
+                sx={{ width: 140 }}
               />
-            </Grid>
-
-            {/* DOB To */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                DOB To
-              </Typography>
               <TextField
-                fullWidth
                 size="small"
                 type="date"
                 value={filters.dob_to}
                 onChange={e => setFilters({ ...filters, dob_to: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
+                InputLabelProps={{ shrink: true }}
+                sx={{ width: 140 }}
               />
-            </Grid>
+            </Box>
 
-            {/* Gender */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Gender
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.gender}
-                onChange={e => setFilters({ ...filters, gender: e.target.value })}
-                SelectProps={{ IconComponent: ArrowDropDown }}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Male">Male</MenuItem>
-                <MenuItem value="Female">Female</MenuItem>
-              </TextField>
-            </Grid>
+            {/* Department */}
+            {/* <TextField
+                      size="small"
+                      select
+                      value={filters.department}
+                      onChange={e => setFilters({ ...filters, department: e.target.value })}
+                      placeholder="Department"
+                      sx={{ minWidth: 150 }}
+                    >
+                      <MenuItem value="">All Departments</MenuItem>
+                      {departments.map((dept, index) => (
+                        <MenuItem key={index} value={dept}>
+                          {dept}
+                        </MenuItem>
+                      ))}
+                    </TextField> */}
 
-            {/* Department dropdown */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Department
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.department}
-                onChange={e => setFilters({ ...filters, department: e.target.value })}
-                SelectProps={{ IconComponent: ArrowDropDown, displayEmpty: true }}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              >
-                {departments.map((dept, index) => (
-                  <MenuItem key={index} value={dept}>
-                    {dept}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Patient Category
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.patient_category_id}
-                onChange={e => setFilters({ ...filters, patient_category_id: e.target.value })}
-                SelectProps={{ IconComponent: ArrowDropDown, displayEmpty: true }}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              >
-                {patientCategories.map(category => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
-              <Button
-                variant="outlined"
-                fullWidth
-                sx={{ mt: 2.5, borderColor: '#d32f2f', color: '#d32f2f' }}
-                onClick={clearFilters}
-              >
-                Clear
-              </Button>
-            </Grid>
-          </Grid>
+            {/* Patient Category */}
+            <TextField
+              size="small"
+              select
+              value={filters.patient_category_id}
+              onChange={e => setFilters({ ...filters, patient_category_id: e.target.value })}
+              placeholder="Category"
+              SelectProps={{
+                displayEmpty: true,
+                renderValue: (selected: unknown) => {
+                  if (selected === '' || !selected) {
+                    return 'All Categories';
+                  }
+                  const category = patientCategories.find(cat => cat.id === selected);
+                  return category?.name || (selected as string);
+                },
+              }}
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="">All Categories</MenuItem>
+              {patientCategories.map(category => (
+                <MenuItem key={category.id} value={category.id}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
         </Paper>
 
         {/* Patient Table */}
@@ -641,25 +656,175 @@ const Retina: React.FC = () => {
           <TableContainer>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Category</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Patient Name</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>MR Number</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Age</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Gender</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Phone</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>City</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Blood Type</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Consultant</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Action</TableCell>
+                <TableRow
+                  sx={{
+                    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+                    '& th': {
+                      borderBottom: '2px solid #e0e0e0',
+                    },
+                  }}
+                >
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 50,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    Category
+                  </TableCell>
+                  <TableCell
+                    onClick={handleSortByName}
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 120,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                    }}
+                  >
+                    Patient Name
+                    {filters.sort_by === 'full_name' &&
+                      (filters.sort_dir === 'asc' ? (
+                        <ArrowDropDown
+                          sx={{
+                            transform: 'rotate(180deg)',
+                            color: 'white',
+                            transition: '0.3s',
+                          }}
+                        />
+                      ) : (
+                        <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
+                      ))}
+                  </TableCell>
+
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 110,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    MRN
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 60,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    Age
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 80,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    Gender
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 120,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    Phone
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 120,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    City
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 100,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    Blood Type
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 140,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    Consultant
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 100,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      borderRight: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    Status
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      width: 200,
+                      fontSize: '0.8rem',
+                      py: 1.5,
+                      textAlign: 'center',
+                    }}
+                  >
+                    Action
+                  </TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="text.secondary">
+                    <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
+                      <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+                      <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
                         Loading patients...
                       </Typography>
                     </TableCell>
