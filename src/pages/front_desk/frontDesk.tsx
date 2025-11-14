@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 
 import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
-import AppLayout from '../../layouts/AppLayout';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -31,8 +30,6 @@ import { PatientSummaryService } from '../../shared/api/services/patientsSummary
 import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
-import TabBar from '../../layouts/TabBar';
-import { FRONT_DESK_TABS } from '../../data/data';
 import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
 
 // Updated Type definitions to match your API response
