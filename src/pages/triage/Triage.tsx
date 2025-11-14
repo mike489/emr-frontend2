@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
 import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
-import AppLayout from '../../layouts/AppLayout';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
