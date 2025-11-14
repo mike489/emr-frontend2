@@ -9,18 +9,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
-  MenuItem,
-  InputAdornment,
-  Button,
   CircularProgress,
   TablePagination,
   Tooltip,
   IconButton,
-  Chip,
 } from '@mui/material';
 import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
-import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
+import { ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -92,17 +87,17 @@ const Examinations: React.FC = () => {
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
   const [_departments, setDepartments] = React.useState<string[]>([]);
-  const [summary, setSummary] = React.useState<any[]>([]);
-  const [doctors, setDoctors] = React.useState<any[]>([]);
+  const [_summary, setSummary] = React.useState<any[]>([]);
+  const [_doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
   const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
-  const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
+  const [_summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
-  const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
+  const [_patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
     []
   );
   const [filters, setFilters] = React.useState({
@@ -143,27 +138,27 @@ const Examinations: React.FC = () => {
     setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
   };
 
-  const clearFilters = () => {
-    setFilters({
-      page: 1,
-      per_page: 25,
-      sort_by: 'full_name',
-      sort_order: 'asc',
-      department: '',
-      search: '',
-      gender: '',
-      doctor_id: '',
-      patient_category_id: '',
-      dob_from: '',
-      dob_to: '',
-      age_min: '',
-      age_max: '',
-      created_from: '',
-      created_to: '',
-      sort_dir: 'asc',
-    });
-    fetchPatients();
-  };
+  // const clearFilters = () => {
+  //   setFilters({
+  //     page: 1,
+  //     per_page: 25,
+  //     sort_by: 'full_name',
+  //     sort_order: 'asc',
+  //     department: '',
+  //     search: '',
+  //     gender: '',
+  //     doctor_id: '',
+  //     patient_category_id: '',
+  //     dob_from: '',
+  //     dob_to: '',
+  //     age_min: '',
+  //     age_max: '',
+  //     created_from: '',
+  //     created_to: '',
+  //     sort_dir: 'asc',
+  //   });
+  //   fetchPatients();
+  // };
 
   const fetchPatients = async () => {
     setLoading(true);
@@ -287,399 +282,396 @@ const Examinations: React.FC = () => {
   };
 
   return (
-  
-      <Box sx={{ p: 3, backgroundColor: '#f5f5f5',  }}>
-      
-        <Paper sx={{ p: 0 }}>
-          <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5' }}>
+      <Paper sx={{ p: 0 }}>
+        <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
 
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow
+                sx={{
+                  backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+                  '& th': {
+                    borderBottom: '2px solid #e0e0e0',
+                  },
+                }}
+              >
+                <TableCell
                   sx={{
-                    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
-                    '& th': {
-                      borderBottom: '2px solid #e0e0e0',
-                    },
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 50,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
                   }}
                 >
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 50,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    Category
-                  </TableCell>
-                  <TableCell
-                    onClick={handleSortByName}
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 120,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.5,
-                    }}
-                  >
-                    Patient Name
-                    {filters.sort_by === 'full_name' &&
-                      (filters.sort_dir === 'asc' ? (
-                        <ArrowDropDown
-                          sx={{
-                            transform: 'rotate(180deg)',
-                            color: 'white',
-                            transition: '0.3s',
-                          }}
-                        />
-                      ) : (
-                        <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                      ))}
-                  </TableCell>
+                  Category
+                </TableCell>
+                <TableCell
+                  onClick={handleSortByName}
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 120,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                  }}
+                >
+                  Patient Name
+                  {filters.sort_by === 'full_name' &&
+                    (filters.sort_dir === 'asc' ? (
+                      <ArrowDropDown
+                        sx={{
+                          transform: 'rotate(180deg)',
+                          color: 'white',
+                          transition: '0.3s',
+                        }}
+                      />
+                    ) : (
+                      <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
+                    ))}
+                </TableCell>
 
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 110,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    MRN
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 60,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    Age
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 80,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    Gender
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 120,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    Phone
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 120,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    City
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 100,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    Blood Type
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 140,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    Consultant
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 100,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      borderRight: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    Status
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      width: 200,
-                      fontSize: '0.8rem',
-                      py: 1.5,
-                      textAlign: 'center',
-                    }}
-                  >
-                    Action
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 110,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  MRN
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 60,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  Age
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 80,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  Gender
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 120,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  Phone
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 120,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  City
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 100,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  Blood Type
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 140,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  Consultant
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 100,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  Status
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 200,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    textAlign: 'center',
+                  }}
+                >
+                  Action
+                </TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
+                    <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                      Loading patients...
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                      <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
-                      <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                        Loading patients...
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="error">
+                      Error loading patients. Please try again.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : patients.length > 0 ? (
+                patients.map((patient, index) => (
+                  <TableRow key={patient.id || index}>
+                    <TableCell>
+                      {' '}
+                      <Box
+                        sx={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: '10%',
+                          backgroundColor: patient.patient_category?.color || '#ccc',
+                          display: 'inline-block',
+                          mr: 1,
+                          border: '1px solid #e0e0e0',
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                        {patient.patient_category.name}
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                        {patient.full_name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {patient.title}
                       </Typography>
                     </TableCell>
-                  </TableRow>
-                ) : error ? (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="error">
-                        Error loading patients. Please try again.
-                      </Typography>
+                    <TableCell>{patient.emr_number}</TableCell>
+                    <TableCell>{patient.age} years</TableCell>
+                    <TableCell>{patient.gender}</TableCell>
+                    <TableCell>{patient.phone}</TableCell>
+                    <TableCell>{patient.address?.city}</TableCell>
+                    <TableCell>{patient.blood_type}</TableCell>
+                    <TableCell>
+                      {patient.current_doctor && typeof patient.current_doctor === 'object'
+                        ? patient.current_doctor.name
+                        : patient.current_doctor || 'N/A'}
                     </TableCell>
-                  </TableRow>
-                ) : patients.length > 0 ? (
-                  patients.map((patient, index) => (
-                    <TableRow key={patient.id || index}>
-                      <TableCell>
-                        {' '}
-                        <Box
-                          sx={{
-                            width: 16,
-                            height: 16,
-                            borderRadius: '10%',
-                            backgroundColor: patient.patient_category?.color || '#ccc',
-                            display: 'inline-block',
-                            mr: 1,
-                            border: '1px solid #e0e0e0',
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                          {patient.patient_category.name}
-                        </Typography>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                          {patient.full_name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {patient.title}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{patient.emr_number}</TableCell>
-                      <TableCell>{patient.age} years</TableCell>
-                      <TableCell>{patient.gender}</TableCell>
-                      <TableCell>{patient.phone}</TableCell>
-                      <TableCell>{patient.address?.city}</TableCell>
-                      <TableCell>{patient.blood_type}</TableCell>
-                      <TableCell>
-                        {patient.current_doctor && typeof patient.current_doctor === 'object'
-                          ? patient.current_doctor.name
-                          : patient.current_doctor || 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <Box
-                          sx={{
-                            display: 'inline-block',
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 1,
-                            backgroundColor: patient.status === '1' ? '#e8f5e8' : '#fff3e0',
-                            color: patient.status === '1' ? '#2e7d32' : '#f57c00',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                          }}
-                        >
-                          {patient.status === '1' ? 'Active' : 'Inactive'}
-                        </Box>
-                      </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: 'inline-block',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          backgroundColor: patient.status === '1' ? '#e8f5e8' : '#fff3e0',
+                          color: patient.status === '1' ? '#2e7d32' : '#f57c00',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {patient.status === '1' ? 'Active' : 'Inactive'}
+                      </Box>
+                    </TableCell>
 
-                      <TableCell sx={{ gap: 1 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                          {/* -------------------- SEND TO -------------------- */}
-                          <Tooltip title="Send to doctor or department" arrow>
+                    <TableCell sx={{ gap: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        {/* -------------------- SEND TO -------------------- */}
+                        <Tooltip title="Send to doctor or department" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setCurrentPatientId(patient.id);
+                              setSendModalOpen(true);
+                            }}
+                            sx={{
+                              backgroundColor: '#1976d2',
+                              color: 'white',
+                              '&:hover': { backgroundColor: '#1565c0' },
+                            }}
+                          >
+                            <Send size={18} />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* -------------------- EXAMINATIONS -------------------- */}
+                        <Tooltip title="Open Examination Form" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              navigate('/examinations', {
+                                state: { consultation_id: patient.constultation_id },
+                              })
+                            }
+                            sx={{
+                              backgroundColor: '#1976d2',
+                              color: 'white',
+                              '&:hover': { backgroundColor: '#1565c0' },
+                            }}
+                          >
+                            <Eye size={18} />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* -------------------- ATTACH FILES -------------------- */}
+                        <Tooltip title="Attach files for this patient" arrow>
+                          <span>
                             <IconButton
                               size="small"
+                              disabled={uploadingId === patient.id}
                               onClick={() => {
-                                setCurrentPatientId(patient.id);
-                                setSendModalOpen(true);
+                                if (fileInputRef.current) {
+                                  fileInputRef.current.onchange = (e: any) =>
+                                    handleFileChange(e, patient.id);
+                                  fileInputRef.current.click();
+                                }
                               }}
                               sx={{
-                                backgroundColor: '#1976d2',
+                                backgroundColor: '#626568',
                                 color: 'white',
-                                '&:hover': { backgroundColor: '#1565c0' },
+                                '&:hover': { backgroundColor: '#000000' },
                               }}
                             >
-                              <Send size={18} />
+                              {uploadingId === patient.id ? (
+                                <CircularProgress size={16} color="inherit" />
+                              ) : (
+                                <FileUp size={18} />
+                              )}
                             </IconButton>
-                          </Tooltip>
+                          </span>
+                        </Tooltip>
 
-                          {/* -------------------- EXAMINATIONS -------------------- */}
-                          <Tooltip title="Open Examination Form" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                navigate('/examinations', {
-                                  state: { consultation_id: patient.constultation_id },
-                                })
-                              }
-                              sx={{
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                              }}
-                            >
-                              <Eye size={18} />
-                            </IconButton>
-                          </Tooltip>
+                        {/* -------------------- VIEW / DOWNLOAD -------------------- */}
+                        <Tooltip title="View or download attachments" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() => openAttachModal(patient.attachments)}
+                            sx={{
+                              border: '1px solid #1976d2',
+                              color: '#1976d2',
+                              backgroundColor: '#fff',
+                              '&:hover': { backgroundColor: '#e3f2fd' },
+                            }}
+                          >
+                            <FileSearch size={18} />
+                          </IconButton>
+                        </Tooltip>
 
-                          {/* -------------------- ATTACH FILES -------------------- */}
-                          <Tooltip title="Attach files for this patient" arrow>
-                            <span>
-                              <IconButton
-                                size="small"
-                                disabled={uploadingId === patient.id}
-                                onClick={() => {
-                                  if (fileInputRef.current) {
-                                    fileInputRef.current.onchange = (e: any) =>
-                                      handleFileChange(e, patient.id);
-                                    fileInputRef.current.click();
-                                  }
-                                }}
-                                sx={{
-                                  backgroundColor: '#626568',
-                                  color: 'white',
-                                  '&:hover': { backgroundColor: '#000000' },
-                                }}
-                              >
-                                {uploadingId === patient.id ? (
-                                  <CircularProgress size={16} color="inherit" />
-                                ) : (
-                                  <FileUp size={18} />
-                                )}
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-
-                          {/* -------------------- VIEW / DOWNLOAD -------------------- */}
-                          <Tooltip title="View or download attachments" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() => openAttachModal(patient.attachments)}
-                              sx={{
-                                border: '1px solid #1976d2',
-                                color: '#1976d2',
-                                backgroundColor: '#fff',
-                                '&:hover': { backgroundColor: '#e3f2fd' },
-                              }}
-                            >
-                              <FileSearch size={18} />
-                            </IconButton>
-                          </Tooltip>
-
-                          {/* Hidden File Input */}
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            accept="*/*"
-                          />
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="text.secondary">
-                        No patients found.
-                      </Typography>
+                        {/* Hidden File Input */}
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          style={{ display: 'none' }}
+                          accept="*/*"
+                        />
+                      </Box>
                     </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <SendModal
-            open={sendModalOpen}
-            onClose={() => setSendModalOpen(false)}
-            onSend={(department, doctor_id) => {
-              if (currentPatientId) {
-                const patientToSend = patients.find(p => p.id === currentPatientId);
-                if (!patientToSend) return;
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      No patients found.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <SendModal
+          open={sendModalOpen}
+          onClose={() => setSendModalOpen(false)}
+          onSend={(department, doctor_id) => {
+            if (currentPatientId) {
+              const patientToSend = patients.find(p => p.id === currentPatientId);
+              if (!patientToSend) return;
 
-                sendToDepartmentService
-                  .sendToDepartment(currentPatientId, {
-                    department,
-                    doctor_id,
-                    from: patientToSend.constultation_id,
-                  })
-                  .then(() => {
-                    toast.success('Patient sent to department successfully');
-                    fetchPatients();
-                  })
-                  .catch((err: any) => {
-                    toast.error(err.response?.data?.message || 'Failed to send patient');
-                  });
-              }
-            }}
-          />
+              sendToDepartmentService
+                .sendToDepartment(currentPatientId, {
+                  department,
+                  doctor_id,
+                  from: patientToSend.constultation_id,
+                })
+                .then(() => {
+                  toast.success('Patient sent to department successfully');
+                  fetchPatients();
+                })
+                .catch((err: any) => {
+                  toast.error(err.response?.data?.message || 'Failed to send patient');
+                });
+            }
+          }}
+        />
 
-          <AttachmentsModal
-            open={attachModalOpen}
-            onClose={() => setAttachModalOpen(false)}
-            attachments={currentAttachments}
-          />
-          <TablePagination
-            component="div"
-            count={pagination.total}
-            page={pagination.page}
-            onPageChange={handleChangePage}
-            rowsPerPage={pagination.per_page}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </Box>
-  
+        <AttachmentsModal
+          open={attachModalOpen}
+          onClose={() => setAttachModalOpen(false)}
+          attachments={currentAttachments}
+        />
+        <TablePagination
+          component="div"
+          count={pagination.total}
+          page={pagination.page}
+          onPageChange={handleChangePage}
+          rowsPerPage={pagination.per_page}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </Box>
   );
 };
 

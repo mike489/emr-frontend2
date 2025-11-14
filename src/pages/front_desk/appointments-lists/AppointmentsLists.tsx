@@ -32,7 +32,6 @@ import { PatientSummaryService } from '../../../shared/api/services/patientsSumm
 import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
 import { AppointmentsService } from '../../../shared/api/services/appointments.serviecs';
 
-
 // Updated Type definitions to match your API response
 interface Patient {
   id: string;
@@ -96,8 +95,8 @@ const AppointmentsLists: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [departments, setDepartments] = React.useState<string[]>([]);
-  const [summary, setSummary] = React.useState<any[]>([]);
+  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [_summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
@@ -118,7 +117,7 @@ const AppointmentsLists: React.FC = () => {
     doctor_id: '',
     patient_category_id: '',
     dob_from: '',
-    source:'',
+    source: '',
     dob_to: '',
     age_min: '',
     age_max: '',
@@ -156,7 +155,7 @@ const AppointmentsLists: React.FC = () => {
       department: '',
       search: '',
       gender: '',
-      source:'',
+      source: '',
       doctor_id: '',
       patient_category_id: '',
       dob_from: '',
@@ -288,277 +287,265 @@ const AppointmentsLists: React.FC = () => {
   };
 
   return (
- 
-      <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt:-10  }}>
-      
-      
+    <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -10 }}>
+      {/* Search and Filter Section */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Box sx={{ mb: 2 }}>
+          <Button
+            variant="outlined"
+            onClick={() => navigate(-1)}
+            sx={{
+              textTransform: 'none',
+              borderRadius: '20px',
 
-        {/* Search and Filter Section */}
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Box sx={{ mb: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={() => navigate(-1)}
-              sx={{
-                textTransform: 'none',
-                borderRadius: '20px',
-
+              borderColor: '#1976d2',
+              color: '#1976d2',
+              '&:hover': {
+                backgroundColor: '#e3f2fd',
                 borderColor: '#1976d2',
-                color: '#1976d2',
-                '&:hover': {
-                  backgroundColor: '#e3f2fd',
-                  borderColor: '#1976d2',
+              },
+            }}
+          >
+            ← Back
+          </Button>
+        </Box>
+        {/* Patient Category Summary Cards */}
+
+        <Divider sx={{ my: 3 }} />
+
+        <Grid container spacing={2} alignItems="center">
+          {/* Search */}
+          <Grid size={{ xs: 12, sm: 6, md: 5 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+              Search
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Search"
+              value={filters.search}
+              onChange={e => setFilters({ ...filters, search: e.target.value })}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '32px',
+                  fontSize: '0.8rem',
+                },
+                '& .MuiInputBase-input': {
+                  py: 0.5,
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Select Consultant */}
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+              Select Consultant
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              select
+              value={filters.doctor_id}
+              onChange={e => setFilters({ ...filters, doctor_id: e.target.value })}
+              SelectProps={{
+                IconComponent: ArrowDropDown,
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '32px',
+                  fontSize: '0.8rem',
+                },
+                '& .MuiInputBase-input': {
+                  py: 0.5,
                 },
               }}
             >
-              ← Back
+              <MenuItem value="">Select Consultant</MenuItem>
+              {doctors.map(doctor => (
+                <MenuItem key={doctor.id} value={doctor.id}>
+                  {doctor.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          {/* Select Source */}
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+              Select Source
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              select
+              value={filters.source}
+              onChange={e => setFilters({ ...filters, source: e.target.value })}
+              SelectProps={{
+                IconComponent: ArrowDropDown,
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '32px',
+                  fontSize: '0.8rem',
+                },
+                '& .MuiInputBase-input': {
+                  py: 0.5,
+                },
+              }}
+            >
+              <MenuItem value="">Select Source</MenuItem>
+              {sources.map(source => (
+                <MenuItem key={source.id} value={source.id}>
+                  {source.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
+
+        {/* Second row of filters */}
+        <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
+          {/* Created From */}
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+              Created From
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              type="date"
+              value={filters.created_from}
+              onChange={e => setFilters({ ...filters, created_from: e.target.value })}
+              sx={{
+                '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
+                '& .MuiInputBase-input': { py: 0.5 },
+              }}
+            />
+          </Grid>
+
+          {/* Created To */}
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+              Created To
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              type="date"
+              value={filters.created_to}
+              onChange={e => setFilters({ ...filters, created_to: e.target.value })}
+              sx={{
+                '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
+                '& .MuiInputBase-input': { py: 0.5 },
+              }}
+            />
+          </Grid>
+
+          {/* Gender */}
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+              Gender
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              select
+              value={filters.gender}
+              onChange={e => setFilters({ ...filters, gender: e.target.value })}
+              SelectProps={{ IconComponent: ArrowDropDown }}
+              sx={{
+                '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
+                '& .MuiInputBase-input': { py: 0.5 },
+              }}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="Male">Male</MenuItem>
+              <MenuItem value="Female">Female</MenuItem>
+            </TextField>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6, md: 1 }}>
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{ mt: 2.5, borderColor: '#d32f2f', color: '#d32f2f' }}
+              onClick={clearFilters}
+            >
+              Clear
             </Button>
-          </Box>
-          {/* Patient Category Summary Cards */}
-        
-          <Divider sx={{ my: 3 }} />
-
-          <Grid container spacing={2} alignItems="center">
-            {/* Search */}
-            <Grid size={{ xs: 12, sm: 6, md: 5 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Search
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search"
-                value={filters.search}
-                onChange={e => setFilters({ ...filters, search: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiInputBase-root': {
-                    height: '32px',
-                    fontSize: '0.8rem',
-                  },
-                  '& .MuiInputBase-input': {
-                    py: 0.5,
-                  },
-                }}
-              />
-            </Grid>
-
-            {/* Select Consultant */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Select Consultant
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.doctor_id}
-                onChange={e => setFilters({ ...filters, doctor_id: e.target.value })}
-                SelectProps={{
-                  IconComponent: ArrowDropDown,
-                }}
-                sx={{
-                  '& .MuiInputBase-root': {
-                    height: '32px',
-                    fontSize: '0.8rem',
-                  },
-                  '& .MuiInputBase-input': {
-                    py: 0.5,
-                  },
-                }}
-              >
-                <MenuItem value="">Select Consultant</MenuItem>
-                {doctors.map(doctor => (
-                  <MenuItem key={doctor.id} value={doctor.id}>
-                    {doctor.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-{/* Select Source */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-    Select Source
-  </Typography>
-  <TextField
-    fullWidth
-    size="small"
-    select
-    value={filters.source}
-    onChange={e => setFilters({ ...filters, source: e.target.value })}
-    SelectProps={{
-      IconComponent: ArrowDropDown,
-    }}
-    sx={{
-      '& .MuiInputBase-root': {
-        height: '32px',
-        fontSize: '0.8rem',
-      },
-      '& .MuiInputBase-input': {
-        py: 0.5,
-      },
-    }}
-  >
-    <MenuItem value="">Select Source</MenuItem>
-    {sources.map(source => (
-      <MenuItem key={source.id} value={source.id}>
-        {source.name}
-      </MenuItem>
-    ))}
-  </TextField>
-</Grid>
-
           </Grid>
+        </Grid>
+      </Paper>
 
-          {/* Second row of filters */}
-          <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
-            {/* Created From */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Created From
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="date"
-                value={filters.created_from}
-                onChange={e => setFilters({ ...filters, created_from: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              />
-            </Grid>
+      {/* Patient Table */}
+      <Paper sx={{ p: 0 }}>
+        <input type="file" ref={fileInputRef} style={{ display: 'none' }} multiple />
 
-            {/* Created To */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Created To
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="date"
-                value={filters.created_to}
-                onChange={e => setFilters({ ...filters, created_to: e.target.value })}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              />
-            </Grid>
-
-            {/* Gender */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-                Gender
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                value={filters.gender}
-                onChange={e => setFilters({ ...filters, gender: e.target.value })}
-                SelectProps={{ IconComponent: ArrowDropDown }}
-                sx={{
-                  '& .MuiInputBase-root': { height: '32px', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input': { py: 0.5 },
-                }}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Male">Male</MenuItem>
-                <MenuItem value="Female">Female</MenuItem>
-              </TextField>
-            </Grid>
-
-         
-            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
-              <Button
-                variant="outlined"
-                fullWidth
-                sx={{ mt: 2.5, borderColor: '#d32f2f', color: '#d32f2f' }}
-                onClick={clearFilters}
-              >
-                Clear
-              </Button>
-            </Grid>
-          </Grid>
-        </Paper>
-
-        {/* Patient Table */}
-        <Paper sx={{ p: 0 }}>
-          <input type="file" ref={fileInputRef} style={{ display: 'none' }} multiple />
-
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                  {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 50 }}>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 50 }}>
                     Category
                   </TableCell> */}
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
-                    Patient Name
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 110 }}>
-                    EMR Number
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 60 }}>Age</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 80 }}>
-                    Gender
-                  </TableCell>
-                  {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
+                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
+                  Patient Name
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 110 }}>
+                  EMR Number
+                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 60 }}>Age</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 80 }}>Gender</TableCell>
+                {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
                     Phone
                   </TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>City</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 100 }}>
                     Blood Type
                   </TableCell> */}
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 140 }}>
-                    Doctor
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 100 }}>
-                    Status
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      color: '#333',
-                      width: 200,
-                      textAlign: 'center',
-                    }}
-                  >
-                    Action
+                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 140 }}>Doctor</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 100 }}>Status</TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: '#333',
+                    width: 200,
+                    textAlign: 'center',
+                  }}
+                >
+                  Action
+                </TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      Loading patients...
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="text.secondary">
-                        Loading patients...
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : error ? (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="error">
-                        Error loading patients. Please try again.
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : patients.length > 0 ? (
-                  patients.map((patient, index) => (
-                    <TableRow key={patient.id || index}>
-                      {/* <TableCell>
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="error">
+                      Error loading patients. Please try again.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : patients.length > 0 ? (
+                patients.map((patient, index) => (
+                  <TableRow key={patient.id || index}>
+                    {/* <TableCell>
                         {' '}
                         <Box
                           sx={{
@@ -572,143 +559,142 @@ const AppointmentsLists: React.FC = () => {
                           }}
                         />
                       </TableCell> */}
-                      <TableCell>
-                        {/* <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                    <TableCell>
+                      {/* <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                           {patient.patient_category.name}
                         </Typography> */}
-                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                          {patient.full_name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {patient.title}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{patient.emr_number}</TableCell>
-                      {/* <TableCell>{patient.age} years</TableCell> */}
-                      <TableCell>{patient.gender}</TableCell>
-                      <TableCell>{patient.phone}</TableCell>
-                      {/* <TableCell>{patient.address?.city}</TableCell> */}
-                      {/* <TableCell>{patient.blood_type}</TableCell> */}
-                      <TableCell>
-                        {patient.current_doctor && typeof patient.current_doctor === 'object'
-                          ? patient.current_doctor.name
-                          : patient.current_doctor || 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <Box
-                          sx={{
-                            display: 'inline-block',
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 1,
-                            backgroundColor: patient.status === '1' ? '#e8f5e8' : '#fff3e0',
-                            color: patient.status === '1' ? '#2e7d32' : '#f57c00',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                          }}
-                        >
-                          {patient.status === '1' ? 'Active' : 'Inactive'}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => sendToTriage(patient.id)}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 0.8,
-                              py: 0.4,
-                              minWidth: 70,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#1976d2',
-                              '&:hover': { backgroundColor: '#1565c0' },
-                            }}
-                          >
-                            Send to Triage
-                          </Button>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            disabled={uploadingId === patient.id}
-                            onClick={() => {
-                              if (fileInputRef.current) {
-                                fileInputRef.current.onchange = (e: any) =>
-                                  handleFileChange(e, patient.id);
-                                fileInputRef.current.click();
-                              }
-                            }}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 0.8,
-                              py: 0.4,
-                              minWidth: 70,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#626568',
-                              '&:hover': { backgroundColor: '#000000' },
-                            }}
-                          >
-                            {uploadingId === patient.id ? (
-                              <CircularProgress size={16} color="inherit" />
-                            ) : (
-                              'Attach Files'
-                            )}
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => openAttachModal(patient.attachments)}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 0.8,
-                              py: 0.4,
-                              minWidth: 90,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#fff',
-                              borderColor: '#1976d2',
-                              color: '#1976d2',
-                              '&:hover': { backgroundColor: '#e3f2fd' },
-                            }}
-                          >
-                            View / Download
-                          </Button>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="text.secondary">
-                        No patients found.
+                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                        {patient.full_name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {patient.title}
                       </Typography>
                     </TableCell>
+                    <TableCell>{patient.emr_number}</TableCell>
+                    {/* <TableCell>{patient.age} years</TableCell> */}
+                    <TableCell>{patient.gender}</TableCell>
+                    <TableCell>{patient.phone}</TableCell>
+                    {/* <TableCell>{patient.address?.city}</TableCell> */}
+                    {/* <TableCell>{patient.blood_type}</TableCell> */}
+                    <TableCell>
+                      {patient.current_doctor && typeof patient.current_doctor === 'object'
+                        ? patient.current_doctor.name
+                        : patient.current_doctor || 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: 'inline-block',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          backgroundColor: patient.status === '1' ? '#e8f5e8' : '#fff3e0',
+                          color: patient.status === '1' ? '#2e7d32' : '#f57c00',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {patient.status === '1' ? 'Active' : 'Inactive'}
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={() => sendToTriage(patient.id)}
+                          sx={{
+                            textTransform: 'none',
+                            borderRadius: '16px',
+                            px: 0.8,
+                            py: 0.4,
+                            minWidth: 70,
+                            fontSize: '0.7rem',
+                            backgroundColor: '#1976d2',
+                            '&:hover': { backgroundColor: '#1565c0' },
+                          }}
+                        >
+                          Send to Triage
+                        </Button>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          disabled={uploadingId === patient.id}
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.onchange = (e: any) =>
+                                handleFileChange(e, patient.id);
+                              fileInputRef.current.click();
+                            }
+                          }}
+                          sx={{
+                            textTransform: 'none',
+                            borderRadius: '16px',
+                            px: 0.8,
+                            py: 0.4,
+                            minWidth: 70,
+                            fontSize: '0.7rem',
+                            backgroundColor: '#626568',
+                            '&:hover': { backgroundColor: '#000000' },
+                          }}
+                        >
+                          {uploadingId === patient.id ? (
+                            <CircularProgress size={16} color="inherit" />
+                          ) : (
+                            'Attach Files'
+                          )}
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => openAttachModal(patient.attachments)}
+                          sx={{
+                            textTransform: 'none',
+                            borderRadius: '16px',
+                            px: 0.8,
+                            py: 0.4,
+                            minWidth: 90,
+                            fontSize: '0.7rem',
+                            backgroundColor: '#fff',
+                            borderColor: '#1976d2',
+                            color: '#1976d2',
+                            '&:hover': { backgroundColor: '#e3f2fd' },
+                          }}
+                        >
+                          View / Download
+                        </Button>
+                      </Box>
+                    </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <AttachmentsModal
-            open={attachModalOpen}
-            onClose={() => setAttachModalOpen(false)}
-            attachments={currentAttachments}
-          />
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      No patients found.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <AttachmentsModal
+          open={attachModalOpen}
+          onClose={() => setAttachModalOpen(false)}
+          attachments={currentAttachments}
+        />
 
-          <TablePagination
-            component="div"
-            count={pagination.total}
-            page={pagination.page}
-            onPageChange={handleChangePage}
-            rowsPerPage={pagination.per_page}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </Box>
-   
+        <TablePagination
+          component="div"
+          count={pagination.total}
+          page={pagination.page}
+          onPageChange={handleChangePage}
+          rowsPerPage={pagination.per_page}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </Box>
   );
 };
 

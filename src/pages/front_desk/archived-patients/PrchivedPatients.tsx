@@ -12,9 +12,7 @@ import {
   TextField,
   MenuItem,
   InputAdornment,
-  Grid,
   Button,
-  Divider,
   CircularProgress,
   TablePagination,
   Chip,
@@ -32,8 +30,7 @@ import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { PatientService } from '../../../shared/api/services/patient.service';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
-import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
-import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
+import { FileSearch } from 'lucide-react';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -98,7 +95,6 @@ const ArchivedPatients: React.FC = () => {
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-  const [uploadingId, setUploadingId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
   const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
@@ -250,16 +246,16 @@ const ArchivedPatients: React.FC = () => {
     }
   };
 
-  const sendToTriage = async (id: string) => {
-    try {
-      await sendToTriageService.sendToTriage(id);
-      toast.success('Patient sent to triage successfully');
-      fetchPatients(); // Refresh the patient list after sending to triage
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to send patient to triage');
-      console.error('Error sending patient to triage:', err);
-    }
-  };
+  // const sendToTriage = async (id: string) => {
+  //   try {
+  //     await sendToTriageService.sendToTriage(id);
+  //     toast.success('Patient sent to triage successfully');
+  //     fetchPatients(); // Refresh the patient list after sending to triage
+  //   } catch (err: any) {
+  //     toast.error(err.response?.data?.message || 'Failed to send patient to triage');
+  //     console.error('Error sending patient to triage:', err);
+  //   }
+  // };
 
   useEffect(() => {
     fetchPatients();
@@ -269,25 +265,25 @@ const ArchivedPatients: React.FC = () => {
     fetchDoctors();
   }, [filters]);
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    patientId: string
-  ) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  // const handleFileChange = async (
+  //   event: React.ChangeEvent<HTMLInputElement>,
+  //   patientId: string
+  // ) => {
+  //   const files = event.target.files;
+  //   if (!files || files.length === 0) return;
 
-    try {
-      setUploadingId(patientId);
-      await UploadService.uploadFiles(patientId, Array.from(files));
-      toast.success('Files uploaded successfully');
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to upload files');
-    } finally {
-      setUploadingId(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
+  //   try {
+  //     setUploadingId(patientId);
+  //     await UploadService.uploadFiles(patientId, Array.from(files));
+  //     toast.success('Files uploaded successfully');
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error('Failed to upload files');
+  //   } finally {
+  //     setUploadingId(null);
+  //     if (fileInputRef.current) fileInputRef.current.value = '';
+  //   }
+  // };
 
   const handleSortByName = () => {
     setFilters(prev => ({
