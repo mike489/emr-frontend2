@@ -22,6 +22,10 @@ import Refraction from '../pages/refraction/refraction';
 import Triage from '../pages/triage/Triage';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
+import Referrals from '../pages/triage/patients/Referrals';
+import Discussion from '../pages/triage/Discussion';
+import Notifications from '../pages/Notifications';
+import Settings from '../pages/Settings';
 
 export const ROUTES = {
   public: {
@@ -80,11 +84,76 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
+    referrals: {
+      path: '/triage/referrals',
+      element: (
+        <PrivateRoute>
+           <Referrals />
+        </PrivateRoute>
+      ),
+    },
+    discussion: {
+      path: '/triage/discussion',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+    checkoutPatients: {  
+path: '/triage/checkout-patients',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+emergencyPatient:{
+  path: '/triage/emergency-patients',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+
     refraction: {
       path: '/refraction',
       element: (
         <PrivateRoute>
           <Refraction />
+        </PrivateRoute>
+      ),
+    },
+      referralsRefraction: {
+      path: '/refraction/referrals',
+      element: (
+        <PrivateRoute>
+           <Referrals />
+        </PrivateRoute>
+      ),
+    },
+    discussionRefraction: {
+      path: '/refraction/discussion',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+    checkoutRefraction: {  
+path: '/refraction/checkout-patients',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+emergencyRefraction:{
+  path: '/refraction/emergency-patients',
+      element: (
+        <PrivateRoute>
+          <Discussion />
         </PrivateRoute>
       ),
     },
@@ -104,7 +173,38 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
-
+  referralsDoctor: {
+      path: '/doctor/referrals',
+      element: (
+        <PrivateRoute>
+           <Referrals />
+        </PrivateRoute>
+      ),
+    },
+    discussionDoctor: {
+      path: '/doctor/discussion',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+    checkoutDoctor: {  
+path: '/doctor/checkout-patients',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+emergencyDoctor:{
+  path: '/doctor/emergency-patients',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
     glaucoma: {
       path: '/glaucoma',
       element: (
@@ -175,6 +275,22 @@ export const ROUTES = {
       element: (
         <PrivateRoute>
           <CreateAppointment />
+        </PrivateRoute>
+      ),
+    },
+    notifications: {
+      path: '/notifications',
+      element: (
+        <PrivateRoute>
+          <Notifications />
+        </PrivateRoute>
+      ),
+    },
+    settings: {
+      path: '/settings',
+      element: (
+        <PrivateRoute>
+          <Settings />
         </PrivateRoute>
       ),
     },

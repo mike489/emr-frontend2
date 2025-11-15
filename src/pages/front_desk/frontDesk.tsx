@@ -20,8 +20,7 @@ import {
   Tooltip,
 } from '@mui/material';
 
-import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Search, ArrowDropDown } from '@mui/icons-material';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
 import { DepartmentsService } from '../../shared/api/services/departments.service';
@@ -86,7 +85,6 @@ interface Attachment {
 }
 
 const FrontDesk: React.FC = () => {
-  const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
@@ -307,30 +305,9 @@ const FrontDesk: React.FC = () => {
             mb: 3,
           }}
         >
-          {/* Back Button */}
-          <Button
-            variant="outlined"
-            onClick={() => navigate(-1)}
-            startIcon={<ArrowBackIos sx={{ fontSize: 16 }} />}
-            sx={{
-              textTransform: 'none',
-              borderRadius: '8px',
-              borderColor: '#1976d2',
-              color: '#1976d2',
-              px: 2,
-              py: 0.8,
-              fontSize: '0.875rem',
-              '&:hover': {
-                backgroundColor: '#e3f2fd',
-                borderColor: '#1976d2',
-              },
-            }}
-          >
-            Back
-          </Button>
 
           {/* Summary Stats */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent :'flex-end', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Chip
                 label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}

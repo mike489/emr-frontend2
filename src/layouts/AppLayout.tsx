@@ -5,7 +5,7 @@ import type { TabItem } from '../data/data';
 
 interface Props {
   children: React.ReactNode;
-  tabsData?: TabItem[]; // optional, pages without tabs can skip
+  tabsData?: TabItem[]; 
 }
 
 export default function AppLayout({ children, tabsData = [] }: Props) {

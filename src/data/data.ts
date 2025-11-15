@@ -42,23 +42,23 @@ export const FRONT_DESK_TABS: TabItem[] = [
   },
   {
     label: 'Notifications',
-    path: '/front-desk/notifications',
-    children: [
-      { label: 'Appointment Reminders', path: '/front-desk/notifications/reminders' },
-      { label: 'Follow-Up Alerts', path: '/front-desk/notifications/followups' },
-      { label: 'System Updates', path: '/front-desk/notifications/updates' },
-      { label: 'Messages from Doctors', path: '/front-desk/notifications/messages' },
-    ],
+    path: '/notifications',
+    // children: [
+    //   { label: 'Appointment Reminders', path: '/front-desk/notifications/reminders' },
+    //   { label: 'Follow-Up Alerts', path: '/front-desk/notifications/followups' },
+    //   { label: 'System Updates', path: '/front-desk/notifications/updates' },
+    //   { label: 'Messages from Doctors', path: '/front-desk/notifications/messages' },
+    // ],
   },
 
   {
     label: 'Settings',
-    path: '/front-desk/settings',
-    children: [
-      { label: 'User Profile', path: '/front-desk/profile' },
-      { label: 'Change Password', path: '/front-desk/change-password' },
-      { label: 'Logout ', path: '/' },
-    ],
+    path: '/settings',
+    // children: [
+    //   { label: 'User Profile', path: '/front-desk/profile' },
+    //   { label: 'Change Password', path: '/front-desk/change-password' },
+    //   { label: 'Logout ', path: '/' },
+    // ],
   },
 ];
 
@@ -87,12 +87,12 @@ export const TRIAGE_TABS: TabItem[] = [
 
   {
     label: 'Notifications',
-    path: '/triage/notifications',
+    path: '/notifications',
   },
 
   {
     label: 'Settings',
-    path: '/triage/settings',
+    path: '/settings',
   },
   // { label: "Logout", path: "/logout" },
 ];
@@ -122,12 +122,12 @@ export const REFRACTION_TABS: TabItem[] = [
 
   {
     label: 'Notifications',
-    path: '/refraction/notifications',
+    path: '/notifications',
   },
 
   {
     label: 'Settings',
-    path: '/refraction/settings',
+    path: '/settings',
   },
   // { label: "Logout", path: "/logout" },
 ];
@@ -157,12 +157,12 @@ export const DOCTOR_TABS: TabItem[] = [
 
   {
     label: 'Notifications',
-    path: '/doctor/notifications',
+    path: '/notifications',
   },
 
   {
     label: 'Settings',
-    path: '/doctor/settings',
+    path: '/settings',
   },
   // { label: "Logout", path: "/logout" },
 ];

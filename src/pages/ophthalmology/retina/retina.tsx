@@ -294,32 +294,6 @@ const Retina: React.FC = () => {
 
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
-      {/* Header */}
-      {/* <TabBar tabsData={DOCTOR_TABS}/> */}
-      <Box sx={{ display: 'flex', p: 2, alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box sx={{}}>
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-            sx={{ fontWeight: 'bold', color: '#333' }}
-          >
-            Retina Dashboard
-          </Typography>
-          {/* <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
-              Real-time patient flow and management - Total: {total}
-            </Typography> */}
-        </Box>
-        {/* <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate('/new-patient')}
-            sx={{ textTransform: 'none', borderRadius: '20px', px: 3, height: '40px' }}
-          >
-            + New Patient
-          </Button> */}
-      </Box>
-
       {/* Search and Filter Section */}
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Header with Back Button and Summary Stats */}

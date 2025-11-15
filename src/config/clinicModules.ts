@@ -27,6 +27,7 @@ export const CLINIC_MODULES = [
   // { title: 'Retina', Icon: Retina, entryRoute: '/retina' },
   // { title: 'Pediatrics Ophthalmology', Icon: Pediatrics, entryRoute: '/pediatrics-ophthalmology' },
   { title: 'IN PATIENT', Icon: InPatient, entryRoute: '/inpatient' },
+  { title: 'OR', Icon: InPatient, entryRoute: '/or' },
   // { title: 'CLINICAL AUDIT', Icon: ClipboardList, entryRoute: '/audit' },
   // { title: 'VISION TECHNICIAN', Icon: Eye, entryRoute: '/vision-tech' },
   // { title: 'VISION GUARDIAN', Icon: Users, entryRoute: '/vision-guardian' },
