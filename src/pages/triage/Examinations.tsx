@@ -9,13 +9,17 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
+  MenuItem,
+  InputAdornment,
+  Button,
   CircularProgress,
   TablePagination,
   Tooltip,
   IconButton,
 } from '@mui/material';
 import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
-import { ArrowDropDown } from '@mui/icons-material';
+import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -88,7 +92,7 @@ const Examinations: React.FC = () => {
   const [error, setError] = React.useState<boolean>(false);
   const [_departments, setDepartments] = React.useState<string[]>([]);
   const [_summary, setSummary] = React.useState<any[]>([]);
-  const [_doctors, setDoctors] = React.useState<any[]>([]);
+  const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
@@ -97,7 +101,7 @@ const Examinations: React.FC = () => {
   const [_summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
-  const [_patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
+  const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
     []
   );
   const [filters, setFilters] = React.useState({
@@ -138,27 +142,27 @@ const Examinations: React.FC = () => {
     setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
   };
 
-  // const clearFilters = () => {
-  //   setFilters({
-  //     page: 1,
-  //     per_page: 25,
-  //     sort_by: 'full_name',
-  //     sort_order: 'asc',
-  //     department: '',
-  //     search: '',
-  //     gender: '',
-  //     doctor_id: '',
-  //     patient_category_id: '',
-  //     dob_from: '',
-  //     dob_to: '',
-  //     age_min: '',
-  //     age_max: '',
-  //     created_from: '',
-  //     created_to: '',
-  //     sort_dir: 'asc',
-  //   });
-  //   fetchPatients();
-  // };
+  const clearFilters = () => {
+    setFilters({
+      page: 1,
+      per_page: 25,
+      sort_by: 'full_name',
+      sort_order: 'asc',
+      department: '',
+      search: '',
+      gender: '',
+      doctor_id: '',
+      patient_category_id: '',
+      dob_from: '',
+      dob_to: '',
+      age_min: '',
+      age_max: '',
+      created_from: '',
+      created_to: '',
+      sort_dir: 'asc',
+    });
+    fetchPatients();
+  };
 
   const fetchPatients = async () => {
     setLoading(true);
@@ -282,7 +286,193 @@ const Examinations: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5' }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
+
+      <Paper sx={{ p: 2, mb: 2, mt: 12, borderRadius: 2 }}>
+        {/* Compact Filter Row */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end' }}>
+          {/* Search */}
+          <TextField
+            size="small"
+            placeholder="Search patients..."
+            value={filters.search}
+            onChange={e => setFilters({ ...filters, search: e.target.value })}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 200, flex: 1 }}
+          />
+
+          {/* Consultant */}
+          <TextField
+            size="small"
+            select
+            value={filters.doctor_id}
+            onChange={e => setFilters({ ...filters, doctor_id: e.target.value })}
+            placeholder="Consultant"
+            SelectProps={{
+              IconComponent: ArrowDropDown,
+              displayEmpty: true, // Add this
+              renderValue: selected => {
+                if (selected === '') {
+                  return 'All Consultants';
+                }
+                return doctors.find(doctor => doctor.id === selected)?.name || selected;
+              },
+            }}
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Consultants</MenuItem>
+            {doctors.map(doctor => (
+              <MenuItem key={doctor.id} value={doctor.id}>
+                {doctor.name}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          {/* Gender */}
+          <TextField
+            size="small"
+            select
+            value={filters.gender}
+            onChange={e => setFilters({ ...filters, gender: e.target.value })}
+            SelectProps={{
+              displayEmpty: true,
+              renderValue: (selected: unknown) => {
+                if (selected === '' || !selected) {
+                  return <span>All Genders</span>;
+                }
+                return <span>{selected as string}</span>;
+              },
+            }}
+            sx={{ minWidth: 120 }}
+          >
+            <MenuItem value="">All Genders</MenuItem>
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
+          </TextField>
+
+          {/* Clear Button */}
+          <Button
+            variant="outlined"
+            onClick={clearFilters}
+            sx={{
+              height: '40px',
+              borderColor: '#d32f2f',
+              color: '#d32f2f',
+              fontSize: '0.875rem',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Clear Filters
+          </Button>
+        </Box>
+
+        {/* Secondary Filters */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end', mt: 1.5 }}>
+          {/* Date Range */}
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: '600', color: '#666', whiteSpace: 'nowrap' }}
+            >
+              Created:
+            </Typography>
+            <TextField
+              size="small"
+              type="date"
+              value={filters.created_from}
+              onChange={e => setFilters({ ...filters, created_from: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              sx={{ width: 140 }}
+            />
+            <TextField
+              size="small"
+              type="date"
+              value={filters.created_to}
+              onChange={e => setFilters({ ...filters, created_to: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              sx={{ width: 140 }}
+            />
+          </Box>
+
+          {/* DOB Range */}
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: '600', color: '#666', whiteSpace: 'nowrap' }}
+            >
+              DOB:
+            </Typography>
+            <TextField
+              size="small"
+              type="date"
+              value={filters.dob_from}
+              onChange={e => setFilters({ ...filters, dob_from: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              sx={{ width: 140 }}
+            />
+            <TextField
+              size="small"
+              type="date"
+              value={filters.dob_to}
+              onChange={e => setFilters({ ...filters, dob_to: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              sx={{ width: 140 }}
+            />
+          </Box>
+
+          {/* Department */}
+          {/* <TextField
+                      size="small"
+                      select
+                      value={filters.department}
+                      onChange={e => setFilters({ ...filters, department: e.target.value })}
+                      placeholder="Department"
+                      sx={{ minWidth: 150 }}
+                    >
+                      <MenuItem value="">All Departments</MenuItem>
+                      {departments.map((dept, index) => (
+                        <MenuItem key={index} value={dept}>
+                          {dept}
+                        </MenuItem>
+                      ))}
+                    </TextField> */}
+
+          {/* Patient Category */}
+          <TextField
+            size="small"
+            select
+            value={filters.patient_category_id}
+            onChange={e => setFilters({ ...filters, patient_category_id: e.target.value })}
+            placeholder="Category"
+            SelectProps={{
+              displayEmpty: true,
+              renderValue: (selected: unknown) => {
+                if (selected === '' || !selected) {
+                  return 'All Categories';
+                }
+                const category = patientCategories.find(cat => cat.id === selected);
+                return category?.name || (selected as string);
+              },
+            }}
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Categories</MenuItem>
+            {patientCategories.map(category => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
+      </Paper>
+
+      {/* Patient Table */}
       <Paper sx={{ p: 0 }}>
         <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
 
@@ -488,9 +678,6 @@ const Examinations: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                        {patient.patient_category.name}
-                      </Typography>
                       <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                         {patient.full_name}
                       </Typography>

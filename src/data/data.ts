@@ -175,7 +175,7 @@ export const DIAGNOSIS_TABS: TabItem[] = [
   {
     label: 'Cases',
     path: '/diagnosis/cases',
-    children: [{ label: 'Today’s Case', path: '/diagnosis/today-case' }],
+    children: [{ label: 'Today’s Case', path: '/diagnosis/today-cases' }],
   },
   {
     label: 'Laboratory',
@@ -201,6 +201,93 @@ export const DIAGNOSIS_TABS: TabItem[] = [
   // { label: "Logout", path: "/logout" },
 ];
 
+// Results
+// 
+export const PHARMACY_TABS: TabItem[] = [
+  {
+    label: 'Cases',
+    path: '/pharmacy/cases',
+    children: [{ label: 'Today’s Case', path: '/pharmacy/today-cases' }],
+  },
+  {
+    label: 'Results',
+    path: '/pharmacy/results',
+  },
+  
+  {
+    label: 'Notifications',
+    path: '/pharmacy/notifications',
+  },
+  {
+    label: 'Settings',
+    path: '/pharmacy/settings',
+  },
+  // { label: "Logout", path: "/logout" },
+];
+
+export const OPTICAL_TABS: TabItem[] = [
+  {
+    label: 'Cases',
+    path: '/optical/cases',
+    children: [{ label: 'Today’s Case', path: '/optical/today-cases' }],
+  },
+  {
+    label: 'Results',
+    path: '/optical/results',
+  },
+  
+  {
+    label: 'Notifications',
+    path: '/optical/notifications',
+  },
+  {
+    label: 'Settings',
+    path: '/optical/settings',
+  },
+  // { label: "Logout", path: "/logout" },
+];
+export const IN_PATIENT_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/in-patient/patients',
+    children: [{ label: 'In Patients', path: '/in-patient/in-patients' }],
+  },
+  {
+    label: 'Ward Management',
+    path: '/in-patient/ward-management',
+  },
+   {
+    label: 'Patient Beds',
+    path: '/in-patient/patient-beds',
+  },
+  {
+    label: 'Notifications',
+    path: '/in-patient/notifications',
+  },
+  {
+    label: 'Settings',
+    path: '/in-patient/settings',
+  },
+  // { label: "Logout", path: "/logout" },
+];
+
+export const COUNSELOR_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/counselor/patients',
+    // children: [{ label: 'Today’s Case', path: '/counselor/today-cases' }],
+  },
+ 
+  {
+    label: 'Notifications',
+    path: '/counselor/notifications',
+  },
+  {
+    label: 'Settings',
+    path: '/counselor/settings',
+  },
+  // { label: "Logout", path: "/logout" },
+];
 // ───────────────────────────────────────────
 // DEFAULT TABS
 // ───────────────────────────────────────────

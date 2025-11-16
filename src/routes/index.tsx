@@ -3,7 +3,7 @@ import { ROUTES } from './routes';
 import { Suspense } from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import AppLayout from '../layouts/AppLayout';
-import { FRONT_DESK_TABS, DOCTOR_TABS, TRIAGE_TABS, REFRACTION_TABS } from '../data/data';
+import { FRONT_DESK_TABS, DOCTOR_TABS, TRIAGE_TABS, REFRACTION_TABS, DIAGNOSIS_TABS, PHARMACY_TABS, OPTICAL_TABS, IN_PATIENT_TABS } from '../data/data';
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
@@ -149,7 +149,103 @@ const router = createBrowserRouter([
     path: ROUTES.protected.opd3.path,
     element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.opd3.element}</AppLayout>,
   },
+   {
+    path: ROUTES.protected.diagnosis.path,
+    element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.diagnosis.element}</AppLayout>,
+  },
+   {
+    path: ROUTES.protected.todayCases.path,
+    element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.todayCases.element}</AppLayout>,
+  },
+{
+    path: ROUTES.protected.laboratory.path,
+    element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.laboratory.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.radiology.path,
+    element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.radiology.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.caseHistories.path,
+    element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.caseHistories.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.diagnosisNotifications.path,
+    element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.diagnosisNotifications.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.diagnosisSettings.path,
+    element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.diagnosisSettings.element}</AppLayout>,
+  },
+  // 🔹 Pharmacy
+  {
+    path: ROUTES.protected.pharmacy.path,
+    element: <AppLayout tabsData={PHARMACY_TABS}>{ROUTES.protected.pharmacy.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.pharmacyCases.path,
+    element: <AppLayout tabsData={PHARMACY_TABS}>{ROUTES.protected.pharmacyCases.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.pharmacyResults.path,
+    element: <AppLayout tabsData={PHARMACY_TABS}>{ROUTES.protected.pharmacyResults.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.pharmacySettings.path,
+    element: <AppLayout tabsData={PHARMACY_TABS}>{ROUTES.protected.pharmacySettings.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.pharmacyNotifications.path,
+    element: <AppLayout tabsData={PHARMACY_TABS}>{ROUTES.protected.pharmacyNotifications.element}</AppLayout>,
+  },
+  // Optical
 
+  {
+    path: ROUTES.protected.optical.path,
+    element: <AppLayout tabsData={OPTICAL_TABS}>{ROUTES.protected.optical.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.opticalCases.path,
+    element: <AppLayout tabsData={OPTICAL_TABS}>{ROUTES.protected.opticalCases.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.opticalResults.path,
+    element: <AppLayout tabsData={OPTICAL_TABS}>{ROUTES.protected.opticalResults.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.opticalSettings.path,
+    element: <AppLayout tabsData={OPTICAL_TABS}>{ROUTES.protected.opticalSettings.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.opticalNotifications.path,
+    element: <AppLayout tabsData={OPTICAL_TABS}>{ROUTES.protected.opticalNotifications.element}</AppLayout>,
+  },
+
+  // In-Patient
+  {
+    path: ROUTES.protected.inPatient.path,
+    element: <AppLayout tabsData={IN_PATIENT_TABS}>{ROUTES.protected.inPatient.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.inPatientCases.path,
+    element: <AppLayout tabsData={IN_PATIENT_TABS}>{ROUTES.protected.inPatientCases.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.wardManagement.path,
+    element: <AppLayout tabsData={IN_PATIENT_TABS}>{ROUTES.protected.wardManagement.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.patientBeds.path,
+    element: <AppLayout tabsData={IN_PATIENT_TABS}>{ROUTES.protected.patientBeds.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.inPatientSettings.path,
+    element: <AppLayout tabsData={IN_PATIENT_TABS}>{ROUTES.protected.inPatientSettings.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.inPatientNotifications.path,
+    element: <AppLayout tabsData={IN_PATIENT_TABS}>{ROUTES.protected.inPatientNotifications.element}</AppLayout>,
+  },
   // 🔹 Dashboard and ClinicLists (no tabs)
   {
     path: ROUTES.protected.dashboard.path,
