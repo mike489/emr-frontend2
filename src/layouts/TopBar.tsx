@@ -26,7 +26,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useLiveClock } from '../hooks/useLiveClock';
 import TabBar from './TabBar';
 import type { TabItem } from '../data/data';
-import Logo from '../assets/icons/logo.svg';
+import Logo from '../assets/icons/Logo.svg';
 
 /* ----------------------- Import All Tab Sets ----------------------- */
 import {
@@ -86,8 +86,7 @@ export default function TopBar({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const timeStr = useLiveClock('PPP – p (z)');
 
-  const handleProfileMenu = (e: MouseEvent<HTMLElement>) =>
-    setAnchorEl(e.currentTarget);
+  const handleProfileMenu = (e: MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
   const handleLogout = () => {
     logout();
@@ -144,7 +143,6 @@ export default function TopBar({
         }}
       >
         <Toolbar>
-         
           <IconButton
             edge="start"
             color="inherit"
@@ -154,12 +152,10 @@ export default function TopBar({
             <MenuIcon />
           </IconButton>
 
-         
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mr: 2 }}>
-           
             <Box
               component="img"
-              src={Logo}               
+              src={Logo}
               alt="EMR System Logo"
               sx={{
                 height: 50,
@@ -170,7 +166,6 @@ export default function TopBar({
                 p: 0.5,
               }}
             />
-  
           </Stack>
 
           <Typography
@@ -182,10 +177,7 @@ export default function TopBar({
           >
             {title} Dashboard
           </Typography>
-          <Typography
-            variant="body2"
-            sx={{ mr: 3, display: { xs: 'none', sm: 'block' } }}
-          >
+          <Typography variant="body2" sx={{ mr: 3, display: { xs: 'none', sm: 'block' } }}>
             {timeStr}
           </Typography>
 
