@@ -177,6 +177,14 @@ const router = createBrowserRouter([
     path: ROUTES.protected.diagnosisSettings.path,
     element: <AppLayout tabsData={DIAGNOSIS_TABS}>{ROUTES.protected.diagnosisSettings.element}</AppLayout>,
   },
+  {
+    path: ROUTES.protected.triagePatients.path,
+    element: <AppLayout tabsData={TRIAGE_TABS}>{ROUTES.protected.triagePatients.element}</AppLayout>,
+  },
+   {
+    path: ROUTES.protected.doctorPatients.path,
+    element: <AppLayout tabsData={DOCTOR_TABS}>{ROUTES.protected.doctorPatients.element}</AppLayout>,
+  },
   // 🔹 Pharmacy
   {
     path: ROUTES.protected.pharmacy.path,

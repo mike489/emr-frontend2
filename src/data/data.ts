@@ -71,6 +71,7 @@ export const TRIAGE_TABS: TabItem[] = [
     label: 'Patients',
     path: '/triage/patients',
     children: [
+      { label: 'Patient List', path: '/triage/patients-list' },
       { label: 'Referrals', path: '/triage/referrals' },
       { label: 'Checkout patients ', path: '/triage/checkout-patients' },
       { label: 'Emergency Patients', path: '/triage/emergency-patients' },
@@ -106,6 +107,8 @@ export const REFRACTION_TABS: TabItem[] = [
     label: 'Patients',
     path: '/refraction/patients',
     children: [
+      { label: 'Patient List', path: '/refraction/patients-list' },
+
       { label: 'Referrals', path: '/refraction/referrals' },
       { label: 'Checkout patients ', path: '/refraction/checkout-patients' },
       { label: 'Emergency Patients', path: '/refraction/emergency-patients' },
@@ -141,6 +144,7 @@ export const DOCTOR_TABS: TabItem[] = [
     label: 'Patients',
     path: '/doctor/patients',
     children: [
+      { label: 'Patient List', path: '/doctor/patients-list' },
       { label: 'Referrals', path: '/doctor/referrals' },
       { label: 'Checkout patients ', path: '/doctor/checkout-patients' },
       { label: 'Emergency Patients', path: '/doctor/emergency-patients' },

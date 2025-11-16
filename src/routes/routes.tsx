@@ -103,6 +103,22 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
+    triagePatients: {
+      path: '/triage/patients-list',
+      element: (
+        <PrivateRoute>
+           <Triage />
+        </PrivateRoute>
+      ),
+    },
+    doctorPatients: {
+      path: '/doctor/patients-list',
+      element: (
+        <PrivateRoute>
+           <Retina />
+        </PrivateRoute>
+      ),
+    },
     discussion: {
       path: '/triage/discussion',
       element: (
