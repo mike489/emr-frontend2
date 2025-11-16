@@ -20,7 +20,7 @@ import {
   IconButton,
 } from '@mui/material';
 
-import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
+import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -293,7 +293,7 @@ const Retina: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
       {/* Search and Filter Section */}
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Header with Back Button and Summary Stats */}
@@ -302,31 +302,10 @@ const Retina: React.FC = () => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            mb: 3,
+            // mb: 3,
           }}
         >
-          {/* Back Button */}
-          <Button
-            variant="outlined"
-            onClick={() => navigate(-1)}
-            startIcon={<ArrowBackIos sx={{ fontSize: 16 }} />}
-            sx={{
-              textTransform: 'none',
-              borderRadius: '8px',
-              borderColor: '#1976d2',
-              color: '#1976d2',
-              px: 2,
-              py: 0.8,
-              fontSize: '0.875rem',
-              '&:hover': {
-                backgroundColor: '#e3f2fd',
-                borderColor: '#1976d2',
-              },
-            }}
-          >
-            Back
-          </Button>
-
+          
           {/* Summary Stats */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
