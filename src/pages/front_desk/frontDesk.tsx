@@ -30,6 +30,8 @@ import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
 import { FileSearch, FileUp, Send } from 'lucide-react';
+import ErrorPrompt from '../../features/shared/components/ErrorPrompt';
+import Fallbacks from '../../features/shared/components/Fallbacks';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -115,6 +117,7 @@ const FrontDesk: React.FC = () => {
     dob_to: '',
     age_min: '',
     age_max: '',
+    visit_type: '',
     created_from: '',
     created_to: '',
     sort_dir: 'asc',
@@ -152,6 +155,7 @@ const FrontDesk: React.FC = () => {
       search: '',
       gender: '',
       doctor_id: '',
+      visit_type: '',
       patient_category_id: '',
       dob_from: '',
       dob_to: '',
@@ -233,6 +237,9 @@ const FrontDesk: React.FC = () => {
       setSummaryLoading(false);
     }
   };
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -260,7 +267,6 @@ const FrontDesk: React.FC = () => {
     fetchPatients();
     fetchDepartments();
     fetchPatientCategories();
-    fetchSummary();
     fetchDoctors();
   }, [filters]);
 
@@ -305,9 +311,16 @@ const FrontDesk: React.FC = () => {
             mb: 3,
           }}
         >
-
           {/* Summary Stats */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent :'flex-end', alignItems: 'flex-end', gap: 1 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              alignItems: 'flex-end',
+              gap: 1,
+            }}
+          >
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Chip
                 label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
@@ -333,17 +346,8 @@ const FrontDesk: React.FC = () => {
 
         <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
           {summaryLoading ? (
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                py: 4,
-              }}
-            >
-              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
-              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+              <CircularProgress size={30} sx={{ color: 'primary.main' }} />
             </Box>
           ) : (
             summary.map((category: any) => (
@@ -554,22 +558,29 @@ const FrontDesk: React.FC = () => {
             />
           </Box>
 
-          {/* Department */}
-          {/* <TextField
-              size="small"
-              select
-              value={filters.department}
-              onChange={e => setFilters({ ...filters, department: e.target.value })}
-              placeholder="Department"
-              sx={{ minWidth: 150 }}
-            >
-              <MenuItem value="">All Departments</MenuItem>
-              {departments.map((dept, index) => (
-                <MenuItem key={index} value={dept}>
-                  {dept}
-                </MenuItem>
-              ))}
-            </TextField> */}
+          {/* Visit Type */}
+          {/* Visit Type */}
+          <TextField
+            size="small"
+            select
+            value={filters.visit_type}
+            onChange={e => setFilters({ ...filters, visit_type: e.target.value })}
+            SelectProps={{
+              displayEmpty: true,
+              renderValue: (selected: unknown) => {
+                if (selected === '' || !selected) {
+                  return <span>All Visit Types</span>;
+                }
+                return <span>{selected as string}</span>;
+              },
+            }}
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Visit Types</MenuItem>
+            <MenuItem value="Follow Up">Follow Up</MenuItem>
+            <MenuItem value="Emergency">Emergency</MenuItem>
+            <MenuItem value="New">New</MenuItem>
+          </TextField>
 
           {/* Patient Category */}
           <TextField
@@ -633,30 +644,13 @@ const FrontDesk: React.FC = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
-                    width: 120,
+                    width: 110,
                     fontSize: '0.8rem',
                     py: 1.5,
                     borderRight: '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
                   }}
                 >
                   Patient Name
-                  {filters.sort_by === 'full_name' &&
-                    (filters.sort_dir === 'asc' ? (
-                      <ArrowDropDown
-                        sx={{
-                          transform: 'rotate(180deg)',
-                          color: 'white',
-                          transition: '0.3s',
-                        }}
-                      />
-                    ) : (
-                      <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                    ))}
                 </TableCell>
 
                 <TableCell
@@ -761,8 +755,9 @@ const FrontDesk: React.FC = () => {
                     color: 'white',
                     width: 200,
                     fontSize: '0.8rem',
-                    py: 1.5,
                     textAlign: 'center',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
                   }}
                 >
                   Action
@@ -774,18 +769,16 @@ const FrontDesk: React.FC = () => {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
-                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                      Loading patients...
-                    </Typography>
+                    <CircularProgress size={24} sx={{ color: 'primary.main' }} />
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="error">
-                      Error loading patients. Please try again.
-                    </Typography>
+                    <ErrorPrompt
+                      title="No patients found"
+                      message="An error occurred while loading patients. Please try again later."
+                    />
                   </TableCell>
                 </TableRow>
               ) : patients.length > 0 ? (
@@ -891,7 +884,7 @@ const FrontDesk: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell sx={{ gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
                         <Tooltip title="Send to Triage or department" arrow>
                           <IconButton
                             size="small"
@@ -1003,9 +996,10 @@ const FrontDesk: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No patients found.
-                    </Typography>
+                    <Fallbacks
+                      title="No patients found"
+                      description="No patients found matching the criteria."
+                    />
                   </TableCell>
                 </TableRow>
               )}

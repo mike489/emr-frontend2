@@ -1,48 +1,38 @@
 import { Box, CssBaseline, useTheme, useMediaQuery } from '@mui/material';
-import { useState } from 'react';
 import TopBar from './TopBar';
 import type { TabItem } from '../data/data';
+import { useState } from 'react';
 
 interface Props {
   children: React.ReactNode;
-  tabsData?: TabItem[]; 
+  tabsData?: TabItem[];
+  darkMode: boolean;               
+  onToggleTheme: () => void;       
 }
 
-export default function AppLayout({ children, tabsData = [] }: Props) {
+export default function AppLayout({ children, tabsData = [], darkMode, onToggleTheme }: Props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
-  const [darkMode, setDarkMode] = useState(false);
 
-  const toggleDrawer = () => setDrawerOpen((v) => !v);
-  const toggleTheme = () => setDarkMode((v) => !v);
+  const toggleDrawer = () => setDrawerOpen((v: any) => !v);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <CssBaseline />
 
       {/* TopBar */}
       <TopBar
         drawerOpen={drawerOpen}
         onToggleDrawer={toggleDrawer}
-        onToggleTheme={toggleTheme}
         darkMode={darkMode}
-        tabsData={tabsData} // pass to TopBar if you want TabBar inside TopBar
+        onToggleTheme={onToggleTheme}
+        tabsData={tabsData}
       />
 
-      {/* TabBar (below TopBar) */}
-     
-
       {/* Main Content */}
-      <Box
-        component="main"
-        sx={{
-          // flexGrow: 1,
-          // pt: 5.4,
-         
-        }}
-      >
+      <Box component="main" sx={{}}>
         {children}
       </Box>
     </Box>

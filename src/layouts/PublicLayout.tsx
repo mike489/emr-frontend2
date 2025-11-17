@@ -14,7 +14,7 @@ export const PublicLayout = () => (
           overflow: 'hidden',
           bgcolor: '#fff',
           minHeight: '70vh',
-          border: '1px solid #ddd',
+          // border: '1px solid #ddd',
           p: { xs: 2, sm: 1 },
         }}
       >

@@ -10,6 +10,10 @@ export const PatientService = {
    getPatientCheckout: (filters?: Record<string, any>) => {
     return patientApi.get('/patient-checked-out', { params: filters });
   },
+  
+  getArchivedPatients: (filters?: Record<string, any>) => {
+    return patientApi.get('/patient-archived', { params: filters });
+  },
   getById: (id: string) => patientApi.get(`/patients/${id}`),
   // getList: (params: any) => patientApi.get('/patient-lists', { params }),
   create: (data: any) => patientApi.post('/patients', data),

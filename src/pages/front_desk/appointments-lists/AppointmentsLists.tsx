@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -17,10 +17,15 @@ import {
   Divider,
   CircularProgress,
   TablePagination,
+  Tooltip,
+  IconButton,
+  DialogContent,
+  Dialog,
+  DialogTitle,
 } from '@mui/material';
+import { Calendar, X } from 'lucide-react';
 
 import { Search, ArrowDropDown } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 
 import { toast } from 'react-toastify';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
@@ -29,45 +34,47 @@ import { doctorsService } from '../../../shared/api/services/Doctor.service';
 
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
-import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
-import { AppointmentsService } from '../../../shared/api/services/appointments.serviecs';
+import { AppointmentsService } from '../../../shared/api/services/appointments.services';
+import Fallbacks from '../../../features/shared/components/Fallbacks';
+import ErrorPrompt from '../../../features/shared/components/ErrorPrompt';
+import RescheduleAppointment from './Reschedule';
 
 // Updated Type definitions to match your API response
-interface Patient {
+interface Appointment {
   id: string;
-  title: string;
-  full_name: string;
-  emr_number: string;
-  date_of_birth: string;
-  gender: string;
-  phone: string;
+  visit_id: string | null;
+  patient_name: string;
+  phone_number: string;
   email: string;
-  address: {
-    city: string;
-    kifle_ketema: string;
-    wereda: string;
-  };
-  blood_type: string;
-  height: string;
-  weight: string;
-  national_id: string;
-  passport_number: string;
-  medical_history: string | null;
-  allergies: string | null;
-  medical_conditions: string | null;
-  created_by: string;
-  patient_category_id: string;
-  patient_category: {
-    id: string;
-    name: string;
-    description: string;
-    color: string;
-  };
-  status: string;
   age: number;
-  is_card_expired: boolean;
-  current_doctor: string | { id?: string; name?: string } | null;
-  attachments: Attachment[];
+  gender: string;
+  doctor_id: string;
+  appointment_date: string;
+  time: string;
+  source: string;
+  status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
+  doctor: {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    name: string;
+    phone: string;
+    username: string;
+    email: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      username: string;
+      status: string;
+      profile_photo_path: string | null;
+      created_at: string;
+      updated_at: string;
+      profile_photo_url: string;
+    };
+  };
+  attachments?: Attachment[];
 }
 
 interface PaginationState {
@@ -90,8 +97,7 @@ const sources = [
 ];
 
 const AppointmentsLists: React.FC = () => {
-  const navigate = useNavigate();
-  const [patients, setPatients] = React.useState<Patient[]>([]);
+  const [patients, setPatients] = React.useState<Appointment[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
@@ -99,17 +105,37 @@ const AppointmentsLists: React.FC = () => {
   const [_summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-  const [uploadingId, setUploadingId] = React.useState<string | null>(null);
+  const [_uploadingId, _setUploadingId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
-  const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
-
+  const [currentAttachments, _setCurrentAttachments] = React.useState<Attachment[]>([]);
   const [_patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
     []
   );
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+
+  // Open reschedule modal
+  const handleOpenReschedule = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setRescheduleOpen(true);
+  };
+
+  // Close reschedule modal
+  const handleCloseReschedule = () => {
+    setRescheduleOpen(false);
+    setSelectedAppointment(null);
+  };
+
+  // Handle successful reschedule
+  const handleRescheduleSuccess = () => {
+    handleCloseReschedule();
+    fetchPatients(); // Refresh the list
+    toast.success('Appointment rescheduled successfully!');
+  };
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
-    sort_by: 'full_name',
+    sort_by: 'created_at',
     sort_order: 'asc',
     department: 'Reception',
     search: '',
@@ -141,16 +167,13 @@ const AppointmentsLists: React.FC = () => {
     setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
   };
 
-  const openAttachModal = (attachments: Attachment[]) => {
-    setCurrentAttachments(attachments);
-    setAttachModalOpen(true);
-  };
+
 
   const clearFilters = () => {
     setFilters({
       page: 1,
       per_page: 25,
-      sort_by: 'full_name',
+      sort_by: 'created_at',
       sort_order: 'asc',
       department: '',
       search: '',
@@ -247,16 +270,7 @@ const AppointmentsLists: React.FC = () => {
     }
   };
 
-  const sendToTriage = async (id: string) => {
-    try {
-      await sendToTriageService.sendToTriage(id);
-      toast.success('Patient sent to triage successfully');
-      fetchPatients(); // Refresh the patient list after sending to triage
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to send patient to triage');
-      console.error('Error sending patient to triage:', err);
-    }
-  };
+  
 
   useEffect(() => {
     fetchPatients();
@@ -266,53 +280,13 @@ const AppointmentsLists: React.FC = () => {
     fetchDoctors();
   }, [filters]);
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    patientId: string
-  ) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    try {
-      setUploadingId(patientId);
-      await UploadService.uploadFiles(patientId, Array.from(files));
-      toast.success('Files uploaded successfully');
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to upload files');
-    } finally {
-      setUploadingId(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
 
   return (
-    <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -10 }}>
+    <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -12 }}>
       {/* Search and Filter Section */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ mb: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={() => navigate(-1)}
-            sx={{
-              textTransform: 'none',
-              borderRadius: '20px',
-
-              borderColor: '#1976d2',
-              color: '#1976d2',
-              '&:hover': {
-                backgroundColor: '#e3f2fd',
-                borderColor: '#1976d2',
-              },
-            }}
-          >
-            ← Back
-          </Button>
-        </Box>
         {/* Patient Category Summary Cards */}
-
         <Divider sx={{ my: 3 }} />
-
         <Grid container spacing={2} alignItems="center">
           {/* Search */}
           <Grid size={{ xs: 12, sm: 6, md: 5 }}>
@@ -491,31 +465,118 @@ const AppointmentsLists: React.FC = () => {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 50 }}>
-                    Category
-                  </TableCell> */}
-                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
-                  Patient Name
-                </TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 110 }}>
-                  EMR Number
-                </TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 60 }}>Age</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 80 }}>Gender</TableCell>
-                {/* <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>
-                    Phone
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 120 }}>City</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 100 }}>
-                    Blood Type
-                  </TableCell> */}
-                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 140 }}>Doctor</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#333', width: 100 }}>Status</TableCell>
+              <TableRow
+                sx={{
+                  backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+                  '& th': {
+                    borderBottom: '2px solid #e0e0e0',
+                  },
+                }}
+              >
                 <TableCell
                   sx={{
                     fontWeight: 'bold',
-                    color: '#333',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 150,
+                  }}
+                >
+                  Patient Name
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 150,
+                  }}
+                >
+                  Email
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 120,
+                  }}
+                >
+                  Phone Number
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 60,
+                  }}
+                >
+                  Age
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 80,
+                  }}
+                >
+                  Gender
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 150,
+                  }}
+                >
+                  Doctor
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 120,
+                  }}
+                >
+                   Date
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    width: 100,
+                  }}
+                >
+                  Status
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
                     width: 200,
                     textAlign: 'center',
                   }}
@@ -529,57 +590,38 @@ const AppointmentsLists: React.FC = () => {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      Loading patients...
-                    </Typography>
+                    <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="error">
-                      Error loading patients. Please try again.
-                    </Typography>
+                    <ErrorPrompt
+                      title="Error"
+                      message="Failed to load appointments. Please try again later."
+                    />
                   </TableCell>
                 </TableRow>
               ) : patients.length > 0 ? (
-                patients.map((patient, index) => (
-                  <TableRow key={patient.id || index}>
-                    {/* <TableCell>
-                        {' '}
-                        <Box
-                          sx={{
-                            width: 16,
-                            height: 16,
-                            borderRadius: '10%',
-                            backgroundColor: patient.patient_category?.color || '#ccc',
-                            display: 'inline-block',
-                            mr: 1,
-                            border: '1px solid #e0e0e0',
-                          }}
-                        />
-                      </TableCell> */}
+                patients.map((appointment, index) => (
+                  <TableRow key={appointment.id || index} hover>
                     <TableCell>
-                      {/* <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                          {patient.patient_category.name}
-                        </Typography> */}
                       <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                        {patient.full_name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {patient.title}
+                        {appointment.patient_name}
                       </Typography>
                     </TableCell>
-                    <TableCell>{patient.emr_number}</TableCell>
-                    {/* <TableCell>{patient.age} years</TableCell> */}
-                    <TableCell>{patient.gender}</TableCell>
-                    <TableCell>{patient.phone}</TableCell>
-                    {/* <TableCell>{patient.address?.city}</TableCell> */}
-                    {/* <TableCell>{patient.blood_type}</TableCell> */}
+                    <TableCell>{appointment.email}</TableCell>
+                    <TableCell>{appointment.phone_number}</TableCell>
+                    <TableCell>{appointment.age} years</TableCell>
+                    <TableCell>{appointment.gender}</TableCell>
+                    <TableCell>{appointment.doctor?.name || 'N/A'}</TableCell>
                     <TableCell>
-                      {patient.current_doctor && typeof patient.current_doctor === 'object'
-                        ? patient.current_doctor.name
-                        : patient.current_doctor || 'N/A'}
+                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                        {new Date(appointment.appointment_date).toLocaleDateString()}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {appointment.time}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Box
@@ -588,81 +630,60 @@ const AppointmentsLists: React.FC = () => {
                           px: 1,
                           py: 0.5,
                           borderRadius: 1,
-                          backgroundColor: patient.status === '1' ? '#e8f5e8' : '#fff3e0',
-                          color: patient.status === '1' ? '#2e7d32' : '#f57c00',
+                          backgroundColor:
+                            appointment.status === 'Confirmed'
+                              ? '#e8f5e8'
+                              : appointment.status === 'Pending'
+                                ? '#fff3e0'
+                                : appointment.status === 'Cancelled'
+                                  ? '#ffebee'
+                                  : '#f5f5f5',
+                          color:
+                            appointment.status === 'Confirmed'
+                              ? '#2e7d32'
+                              : appointment.status === 'Pending'
+                                ? '#f57c00'
+                                : appointment.status === 'Cancelled'
+                                  ? '#c62828'
+                                  : '#757575',
                           fontSize: '0.75rem',
                           fontWeight: 'bold',
                         }}
                       >
-                        {patient.status === '1' ? 'Active' : 'Inactive'}
+                        {appointment.status}
                       </Box>
                     </TableCell>
+
                     <TableCell>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          onClick={() => sendToTriage(patient.id)}
-                          sx={{
-                            textTransform: 'none',
-                            borderRadius: '16px',
-                            px: 0.8,
-                            py: 0.4,
-                            minWidth: 70,
-                            fontSize: '0.7rem',
-                            backgroundColor: '#1976d2',
-                            '&:hover': { backgroundColor: '#1565c0' },
-                          }}
-                        >
-                          Send to Triage
-                        </Button>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          disabled={uploadingId === patient.id}
-                          onClick={() => {
-                            if (fileInputRef.current) {
-                              fileInputRef.current.onchange = (e: any) =>
-                                handleFileChange(e, patient.id);
-                              fileInputRef.current.click();
-                            }
-                          }}
-                          sx={{
-                            textTransform: 'none',
-                            borderRadius: '16px',
-                            px: 0.8,
-                            py: 0.4,
-                            minWidth: 70,
-                            fontSize: '0.7rem',
-                            backgroundColor: '#626568',
-                            '&:hover': { backgroundColor: '#000000' },
-                          }}
-                        >
-                          {uploadingId === patient.id ? (
-                            <CircularProgress size={16} color="inherit" />
-                          ) : (
-                            'Attach Files'
-                          )}
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => openAttachModal(patient.attachments)}
-                          sx={{
-                            textTransform: 'none',
-                            borderRadius: '16px',
-                            px: 0.8,
-                            py: 0.4,
-                            minWidth: 90,
-                            fontSize: '0.7rem',
-                            backgroundColor: '#fff',
-                            borderColor: '#1976d2',
-                            color: '#1976d2',
-                            '&:hover': { backgroundColor: '#e3f2fd' },
-                          }}
-                        >
-                          View / Download
-                        </Button>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          gap: 0.5,
+                          flexWrap: 'nowrap',
+                        }}
+                      >
+                  
+                        <Tooltip title="Reschedule Appointment" arrow placement="top">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenReschedule(appointment)}
+                            sx={{
+                             backgroundColor: 'primary.main',
+                              color: 'white',
+                              borderRadius: '50%', 
+                              width: 32,
+                              height: 32,
+                              '&:hover': {
+                                backgroundColor: 'primary.dark',
+                                transform: 'scale(1.1)',
+                              },
+                              transition: 'all 0.2s ease',
+                            }}
+                          >
+                            <Calendar size={16} />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -670,9 +691,10 @@ const AppointmentsLists: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No patients found.
-                    </Typography>
+                    <Fallbacks
+                      title="No appointments found."
+                      description="Please create new appointments."
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -694,6 +716,54 @@ const AppointmentsLists: React.FC = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      <Dialog
+        open={rescheduleOpen}
+        onClose={handleCloseReschedule}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: '#f8f9fa',
+            borderBottom: '1px solid #e9ecef',
+            py: 2,
+          }}
+        >
+          <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
+            Reschedule Appointment
+          </Typography>
+          <IconButton
+            onClick={handleCloseReschedule}
+            size="small"
+            sx={{
+              '&:hover': {
+                backgroundColor: 'rgba(0,0,0,0.04)',
+              },
+            }}
+          >
+            <X size={20} />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 0 }}>
+          {selectedAppointment && (
+            <RescheduleAppointment
+              appointmentId={selectedAppointment.id}
+              onSuccess={handleRescheduleSuccess}
+              onCancel={handleCloseReschedule}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

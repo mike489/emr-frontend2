@@ -37,6 +37,8 @@ import OpticalResults from '../pages/opticals/results/Results';
 import InPatients from '../pages/in_patient/patients/InPateint';
 import WardManagement from '../pages/in_patient/ward_management/WardManagement';
 import PatientBeds from '../pages/in_patient/patient_beds/PatientBeds';
+import DoctorSchedule from '../pages/front_desk/appointments-lists/DoctorAvailability';
+import RescheduleLayout from '../pages/front_desk/appointments-lists/RescheduleLayout';
 
 export const ROUTES = {
   public: {
@@ -490,6 +492,22 @@ emergencyDoctor:{
       element: (
         <PrivateRoute>
           <CreateAppointment />
+        </PrivateRoute>
+      ),
+    },
+     rescheduleAppointment: {
+      path: '/front-desk/appointments-reschedule',
+      element: (
+        <PrivateRoute>
+          <RescheduleLayout />
+        </PrivateRoute>
+      ),
+    },
+    doctorAvailability: {
+      path: '/front-desk/appointments-doctors',
+      element: (
+        <PrivateRoute>
+          <DoctorSchedule />
         </PrivateRoute>
       ),
     },

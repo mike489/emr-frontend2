@@ -1,16 +1,19 @@
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { useState } from 'react';
 import { AppRouter } from './routes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import theme from './theme';
+import { lightTheme, darkTheme } from './theme';
 
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleTheme = () => setDarkMode(prev => !prev);
+
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <CssBaseline />
-      <AppRouter />
+      <AppRouter darkMode={darkMode} onToggleTheme={toggleTheme} />
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -18,7 +21,7 @@ function App() {
         newestOnTop
         closeOnClick
         pauseOnHover
-        theme="light"
+        theme={darkMode ? 'dark' : 'light'}
       />
     </ThemeProvider>
   );

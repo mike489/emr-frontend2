@@ -35,6 +35,8 @@ import {
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
 import SendCrossModal from '../../../features/triage/components/SendCrossModal';
 import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
+import ErrorPrompt from '../../../features/shared/components/ErrorPrompt';
+import Fallbacks from '../../../features/shared/components/Fallbacks';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -103,7 +105,7 @@ const Retina: React.FC = () => {
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
   const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
-  const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
+  const [_summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
@@ -291,6 +293,7 @@ const Retina: React.FC = () => {
       sort_dir: prev.sort_dir === 'asc' ? 'desc' : 'asc',
     }));
   };
+  
 
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
@@ -333,21 +336,8 @@ const Retina: React.FC = () => {
 
         {/* Patient Category Cards */}
         <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
-          {summaryLoading ? (
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                py: 4,
-              }}
-            >
-              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
-              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
-            </Box>
-          ) : (
-            summary.map((category: any) => (
+        
+            {summary.map((category: any) => (
               <Box
                 key={category.category_id}
                 sx={{
@@ -412,8 +402,7 @@ const Retina: React.FC = () => {
                   {category.percentage_text}
                 </Typography>
               </Box>
-            ))
-          )}
+          ))}
         </Box>
       </Paper>
 
@@ -776,17 +765,13 @@ const Retina: React.FC = () => {
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
-                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                      Loading patients...
-                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="error">
-                      Error loading patients. Please try again.
-                    </Typography>
+                   
+                    <ErrorPrompt title='Error loading patients. Please try again.' />
                   </TableCell>
                 </TableRow>
               ) : patients.length > 0 ? (
@@ -939,9 +924,7 @@ const Retina: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No patients found.
-                    </Typography>
+                    <Fallbacks title="No patients found" description="No patients found matching the criteria." />
                   </TableCell>
                 </TableRow>
               )}

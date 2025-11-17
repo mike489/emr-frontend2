@@ -27,7 +27,7 @@ export const FRONT_DESK_TABS: TabItem[] = [
     children: [
       { label: 'Appointment Lists', path: '/front-desk/appointments-lists' },
       { label: 'Create appointment', path: '/front-desk/appointments-create' },
-      { label: 'Reschedule Appointment', path: '/front-desk/appointments-reschedule' },
+      // { label: 'Reschedule Appointment', path: '/front-desk/appointments-reschedule' },
       { label: 'Doctors Availability', path: '/front-desk/appointments-doctors' },
     ],
   },
@@ -40,26 +40,26 @@ export const FRONT_DESK_TABS: TabItem[] = [
       { label: 'Requested Payments ', path: '/front-desk/requested-payments' },
     ],
   },
-  {
-    label: 'Notifications',
-    path: '/notifications',
-    // children: [
-    //   { label: 'Appointment Reminders', path: '/front-desk/notifications/reminders' },
-    //   { label: 'Follow-Up Alerts', path: '/front-desk/notifications/followups' },
-    //   { label: 'System Updates', path: '/front-desk/notifications/updates' },
-    //   { label: 'Messages from Doctors', path: '/front-desk/notifications/messages' },
-    // ],
-  },
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  //   // children: [
+  //   //   { label: 'Appointment Reminders', path: '/front-desk/notifications/reminders' },
+  //   //   { label: 'Follow-Up Alerts', path: '/front-desk/notifications/followups' },
+  //   //   { label: 'System Updates', path: '/front-desk/notifications/updates' },
+  //   //   { label: 'Messages from Doctors', path: '/front-desk/notifications/messages' },
+  //   // ],
+  // },
 
-  {
-    label: 'Settings',
-    path: '/settings',
-    // children: [
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  //   // children: [
     //   { label: 'User Profile', path: '/front-desk/profile' },
     //   { label: 'Change Password', path: '/front-desk/change-password' },
     //   { label: 'Logout ', path: '/' },
     // ],
-  },
+  // },
 ];
 
 // ───────────────────────────────────────────
@@ -86,15 +86,15 @@ export const TRIAGE_TABS: TabItem[] = [
     path: '/triage/discussion',
   },
 
-  {
-    label: 'Notifications',
-    path: '/notifications',
-  },
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
 
-  {
-    label: 'Settings',
-    path: '/settings',
-  },
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -123,15 +123,15 @@ export const REFRACTION_TABS: TabItem[] = [
     path: '/refraction/discussion',
   },
 
-  {
-    label: 'Notifications',
-    path: '/notifications',
-  },
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
 
-  {
-    label: 'Settings',
-    path: '/settings',
-  },
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -159,15 +159,15 @@ export const DOCTOR_TABS: TabItem[] = [
     path: '/doctor/discussion',
   },
 
-  {
-    label: 'Notifications',
-    path: '/notifications',
-  },
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
 
-  {
-    label: 'Settings',
-    path: '/settings',
-  },
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -194,14 +194,14 @@ export const DIAGNOSIS_TABS: TabItem[] = [
     path: '/diagnosis/case-history',
   },
 
-  {
-    label: 'Notifications',
-    path: '/diagnosis/notifications',
-  },
-  {
-    label: 'Settings',
-    path: '/diagnosis/settings',
-  },
+  // {
+  //   label: 'Notifications',
+  //   path: '/diagnosis/notifications',
+  // },
+  // {
+  //   label: 'Settings',
+  //   path: '/diagnosis/settings',
+  // },
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -264,14 +264,14 @@ export const IN_PATIENT_TABS: TabItem[] = [
     label: 'Patient Beds',
     path: '/in-patient/patient-beds',
   },
-  {
-    label: 'Notifications',
-    path: '/in-patient/notifications',
-  },
-  {
-    label: 'Settings',
-    path: '/in-patient/settings',
-  },
+  // {
+  //   label: 'Notifications',
+  //   path: '/in-patient/notifications',
+  // },
+  // {
+  //   label: 'Settings',
+  //   path: '/in-patient/settings',
+  // },
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -282,14 +282,14 @@ export const COUNSELOR_TABS: TabItem[] = [
     // children: [{ label: 'Today’s Case', path: '/counselor/today-cases' }],
   },
  
-  {
-    label: 'Notifications',
-    path: '/counselor/notifications',
-  },
-  {
-    label: 'Settings',
-    path: '/counselor/settings',
-  },
+  // {
+  //   label: 'Notifications',
+  //   path: '/counselor/notifications',
+  // },
+  // {
+  //   label: 'Settings',
+  //   path: '/counselor/settings',
+  // },
   // { label: "Logout", path: "/logout" },
 ];
 // ───────────────────────────────────────────

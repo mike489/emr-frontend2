@@ -1,26 +1,26 @@
-/*  components/TopBar.tsx  */
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
-  Avatar,
   Tooltip,
   Menu,
   MenuItem,
   Divider,
   ListItemIcon,
-  useTheme,
   Box,
   Stack,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
   Logout as LogoutIcon,
+  Settings as SettingsIcon,
+  AccountCircle,
+  LockReset,
   Brightness4 as DarkModeIcon,
   Brightness7 as LightModeIcon,
 } from '@mui/icons-material';
-import { useState, type MouseEvent, useMemo } from 'react';
+import { useState, useMemo, type MouseEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useLiveClock } from '../hooks/useLiveClock';
@@ -37,6 +37,9 @@ import {
   DIAGNOSIS_TABS,
   DEFAULT_TABS,
 } from '../data/data';
+
+/* ----------------------- Notification Panel ----------------------- */
+import NotificationPanel from '../features/shared/components/NotificationPanel';
 
 /* ----------------------- Department Mapping ----------------------- */
 const DEPARTMENT_MAP: Record<string, string> = {
@@ -78,25 +81,19 @@ export default function TopBar({
   darkMode,
   tabsData = [],
 }: TopBarProps) {
-  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const { user, logout } = useAuthStore();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { logout } = useAuthStore();
   const timeStr = useLiveClock('PPP – p (z)');
 
-  const handleProfileMenu = (e: MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
-  const handleCloseMenu = () => setAnchorEl(null);
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  /* ---------------- Settings Menu ---------------- */
+  const [settingsAnchor, setSettingsAnchor] = useState<null | HTMLElement>(null);
+  const openSettings = (e: MouseEvent<HTMLElement>) => setSettingsAnchor(e.currentTarget);
+  const closeSettings = () => setSettingsAnchor(null);
 
-  /* ----------------------- Detect Department & Label ----------------------- */
+  /* ---------------- Detect Department & Label ---------------- */
   const { department, currentLabel } = useMemo(() => {
     const path = location.pathname;
-
     let activeTabs: TabItem[] = [];
     let dept = '';
 
@@ -124,7 +121,6 @@ export default function TopBar({
     return { department: dept, currentLabel: label };
   }, [location.pathname]);
 
-  /* ----------------------- Build Title ----------------------- */
   const title = useMemo(() => {
     const parts: string[] = [];
     if (department) parts.push(department);
@@ -132,16 +128,14 @@ export default function TopBar({
     return parts.length ? parts.join(' – ') : 'EMR System';
   }, [department, currentLabel]);
 
-  /* ----------------------- Render ----------------------- */
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <>
-      <AppBar
-        position="sticky"
-        sx={{
-          width: '100%',
-          transition: theme.transitions.create(['margin', 'width']),
-        }}
-      >
+      <AppBar position="sticky">
         <Toolbar>
           <IconButton
             edge="start"
@@ -156,69 +150,74 @@ export default function TopBar({
             <Box
               component="img"
               src={Logo}
-              alt="EMR System Logo"
-              sx={{
-                height: 50,
-                width: 80,
-                borderRadius: 1,
-                objectFit: 'contain',
-                bgcolor: 'background.paper',
-                p: 0.5,
-              }}
+              alt="Logo"
+              sx={{ height: 50, width: 80, borderRadius: 1, objectFit: 'contain', bgcolor: 'background.paper', p: 0.5 }}
             />
           </Stack>
 
           <Typography
             variant="h6"
             noWrap
-            component="div"
             sx={{ flexGrow: 1, cursor: 'pointer', alignSelf: 'center' }}
             onClick={() => navigate('/')}
           >
             {title} Dashboard
           </Typography>
+
           <Typography variant="body2" sx={{ mr: 3, display: { xs: 'none', sm: 'block' } }}>
             {timeStr}
           </Typography>
 
-          <IconButton color="inherit" onClick={onToggleTheme} sx={{ mr: 1 }}>
+          <IconButton onClick={onToggleTheme} color="inherit" sx={{ mr: 1 }}>
             {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
           </IconButton>
 
-          <Tooltip title={user?.name ?? ''}>
-            <IconButton onClick={handleProfileMenu} color="inherit">
-              <Avatar
-                alt={user?.name}
-                src={user?.profile_image ?? undefined}
-                sx={{ width: 32, height: 32 }}
-              >
-                {(user?.name?.[0] ?? '').toUpperCase()}
-              </Avatar>
+          {/* Notifications Panel */}
+          <NotificationPanel />
+
+          {/* Settings */}
+          <Tooltip title="Settings">
+            <IconButton onClick={openSettings} color="inherit">
+              <SettingsIcon />
             </IconButton>
           </Tooltip>
 
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleCloseMenu}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          >
-            <MenuItem disabled>
-              <Typography variant="body2">{user?.email}</Typography>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon fontSize="small" />
-              </ListItemIcon>
-              Logout
-            </MenuItem>
-          </Menu>
+          {/* Profile */}
+          {/* <Tooltip title={user?.name ?? ''}>
+            <IconButton onClick={openSettings} color="inherit">
+              <Avatar sx={{ width: 32, height: 32 }}>
+                {(user?.name?.[0] ?? '').toUpperCase()}
+              </Avatar>
+            </IconButton>
+          </Tooltip> */}
         </Toolbar>
 
         {tabsData.length > 0 && <TabBar tabsData={tabsData} />}
       </AppBar>
+
+      {/* ---------------- Settings Menu ---------------- */}
+      <Menu anchorEl={settingsAnchor} open={Boolean(settingsAnchor)} onClose={closeSettings}>
+        <MenuItem onClick={() => navigate('/profile')}>
+          <ListItemIcon>
+            <AccountCircle fontSize="small" />
+          </ListItemIcon>
+          Account Settings
+        </MenuItem>
+        <MenuItem onClick={() => navigate('/change-password')}>
+          <ListItemIcon>
+            <LockReset fontSize="small" />
+          </ListItemIcon>
+          Change Password
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" />
+          </ListItemIcon>
+          Logout
+        </MenuItem>
+      </Menu>
+
       <Box sx={{ height: tabsData.length > 0 ? '112px' : '64px' }} />
     </>
   );

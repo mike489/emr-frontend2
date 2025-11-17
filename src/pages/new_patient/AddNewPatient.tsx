@@ -14,13 +14,14 @@ import {
   Grid,
   Divider,
   InputAdornment,
+  Container,
 } from '@mui/material';
 import { CalendarToday } from '@mui/icons-material';
-import AppLayout from '../../layouts/AppLayout';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
-import { FRONT_DESK_TABS } from '../../data/data';
+
+
 
 const PatientRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -57,7 +58,7 @@ const PatientRegistration: React.FC = () => {
     patient_category_id: '',
     referral_doctor_name: '',
     payment_method: '',
-    visit_type: '',
+    // visit_type: '',
     appointed_to: '',
     department: '',
     doctor: '',
@@ -148,7 +149,7 @@ const PatientRegistration: React.FC = () => {
   // ];
   const genders = ['Male', 'Female'];
   // const paymentMethods = ['Cash', 'Insurance', 'Card', 'Mobile'];
-  const visitTypes = ['New', 'Follow-up', 'Emergency', 'Review'];
+  // const visitTypes = ['New', 'Follow-up', 'Emergency', 'Review'];
 
   const cities = ['Addis Ababa', 'Dire Dawa', 'Hawassa', 'Bahir Dar', 'Mekelle', 'Jimma'];
   const kifleKetemas = ['Kirkos', 'Arada', 'Bole', 'Lideta', 'Yeka', 'Nifas Silk'];
@@ -218,7 +219,7 @@ const PatientRegistration: React.FC = () => {
         patient_category_id: formData.patient_category_id || null,
         referral_doctor_name: formData.referral_doctor_name || null,
         payment_method: formData.payment_method || null,
-        visit_type: formData.visit_type || null,
+        // visit_type: formData.visit_type || null,
         appointed_to: formData.appointed_to || null,
         department: formData.department || null,
         doctor: formData.doctor || null,
@@ -265,7 +266,7 @@ const PatientRegistration: React.FC = () => {
       patient_category_id: '',
       referral_doctor_name: '',
       payment_method: '',
-      visit_type: '',
+      // visit_type: '',
       appointed_to: '',
       department: '',
       doctor: '',
@@ -291,7 +292,7 @@ const PatientRegistration: React.FC = () => {
   };
 
   return (
-    <AppLayout tabsData={FRONT_DESK_TABS}>
+    <Container>
       {/* <TabBar tabsData={FRONT_DESK_TABS}/> */}
       <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -372,67 +373,6 @@ const PatientRegistration: React.FC = () => {
                     }}
                   />
                 </Grid>
-
-                {/* <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    size="small"
-                    label="Marital Status"
-                    value={formData.marital_status}
-                    onChange={handleInputChange('marital_status')}
-                  >
-                    {maritalStatuses.map(status => (
-                      <MenuItem key={status} value={status}>
-                        {status}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid> */}
-
-                {/* <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    size="small"
-                    label="Religion"
-                    value={formData.religion}
-                    onChange={handleInputChange('religion')}
-                  >
-                    {religions.map(religion => (
-                      <MenuItem key={religion} value={religion}>
-                        {religion}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid> */}
-
-                {/* <Grid size={{ xs: 12 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    size="small"
-                    label="Education"
-                    value={formData.education}
-                    onChange={handleInputChange('education')}
-                  >
-                    {educationLevels.map(level => (
-                      <MenuItem key={level} value={level}>
-                        {level}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid> */}
-
-                {/* <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Occupation"
-                    value={formData.occupation}
-                    onChange={handleInputChange('occupation')}
-                  />
-                </Grid> */}
 
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -613,56 +553,7 @@ const PatientRegistration: React.FC = () => {
               </Grid>
 
               <Divider sx={{ my: 3 }} />
-
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                Other Information
-              </Typography>
-
               <Grid container spacing={2}>
-                {/* <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    size="small"
-                    label="Payment Method"
-                    value={formData.payment_method}
-                    onChange={handleInputChange('payment_method')}
-                  >
-                    {paymentMethods.map(method => (
-                      <MenuItem key={method} value={method}>
-                        {method}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid> */}
-
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    size="small"
-                    label="Visit Type"
-                    value={formData.visit_type}
-                    onChange={handleInputChange('visit_type')}
-                  >
-                    {visitTypes.map(type => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-
-                {/* <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Appointed To"
-                    value={formData.appointed_to}
-                    onChange={handleInputChange('appointed_to')}
-                  />
-                </Grid> */}
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     select
@@ -750,7 +641,7 @@ const PatientRegistration: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
-    </AppLayout>
+    </Container>
   );
 };
 

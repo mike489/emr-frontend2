@@ -16,21 +16,25 @@ import {
   CircularProgress,
   TablePagination,
   Chip,
-  Tooltip,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 
-import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
+import { Search, ArrowDropDown} from '@mui/icons-material';
 
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
+
+import ErrorPrompt from '../../../features/shared/components/ErrorPrompt';
+import Fallbacks from '../../../features/shared/components/Fallbacks';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { PatientService } from '../../../shared/api/services/patient.service';
-import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
-import { FileSearch } from 'lucide-react';
+import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
+import { FileSearch, FileUp, Send } from 'lucide-react';
+
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -85,8 +89,7 @@ interface Attachment {
   url: string;
 }
 
-const FrontDesk: React.FC = () => {
-  const navigate = useNavigate();
+const Checkout: React.FC = () => {
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
@@ -95,6 +98,7 @@ const FrontDesk: React.FC = () => {
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [uploadingId, setUploadingId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
   const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
@@ -116,6 +120,7 @@ const FrontDesk: React.FC = () => {
     dob_to: '',
     age_min: '',
     age_max: '',
+    visit_type: '',
     created_from: '',
     created_to: '',
     sort_dir: 'asc',
@@ -148,10 +153,12 @@ const FrontDesk: React.FC = () => {
       per_page: 25,
       sort_by: 'full_name',
       sort_order: 'asc',
-      department: '',
+      sort_dir: 'asc',
+      department: 'Reception',
       search: '',
       gender: '',
       doctor_id: '',
+      visit_type: '',
       patient_category_id: '',
       dob_from: '',
       dob_to: '',
@@ -159,7 +166,6 @@ const FrontDesk: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
-      sort_dir: 'asc',
     });
     fetchPatients();
   };
@@ -234,6 +240,9 @@ const FrontDesk: React.FC = () => {
       setSummaryLoading(false);
     }
   };
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -246,44 +255,43 @@ const FrontDesk: React.FC = () => {
     }
   };
 
-  // const sendToTriage = async (id: string) => {
-  //   try {
-  //     await sendToTriageService.sendToTriage(id);
-  //     toast.success('Patient sent to triage successfully');
-  //     fetchPatients(); // Refresh the patient list after sending to triage
-  //   } catch (err: any) {
-  //     toast.error(err.response?.data?.message || 'Failed to send patient to triage');
-  //     console.error('Error sending patient to triage:', err);
-  //   }
-  // };
+  const sendToTriage = async (id: string) => {
+    try {
+      await sendToTriageService.sendToTriage(id);
+      toast.success('Patient sent to triage successfully');
+      fetchPatients(); // Refresh the patient list after sending to triage
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to send patient to triage');
+      console.error('Error sending patient to triage:', err);
+    }
+  };
 
   useEffect(() => {
     fetchPatients();
     fetchDepartments();
     fetchPatientCategories();
-    fetchSummary();
     fetchDoctors();
   }, [filters]);
 
-  // const handleFileChange = async (
-  //   event: React.ChangeEvent<HTMLInputElement>,
-  //   patientId: string
-  // ) => {
-  //   const files = event.target.files;
-  //   if (!files || files.length === 0) return;
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    patientId: string
+  ) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-  //   try {
-  //     setUploadingId(patientId);
-  //     await UploadService.uploadFiles(patientId, Array.from(files));
-  //     toast.success('Files uploaded successfully');
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error('Failed to upload files');
-  //   } finally {
-  //     setUploadingId(null);
-  //     if (fileInputRef.current) fileInputRef.current.value = '';
-  //   }
-  // };
+    try {
+      setUploadingId(patientId);
+      await UploadService.uploadFiles(patientId, Array.from(files));
+      toast.success('Files uploaded successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload files');
+    } finally {
+      setUploadingId(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleSortByName = () => {
     setFilters(prev => ({
@@ -306,30 +314,16 @@ const FrontDesk: React.FC = () => {
             mb: 3,
           }}
         >
-          {/* Back Button */}
-          <Button
-            variant="outlined"
-            onClick={() => navigate(-1)}
-            startIcon={<ArrowBackIos sx={{ fontSize: 16 }} />}
+          {/* Summary Stats */}
+          <Box
             sx={{
-              textTransform: 'none',
-              borderRadius: '8px',
-              borderColor: '#1976d2',
-              color: '#1976d2',
-              px: 2,
-              py: 0.8,
-              fontSize: '0.875rem',
-              '&:hover': {
-                backgroundColor: '#e3f2fd',
-                borderColor: '#1976d2',
-              },
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              alignItems: 'flex-end',
+              gap: 1,
             }}
           >
-            Back
-          </Button>
-
-          {/* Summary Stats */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Chip
                 label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
@@ -355,17 +349,8 @@ const FrontDesk: React.FC = () => {
 
         <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
           {summaryLoading ? (
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                py: 4,
-              }}
-            >
-              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
-              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+              <CircularProgress size={30} sx={{ color: 'primary.main' }} />
             </Box>
           ) : (
             summary.map((category: any) => (
@@ -576,22 +561,29 @@ const FrontDesk: React.FC = () => {
             />
           </Box>
 
-          {/* Department */}
-          {/* <TextField
-              size="small"
-              select
-              value={filters.department}
-              onChange={e => setFilters({ ...filters, department: e.target.value })}
-              placeholder="Department"
-              sx={{ minWidth: 150 }}
-            >
-              <MenuItem value="">All Departments</MenuItem>
-              {departments.map((dept, index) => (
-                <MenuItem key={index} value={dept}>
-                  {dept}
-                </MenuItem>
-              ))}
-            </TextField> */}
+          {/* Visit Type */}
+          {/* Visit Type */}
+          <TextField
+            size="small"
+            select
+            value={filters.visit_type}
+            onChange={e => setFilters({ ...filters, visit_type: e.target.value })}
+            SelectProps={{
+              displayEmpty: true,
+              renderValue: (selected: unknown) => {
+                if (selected === '' || !selected) {
+                  return <span>All Visit Types</span>;
+                }
+                return <span>{selected as string}</span>;
+              },
+            }}
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Visit Types</MenuItem>
+            <MenuItem value="Follow Up">Follow Up</MenuItem>
+            <MenuItem value="Emergency">Emergency</MenuItem>
+            <MenuItem value="New">New</MenuItem>
+          </TextField>
 
           {/* Patient Category */}
           <TextField
@@ -655,30 +647,13 @@ const FrontDesk: React.FC = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
-                    width: 120,
+                    width: 110,
                     fontSize: '0.8rem',
                     py: 1.5,
                     borderRight: '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
                   }}
                 >
                   Patient Name
-                  {filters.sort_by === 'full_name' &&
-                    (filters.sort_dir === 'asc' ? (
-                      <ArrowDropDown
-                        sx={{
-                          transform: 'rotate(180deg)',
-                          color: 'white',
-                          transition: '0.3s',
-                        }}
-                      />
-                    ) : (
-                      <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                    ))}
                 </TableCell>
 
                 <TableCell
@@ -783,8 +758,9 @@ const FrontDesk: React.FC = () => {
                     color: 'white',
                     width: 200,
                     fontSize: '0.8rem',
-                    py: 1.5,
                     textAlign: 'center',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
                   }}
                 >
                   Action
@@ -796,18 +772,16 @@ const FrontDesk: React.FC = () => {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
-                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                      Loading patients...
-                    </Typography>
+                    <CircularProgress size={24} sx={{ color: 'primary.main' }} />
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="error">
-                      Error loading patients. Please try again.
-                    </Typography>
+                    <ErrorPrompt
+                      title="No patients found"
+                      message="An error occurred while loading patients. Please try again later."
+                    />
                   </TableCell>
                 </TableRow>
               ) : patients.length > 0 ? (
@@ -912,10 +886,9 @@ const FrontDesk: React.FC = () => {
                         }}
                       />
                     </TableCell>
-
                     <TableCell sx={{ gap: 1 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                        {/* <Tooltip title="Send to Triage or department" arrow>
+                        <Tooltip title="Send to Triage or department" arrow>
                           <IconButton
                             size="small"
                             onClick={() => sendToTriage(patient.id)}
@@ -927,7 +900,7 @@ const FrontDesk: React.FC = () => {
                           >
                             <Send size={18} />
                           </IconButton>
-                        </Tooltip> */}
+                        </Tooltip>
 
                         {/* -------------------- EXAMINATIONS -------------------- */}
                         {/* <Tooltip title="Open Examination Form" arrow>
@@ -977,7 +950,7 @@ const FrontDesk: React.FC = () => {
                             )}
                           </Button> */}
                         {/* -------------------- ATTACH FILES -------------------- */}
-                        {/* <Tooltip title="Attach files for this patient" arrow>
+                        <Tooltip title="Attach files for this patient" arrow>
                           <span>
                             <IconButton
                               size="small"
@@ -1002,7 +975,7 @@ const FrontDesk: React.FC = () => {
                               )}
                             </IconButton>
                           </span>
-                        </Tooltip> */}
+                        </Tooltip>
 
                         {/* -------------------- VIEW / DOWNLOAD -------------------- */}
                         <Tooltip title="View or download attachments" arrow>
@@ -1026,9 +999,10 @@ const FrontDesk: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No patients found.
-                    </Typography>
+                    <Fallbacks
+                      title="No patients found"
+                      description="No patients found matching the criteria."
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -1054,4 +1028,4 @@ const FrontDesk: React.FC = () => {
   );
 };
 
-export default FrontDesk;
+export default Checkout;
