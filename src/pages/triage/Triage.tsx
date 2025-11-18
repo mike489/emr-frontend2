@@ -847,7 +847,7 @@ const Triage: React.FC = () => {
 
                         {/* -------------------- EXAMINATIONS  and FOLLOW-UP -------------------- */}
 
-                        {patient.visit_type === 'follow-up' ? (
+                        {patient.visit_type === 'Follow Up' ? (
                           // Follow-Up patient → go to hidden Follow-Up page
                           <Tooltip title="Open Follow-Up Form" arrow>
                             <IconButton
