@@ -78,13 +78,37 @@ const router = createBrowserRouter([
     path: ROUTES.protected.doctorAvailability.path,
     element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.doctorAvailability.element}</AppLayout>,
   },
-  {
-    path: ROUTES.protected.examinations.path,
-    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS}>{ROUTES.protected.examinations.element}</AppLayout>,
+   {
+    path: ROUTES.protected.patientPayments.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.patientPayments.element}</AppLayout>,
+  },
+   {
+    path: ROUTES.protected.requestedPayments.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.requestedPayments.element}</AppLayout>,
   },
   {
-    path: ROUTES.protected.triage.path,
-    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.triage.element}</AppLayout>,
+    path: ROUTES.protected.pendingPayments.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.pendingPayments.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.appointmentsCalendars.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.appointmentsCalendars.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.examinationsDoctor.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS}>{ROUTES.protected.examinationsDoctor.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.examinationsDoctor.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS}>{ROUTES.protected.examinationsDoctor.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.examinationsRefraction.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS}>{ROUTES.protected.examinationsRefraction.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.examinationsTriage.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.examinationsTriage.element}</AppLayout>,
   },
    {
     path: ROUTES.protected.referrals.path,
@@ -98,9 +122,17 @@ const router = createBrowserRouter([
     path: ROUTES.protected.emergencyPatient.path,
     element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.emergencyPatient.element}</AppLayout>,
   },
+  {
+    path: ROUTES.protected.followUp.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.followUp.element}</AppLayout>,
+  },
    {
     path: ROUTES.protected.discussion.path,
     element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.discussion.element}</AppLayout>,
+  },
+   {
+    path: ROUTES.protected.triage.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.triage.element}</AppLayout>,
   },
   {
     path: ROUTES.protected.refraction.path,

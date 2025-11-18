@@ -39,6 +39,12 @@ import WardManagement from '../pages/in_patient/ward_management/WardManagement';
 import PatientBeds from '../pages/in_patient/patient_beds/PatientBeds';
 import DoctorSchedule from '../pages/front_desk/appointments-lists/DoctorAvailability';
 import RescheduleLayout from '../pages/front_desk/appointments-lists/RescheduleLayout';
+import PatientPayments from '../pages/front_desk/bills/PatientPayments';
+import PendingPayments from '../pages/front_desk/bills/PendingPayments';
+import RequestedPayments from '../pages/front_desk/bills/RequestedPayments';
+import AppointmentsCalendars from '../pages/front_desk/appointments-lists/AppointmentsCalendars';
+import FollowUp from '../pages/follow_up/FollowUp';
+
 
 export const ROUTES = {
   public: {
@@ -73,8 +79,24 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
-    examinations: {
-      path: '/examinations',
+    examinationsTriage: {
+      path: '/triage/examinations',
+      element: (
+        <PrivateRoute>
+          <PatientTabsLayout />
+        </PrivateRoute>
+      ),
+    },
+     examinationsDoctor: {
+      path: '/doctor/examinations',
+      element: (
+        <PrivateRoute>
+          <PatientTabsLayout />
+        </PrivateRoute>
+      ),
+    },
+    examinationsRefraction: {
+      path: '/refraction/examinations',
       element: (
         <PrivateRoute>
           <PatientTabsLayout />
@@ -96,12 +118,33 @@ export const ROUTES = {
           <Triage />
         </PrivateRoute>
       ),
+      children: [
+    {
+      index: true,       // /triage
+      element: <Triage />,
+    },
+    {
+      path: 'follow-up', // /triage/follow-up
+      element: (
+        <PrivateRoute>
+          <FollowUp />
+        </PrivateRoute>
+      ),
+    },]
     },
     referrals: {
       path: '/triage/referrals',
       element: (
         <PrivateRoute>
-           <Referrals />
+          <Referrals />
+        </PrivateRoute>
+      ),
+    },
+      followUp: {
+      path: '/triage/follow-up',
+      element: (
+        <PrivateRoute>
+          <FollowUp />
         </PrivateRoute>
       ),
     },
@@ -109,7 +152,7 @@ export const ROUTES = {
       path: '/triage/patients-list',
       element: (
         <PrivateRoute>
-           <Triage />
+          <Triage />
         </PrivateRoute>
       ),
     },
@@ -117,7 +160,7 @@ export const ROUTES = {
       path: '/doctor/patients-list',
       element: (
         <PrivateRoute>
-           <Retina />
+          <Retina />
         </PrivateRoute>
       ),
     },
@@ -129,16 +172,16 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
-    checkoutPatients: {  
-path: '/triage/checkout-patients',
+    checkoutPatients: {
+      path: '/triage/checkout-patients',
       element: (
         <PrivateRoute>
           <Discussion />
         </PrivateRoute>
       ),
     },
-emergencyPatient:{
-  path: '/triage/emergency-patients',
+    emergencyPatient: {
+      path: '/triage/emergency-patients',
       element: (
         <PrivateRoute>
           <Discussion />
@@ -154,11 +197,11 @@ emergencyPatient:{
         </PrivateRoute>
       ),
     },
-      referralsRefraction: {
+    referralsRefraction: {
       path: '/refraction/referrals',
       element: (
         <PrivateRoute>
-           <Referrals />
+          <Referrals />
         </PrivateRoute>
       ),
     },
@@ -170,16 +213,16 @@ emergencyPatient:{
         </PrivateRoute>
       ),
     },
-    checkoutRefraction: {  
-path: '/refraction/checkout-patients',
+    checkoutRefraction: {
+      path: '/refraction/checkout-patients',
       element: (
         <PrivateRoute>
           <Discussion />
         </PrivateRoute>
       ),
     },
-emergencyRefraction:{
-  path: '/refraction/emergency-patients',
+    emergencyRefraction: {
+      path: '/refraction/emergency-patients',
       element: (
         <PrivateRoute>
           <Discussion />
@@ -202,11 +245,11 @@ emergencyRefraction:{
         </PrivateRoute>
       ),
     },
-  referralsDoctor: {
+    referralsDoctor: {
       path: '/doctor/referrals',
       element: (
         <PrivateRoute>
-           <Referrals />
+          <Referrals />
         </PrivateRoute>
       ),
     },
@@ -218,16 +261,16 @@ emergencyRefraction:{
         </PrivateRoute>
       ),
     },
-    checkoutDoctor: {  
-path: '/doctor/checkout-patients',
+    checkoutDoctor: {
+      path: '/doctor/checkout-patients',
       element: (
         <PrivateRoute>
           <Discussion />
         </PrivateRoute>
       ),
     },
-emergencyDoctor:{
-  path: '/doctor/emergency-patients',
+    emergencyDoctor: {
+      path: '/doctor/emergency-patients',
       element: (
         <PrivateRoute>
           <Discussion />
@@ -258,7 +301,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-      laboratory: {
+    laboratory: {
       path: '/diagnosis/laboratory',
       element: (
         <PrivateRoute>
@@ -274,7 +317,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-      caseHistories: {
+    caseHistories: {
       path: '/diagnosis/case-history',
       element: (
         <PrivateRoute>
@@ -282,7 +325,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-     diagnosisNotifications: {
+    diagnosisNotifications: {
       path: '/diagnosis/notifications',
       element: (
         <PrivateRoute>
@@ -298,7 +341,6 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-    
 
     pharmacy: {
       path: '/pharmacy/',
@@ -308,7 +350,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-     pharmacyCases: {
+    pharmacyCases: {
       path: '/pharmacy/today-cases',
       element: (
         <PrivateRoute>
@@ -316,7 +358,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-      pharmacyResults: {
+    pharmacyResults: {
       path: '/pharmacy/results',
       element: (
         <PrivateRoute>
@@ -340,7 +382,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
- optical: {
+    optical: {
       path: '/optical/',
       element: (
         <PrivateRoute>
@@ -348,7 +390,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-     opticalCases: {
+    opticalCases: {
       path: '/optical/today-cases',
       element: (
         <PrivateRoute>
@@ -356,7 +398,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-      opticalResults: {
+    opticalResults: {
       path: '/optical/results',
       element: (
         <PrivateRoute>
@@ -381,8 +423,7 @@ emergencyDoctor:{
       ),
     },
 
-
-     inPatient: {
+    inPatient: {
       path: '/in-patient/',
       element: (
         <PrivateRoute>
@@ -398,7 +439,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-      wardManagement: {
+    wardManagement: {
       path: '/in-patient/ward-management',
       element: (
         <PrivateRoute>
@@ -422,7 +463,7 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-     inPatientNotifications: {
+    inPatientNotifications: {
       path: '/in-patient/notifications',
       element: (
         <PrivateRoute>
@@ -487,6 +528,14 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
+     appointmentsCalendars: {
+      path: '/front-desk/appointments-calendars',
+      element: (
+        <PrivateRoute>
+          <AppointmentsCalendars />
+        </PrivateRoute>
+      ),
+    },
     createAppointment: {
       path: '/front-desk/appointments-create',
       element: (
@@ -495,7 +544,31 @@ emergencyDoctor:{
         </PrivateRoute>
       ),
     },
-     rescheduleAppointment: {
+    patientPayments: {
+      path: '/front-desk/patient-payments',
+      element: (
+        <PrivateRoute>
+          <PatientPayments />
+        </PrivateRoute>
+      ),
+    },
+    pendingPayments: {
+      path: '/front-desk/pending-payments',
+      element: (
+        <PrivateRoute>
+          <PendingPayments />
+        </PrivateRoute>
+      ),
+    },
+    requestedPayments: {
+      path: '/front-desk/requested-payments',
+      element: (
+        <PrivateRoute>
+          <RequestedPayments />
+        </PrivateRoute>
+      ),
+    },
+    rescheduleAppointment: {
       path: '/front-desk/appointments-reschedule',
       element: (
         <PrivateRoute>

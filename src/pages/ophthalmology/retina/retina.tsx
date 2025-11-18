@@ -852,7 +852,7 @@ const Retina: React.FC = () => {
                           <IconButton
                             size="small"
                             onClick={() =>
-                              navigate('/examinations', {
+                              navigate('/doctor/examinations', {
                                 state: { consultation_id: patient.constultation_id },
                               })
                             }

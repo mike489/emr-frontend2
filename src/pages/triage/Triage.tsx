@@ -47,6 +47,7 @@ interface Patient {
     kifle_ketema: string;
     wereda: string;
   };
+  visit_type: string;
   blood_type: string;
   height: string;
   weight: string;
@@ -91,7 +92,7 @@ const Triage: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -183,7 +184,7 @@ const Triage: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -199,7 +200,7 @@ const Triage: React.FC = () => {
       setDepartments(departmentsData);
       setError(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch departments');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch departments');
       console.error('Error fetching departments:', err);
     }
   };
@@ -215,7 +216,7 @@ const Triage: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patient categories');
       console.error('Error fetching patient categories:', err);
     } finally {
       setLoading(false);
@@ -232,12 +233,16 @@ const Triage: React.FC = () => {
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     } finally {
       setSummaryLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -245,7 +250,7 @@ const Triage: React.FC = () => {
       const doctorsData = res.data?.data || [];
       setDoctors(doctorsData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     }
   };
@@ -254,7 +259,7 @@ const Triage: React.FC = () => {
     fetchPatients();
     fetchDepartments();
     fetchPatientCategories();
-    fetchSummary();
+
     fetchDoctors();
   }, [filters]);
 
@@ -300,7 +305,6 @@ const Triage: React.FC = () => {
           }}
         >
           {/* Back Button */}
-          
 
           {/* Summary Stats */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
@@ -552,21 +556,21 @@ const Triage: React.FC = () => {
           </Box>
 
           {/* Department */}
-          {/* <TextField
-                      size="small"
-                      select
-                      value={filters.department}
-                      onChange={e => setFilters({ ...filters, department: e.target.value })}
-                      placeholder="Department"
-                      sx={{ minWidth: 150 }}
-                    >
-                      <MenuItem value="">All Departments</MenuItem>
-                      {departments.map((dept, index) => (
-                        <MenuItem key={index} value={dept}>
-                          {dept}
-                        </MenuItem>
-                      ))}
-                    </TextField> */}
+          <TextField
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
 
           {/* Patient Category */}
           <TextField
@@ -630,30 +634,13 @@ const Triage: React.FC = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
-                    width: 120,
+                    width: 110,
                     fontSize: '0.8rem',
                     py: 1.5,
                     borderRight: '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
                   }}
                 >
                   Patient Name
-                  {filters.sort_by === 'full_name' &&
-                    (filters.sort_dir === 'asc' ? (
-                      <ArrowDropDown
-                        sx={{
-                          transform: 'rotate(180deg)',
-                          color: 'white',
-                          transition: '0.3s',
-                        }}
-                      />
-                    ) : (
-                      <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                    ))}
                 </TableCell>
 
                 <TableCell
@@ -858,25 +845,43 @@ const Triage: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- EXAMINATIONS -------------------- */}
-                        <Tooltip title="Open Examination Form" arrow>
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              navigate('/examinations', {
-                                state: { consultation_id: patient.constultation_id },
-                              })
-                            }
-                            sx={{
-                              backgroundColor: '#1976d2',
-                              color: 'white',
-                              '&:hover': { backgroundColor: '#1565c0' },
-                            }}
-                          >
-                            <Eye size={18} />
-                          </IconButton>
-                        </Tooltip>
+                        {/* -------------------- EXAMINATIONS  and FOLLOW-UP -------------------- */}
 
+                        {patient.visit_type === 'follow-up' ? (
+                          // Follow-Up patient → go to hidden Follow-Up page
+                          <Tooltip title="Open Follow-Up Form" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() => navigate('/triage/follow-up')}
+                              sx={{
+                                backgroundColor: '#1b5e20', // dark green
+                                color: 'white',
+                                '&:hover': { backgroundColor: '#2e7d32' },
+                              }}
+                            >
+                              <Eye size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          // New patient → go to normal examinations
+                          <Tooltip title="Open Examination Form" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                navigate('/triage/examinations', {
+                                  state: { consultation_id: patient.constultation_id },
+                                })
+                              }
+                              sx={{
+                                backgroundColor: '#1976d2',
+                                color: 'white',
+                                '&:hover': { backgroundColor: '#1565c0' },
+                              }}
+                            >
+                              <Eye size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>

@@ -26,6 +26,7 @@ export const FRONT_DESK_TABS: TabItem[] = [
     path: '/front-desk/appointments',
     children: [
       { label: 'Appointment Lists', path: '/front-desk/appointments-lists' },
+      { label: 'Appointment Calendars', path: '/front-desk/appointments-calendars' },
       { label: 'Create appointment', path: '/front-desk/appointments-create' },
       // { label: 'Reschedule Appointment', path: '/front-desk/appointments-reschedule' },
       { label: 'Doctors Availability', path: '/front-desk/appointments-doctors' },
@@ -74,12 +75,13 @@ export const TRIAGE_TABS: TabItem[] = [
       { label: 'Patient List', path: '/triage/patients-list' },
       { label: 'Referrals', path: '/triage/referrals' },
       { label: 'Checkout patients ', path: '/triage/checkout-patients' },
+      { label: 'Follow up', path: '/triage/follow-up' },
       { label: 'Emergency Patients', path: '/triage/emergency-patients' },
     ],
   },
   {
     label: 'Examinations',
-    path: '/examinations',
+    path: '/triage/examinations',
   },
   {
     label: 'Discussion',
@@ -116,7 +118,7 @@ export const REFRACTION_TABS: TabItem[] = [
   },
   {
     label: 'Examination',
-    path: '/examinations',
+    path: '/refraction/examinations',
   },
   {
     label: 'Discussion',
@@ -152,7 +154,7 @@ export const DOCTOR_TABS: TabItem[] = [
   },
   {
     label: 'Examination',
-    path: '/examinations',
+    path: '/doctor/examinations',
   },
   {
     label: 'Discussion',

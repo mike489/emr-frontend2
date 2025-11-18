@@ -124,7 +124,7 @@ export default function TopBar({
   const title = useMemo(() => {
     const parts: string[] = [];
     if (department) parts.push(department);
-    if (currentLabel) parts.push(currentLabel);
+    // if (currentLabel) parts.push(currentLabel);
     return parts.length ? parts.join(' – ') : 'EMR System';
   }, [department, currentLabel]);
 
