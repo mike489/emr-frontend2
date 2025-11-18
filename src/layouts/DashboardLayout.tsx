@@ -1,13 +1,13 @@
 import { Container, Typography, Box } from '@mui/material';
 
 import { useAuthStore } from '../store/useAuthStore';
-import AppLayout from './AppLayout';
+
 
 const Dashboard = () => {
   const { user } = useAuthStore();
 
   return (
-    <AppLayout>
+
       <Container sx={{ mt: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -34,7 +34,7 @@ const Dashboard = () => {
           </Typography>
         </Box>
       </Container>
-    </AppLayout>
+   
   );
 };
 

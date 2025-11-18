@@ -3,7 +3,6 @@ import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import PageHeader from '../features/shared/components/PageHeader';
 import { DOCTOR_MODULES } from '../config/doctorModules';
 import { useAuthStore } from '../store/useAuthStore';
-import AppLayout from './AppLayout';
 import { ModuleCard } from '../features/shared/components/ModuleCard';
 
 const ClinicLists = () => {
@@ -52,7 +51,7 @@ const ClinicLists = () => {
   const isSubRoute = location.pathname.includes('/examinations');
 
   return (
-    <AppLayout>
+    <Container>
       {isSubRoute ? (
         // 🔸 Show nested content (e.g., PatientTabsLayout)
         <Outlet />
@@ -81,7 +80,7 @@ const ClinicLists = () => {
           </Grid>
         </Container>
       )}
-    </AppLayout>
+    </Container>
   );
 };
 

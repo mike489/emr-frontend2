@@ -1,16 +1,11 @@
-
 import { Container, Box, Typography, Button, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import AppLayout from '../layouts/AppLayout';
 
 const NotFound = () => {
   const navigate = useNavigate();
 
   return (
-    <AppLayout>
-      
-   
     <Container maxWidth="sm" sx={{ mt: 8, textAlign: 'center' }}>
       <Paper
         elevation={0}
@@ -57,8 +52,7 @@ const NotFound = () => {
         </Box>
       </Paper>
     </Container>
-    </AppLayout>
-  )
+  );
 };
 
 export default NotFound;
