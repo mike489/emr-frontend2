@@ -13,18 +13,18 @@ import {
   Chip,
 } from '@mui/material';
 import { Search, ArrowDropDown } from '@mui/icons-material';
-import { PatientService } from '../../shared/api/services/patient.service';
+
 import { toast } from 'react-toastify';
-import { DepartmentsService } from '../../shared/api/services/departments.service';
-import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
-import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
-import { doctorsService } from '../../shared/api/services/Doctor.service';
-import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
-import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
-import PatientDetailsModal from '../../features/patients/PatientDetailsModal';
-import TriageSelectModal from '../../features/patients/TriageSelectModal';
-import PatientTable from '../../features/patients/PatientTable';
-import { BillsService } from '../../shared/api/services/bills.service';
+import PatientDetailsModal from '../../../features/patients/PatientDetailsModal';
+import PatientTable from '../../../features/patients/PatientTable';
+import TriageSelectModal from '../../../features/patients/TriageSelectModal';
+import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
+import { BillsService } from '../../../shared/api/services/bills.service';
+import { DepartmentsService } from '../../../shared/api/services/departments.service';
+import { doctorsService } from '../../../shared/api/services/Doctor.service';
+import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
+import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
+import { PatientService } from '../../../shared/api/services/patient.service';
 
 // Updated Type definitions to match your API response
 interface Flag {
@@ -88,10 +88,10 @@ interface Attachment {
   url: string;
 }
 
-const FrontDesk: React.FC = () => {
+const EmergencyLists: React.FC = () => {
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [_total, setTotal] = React.useState<number>(0);
+
   const [_error, setError] = React.useState<boolean>(false);
   const [_departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
@@ -104,9 +104,7 @@ const FrontDesk: React.FC = () => {
   const [openTriageModal, setOpenTriageModal] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
-  const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
-    []
-  );
+  
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
@@ -180,7 +178,7 @@ const FrontDesk: React.FC = () => {
   const fetchPatients = async () => {
     setLoading(true);
     try {
-      const res = await PatientService.getList(filters);
+      const res = await PatientService.getEmergencyList(filters);
 
       const patientsData = res.data?.data?.data || res.data?.data || [];
       const totalItems = res.data?.data?.total || patientsData.length || 0;
@@ -216,23 +214,6 @@ const FrontDesk: React.FC = () => {
     }
   };
 
-  const fetchPatientCategories = async () => {
-    setLoading(true);
-    try {
-      const res = await PatientCategoryService.getAll();
-      // Based on your API response structure, the data is at res.data.data
-      const categories = res.data?.data || [];
-      setPatientCategories(categories);
-      setTotal(categories.length || 0);
-      setError(false);
-    } catch (err: any) {
-      setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
-      console.error('Error fetching patient categories:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchSummary = async () => {
     setSummaryLoading(true);
@@ -282,7 +263,7 @@ const FrontDesk: React.FC = () => {
   useEffect(() => {
     fetchPatients();
     fetchDepartments();
-    fetchPatientCategories();
+  
     fetchDoctors();
   }, [filters]);
 const handleOpenTriageModal = (patient: Patient) => {
@@ -630,33 +611,6 @@ const handlePay = async (patient: Patient) => {
             {/* <MenuItem value="Emergency">Emergency</MenuItem> */}
             <MenuItem value="New">New</MenuItem>
           </TextField>
-
-          {/* Patient Category */}
-          <TextField
-            size="small"
-            select
-            value={filters.patient_category_id}
-            onChange={e => setFilters({ ...filters, patient_category_id: e.target.value })}
-            placeholder="Category"
-            SelectProps={{
-              displayEmpty: true,
-              renderValue: (selected: unknown) => {
-                if (selected === '' || !selected) {
-                  return 'All Categories';
-                }
-                const category = patientCategories.find(cat => cat.id === selected);
-                return category?.name || (selected as string);
-              },
-            }}
-            sx={{ minWidth: 150 }}
-          >
-            <MenuItem value="">All Categories</MenuItem>
-            {patientCategories.map(category => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </TextField>
         </Box>
       </Paper>
 
@@ -701,7 +655,7 @@ const handlePay = async (patient: Patient) => {
       <TriageSelectModal
         open={openTriageModal}
         onClose={() => setOpenTriageModal(false)}
-        onSelect={triageRoom => {
+        onSelect={(triageRoom: string | { name: string; count?: number; }) => {
           if (selectedPatientId) {
             handleTriageSelect(selectedPatientId, triageRoom);
           }
@@ -711,4 +665,4 @@ const handlePay = async (patient: Patient) => {
   );
 };
 
-export default FrontDesk;
+export default EmergencyLists;

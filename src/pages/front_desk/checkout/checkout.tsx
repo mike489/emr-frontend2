@@ -257,7 +257,7 @@ const Checkout: React.FC = () => {
 
   const sendToTriage = async (id: string) => {
     try {
-      await sendToTriageService.sendToTriage(id);
+      await sendToTriageService.sendToTriage(id, { to: 'Triage' });
       toast.success('Patient sent to triage successfully');
       fetchPatients(); // Refresh the patient list after sending to triage
     } catch (err: any) {

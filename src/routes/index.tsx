@@ -3,8 +3,9 @@ import { ROUTES } from './routes';
 import { Suspense } from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import AppLayout from '../layouts/AppLayout';
-import { FRONT_DESK_TABS, DOCTOR_TABS, TRIAGE_TABS, REFRACTION_TABS, DIAGNOSIS_TABS, PHARMACY_TABS, OPTICAL_TABS, IN_PATIENT_TABS } from '../data/data';
+import { FRONT_DESK_TABS, DOCTOR_TABS, TRIAGE_TABS, REFRACTION_TABS, DIAGNOSIS_TABS, PHARMACY_TABS, OPTICAL_TABS, IN_PATIENT_TABS, TRIAGE_TABS_TWO, TRIAGE_TABS_THREE, TRIAGE_TABS_ONE } from '../data/data';
 import { PublicLayout } from '../layouts/PublicLayout';
+import PrivateTopBar from '../layouts/PrivateTopBar';
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
@@ -42,6 +43,15 @@ const router = createBrowserRouter([
   },
 
   // 🔹 Protected routes with tabs
+    {
+    path: ROUTES.protected.eyeSmart.path,
+    element: <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>{ROUTES.protected.eyeSmart.element}</PrivateTopBar>,
+  },
+  {
+    path: ROUTES.protected.triageLists.path,
+    element: <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>{ROUTES.protected.triageLists.element}</PrivateTopBar>,
+  },
+
   {
     path: ROUTES.protected.frontDesk.path,
     element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.frontDesk.element}</AppLayout>,
@@ -94,6 +104,14 @@ const router = createBrowserRouter([
     path: ROUTES.protected.appointmentsCalendars.path,
     element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.appointmentsCalendars.element}</AppLayout>,
   },
+   {
+    path: ROUTES.protected.emergencyPatients.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.emergencyPatients.element}</AppLayout>,
+  },
+  {
+    path: ROUTES.protected.createEmergencyPatients.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS}>{ROUTES.protected.createEmergencyPatients.element}</AppLayout>,
+  },
   {
     path: ROUTES.protected.examinationsDoctor.path,
     element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS}>{ROUTES.protected.examinationsDoctor.element}</AppLayout>,
@@ -109,6 +127,22 @@ const router = createBrowserRouter([
   {
     path: ROUTES.protected.examinationsTriage.path,
     element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.examinationsTriage.element}</AppLayout>,
+  },
+  // Triage one
+   
+  // Triage two
+  // {
+  //   path: ROUTES.protected.triageThree.path,
+  //   element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_TWO}>{ROUTES.protected.triageThree.element}</AppLayout>,
+  // },
+  {
+    path: ROUTES.protected.triageOnePatientList.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_TWO}>{ROUTES.protected.triageOnePatientList.element}</AppLayout>,
+  },
+  // Triage Three
+   {
+    path: ROUTES.protected.triageThree.path,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_THREE}>{ROUTES.protected.triageThree.element}</AppLayout>,
   },
    {
     path: ROUTES.protected.referrals.path,
@@ -132,7 +166,7 @@ const router = createBrowserRouter([
   },
    {
     path: ROUTES.protected.triage.path,
-    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS}>{ROUTES.protected.triage.element}</AppLayout>,
+    element: <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_ONE}>{ROUTES.protected.triage.element}</AppLayout>,
   },
   {
     path: ROUTES.protected.refraction.path,
@@ -312,11 +346,7 @@ const router = createBrowserRouter([
     path: ROUTES.protected.dashboard.path,
     element: <Suspense fallback={<Loading />}>{ROUTES.protected.dashboard.element}</Suspense>,
   },
-  {
-    path: ROUTES.protected.eyeSmart.path,
-    element: <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>,
-  },
-
+ 
   // 🔹 New Patient / Registration
   {
     path: ROUTES.protected.newPatient.path,

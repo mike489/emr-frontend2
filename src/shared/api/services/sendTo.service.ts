@@ -3,7 +3,7 @@ import { createApiClient } from '../interceptors';
 const sendToApi = createApiClient(import.meta.env.VITE_EMS_URL);
 
 export const sendToTriageService = {
-  sendToTriage: (id: string) => sendToApi.post(`/send-to-triage/${id}`),
+  sendToTriage: (id: string, payload: any) => sendToApi.post(`/send-to-triage/${id}`, payload),
 };
 
 export const UploadService = {

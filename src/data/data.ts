@@ -17,6 +17,9 @@ export const FRONT_DESK_TABS: TabItem[] = [
     children: [
       { label: 'All Patients', path: '/front-desk' },
       { label: 'Add new patients', path: '/new-patient' },
+      { label: 'Emergency Patients', path: '/front-desk/emergency-patients' },
+      { label: 'Add New Emergency Patients', path: '/front-desk/add-new-emergency-patients' },
+    
       { label: 'Checkout Patients', path: '/front-desk/checkout' },
       { label: 'Archived patients', path: '/front-desk/archived-patients' },
     ],
@@ -86,6 +89,102 @@ export const TRIAGE_TABS: TabItem[] = [
   {
     label: 'Discussion',
     path: '/triage/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const TRIAGE_TABS_TWO: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/triage-two/patients',
+    children: [
+      { label: 'Patient List', path: '/triage-two/patients-list' },
+      { label: 'Referrals', path: '/triage-two/referrals' },
+      { label: 'Checkout patients ', path: '/triage-two/checkout-patients' },
+      { label: 'Follow up', path: '/triage-two/follow-up' },
+      { label: 'Emergency Patients', path: '/triage-two/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examinations',
+    path: '/triage-two/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/triage-two/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const TRIAGE_TABS_ONE: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/triage-one/patients',
+    children: [
+      { label: 'Patient List', path: '/triage-one/patients-list' },
+      { label: 'Referrals', path: '/triage-one/referrals' },
+      { label: 'Checkout patients ', path: '/triage-one/checkout-patients' },
+      { label: 'Follow up', path: '/triage-one/follow-up' },
+      { label: 'Emergency Patients', path: '/triage-one/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examinations',
+    path: '/triage/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/triage/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const TRIAGE_TABS_THREE: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/triage-three/patients',
+    children: [
+      { label: 'Patient List', path: '/triage-three/patients-list' },
+      { label: 'Referrals', path: '/triage-three/referrals' },
+      { label: 'Checkout patients ', path: '/triage-three/checkout-patients' },
+      { label: 'Follow up', path: '/triage-three/follow-up' },
+      { label: 'Emergency Patients', path: '/triage-three/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examinations',
+    path: '/triage-three/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/triage-three/discussion',
   },
 
   // {

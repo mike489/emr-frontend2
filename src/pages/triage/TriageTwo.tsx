@@ -15,26 +15,22 @@ import {
   Button,
   CircularProgress,
   TablePagination,
-  Chip,
-  IconButton,
   Tooltip,
+  IconButton,
+  Chip,
 } from '@mui/material';
-
-import { Search, ArrowDropDown} from '@mui/icons-material';
-
+import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
+import { Search, ArrowDropDown } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
-import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
-
-import ErrorPrompt from '../../../features/shared/components/ErrorPrompt';
-import Fallbacks from '../../../features/shared/components/Fallbacks';
-import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
-import { DepartmentsService } from '../../../shared/api/services/departments.service';
-import { doctorsService } from '../../../shared/api/services/Doctor.service';
-import { PatientService } from '../../../shared/api/services/patient.service';
-import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
-import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
-import { FileSearch, FileUp, Send } from 'lucide-react';
-
+import { DepartmentsService } from '../../shared/api/services/departments.service';
+import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
+import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
+import { doctorsService } from '../../shared/api/services/Doctor.service';
+import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
+import SendModal from '../../features/triage/components/sendModal';
+import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -51,6 +47,7 @@ interface Patient {
     kifle_ketema: string;
     wereda: string;
   };
+  visit_type: string;
   blood_type: string;
   height: string;
   weight: string;
@@ -89,16 +86,19 @@ interface Attachment {
   url: string;
 }
 
-const ArchivedPatients: React.FC = () => {
+const TriageTwo: React.FC = () => {
+  const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
+  const [sendModalOpen, setSendModalOpen] = React.useState(false);
+  const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
   const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
@@ -111,7 +111,7 @@ const ArchivedPatients: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: 'Reception',
+    department: 'Triage 2',
     search: '',
     gender: '',
     doctor_id: '',
@@ -120,7 +120,6 @@ const ArchivedPatients: React.FC = () => {
     dob_to: '',
     age_min: '',
     age_max: '',
-    visit_type: '',
     created_from: '',
     created_to: '',
     sort_dir: 'asc',
@@ -136,15 +135,13 @@ const ArchivedPatients: React.FC = () => {
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
   };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newPerPage = parseInt(event.target.value, 10);
-    setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
-  };
-
   const openAttachModal = (attachments: Attachment[]) => {
     setCurrentAttachments(attachments);
     setAttachModalOpen(true);
+  };
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPerPage = parseInt(event.target.value, 10);
+    setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
   };
 
   const clearFilters = () => {
@@ -153,12 +150,10 @@ const ArchivedPatients: React.FC = () => {
       per_page: 25,
       sort_by: 'full_name',
       sort_order: 'asc',
-      sort_dir: 'asc',
-      department: 'Reception',
+      department: 'Triage 2',
       search: '',
       gender: '',
       doctor_id: '',
-      visit_type: '',
       patient_category_id: '',
       dob_from: '',
       dob_to: '',
@@ -166,6 +161,7 @@ const ArchivedPatients: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
+      sort_dir: 'asc',
     });
     fetchPatients();
   };
@@ -173,7 +169,7 @@ const ArchivedPatients: React.FC = () => {
   const fetchPatients = async () => {
     setLoading(true);
     try {
-      const res = await PatientService.getArchivedPatients(filters);
+      const res = await PatientService.getList(filters);
 
       const patientsData = res.data?.data?.data || res.data?.data || [];
       const totalItems = res.data?.data?.total || patientsData.length || 0;
@@ -188,7 +184,7 @@ const ArchivedPatients: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -204,7 +200,7 @@ const ArchivedPatients: React.FC = () => {
       setDepartments(departmentsData);
       setError(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch departments');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch departments');
       console.error('Error fetching departments:', err);
     }
   };
@@ -220,26 +216,30 @@ const ArchivedPatients: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patient categories');
       console.error('Error fetching patient categories:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage 2');
+
+  // Then use it
   const fetchSummary = async () => {
     setSummaryLoading(true);
     try {
-      const res = await PatientSummaryService.getAll('Reception');
+      const res = await getFrontDeskSummary();
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     } finally {
       setSummaryLoading(false);
     }
   };
+
   useEffect(() => {
     fetchSummary();
   }, []);
@@ -250,19 +250,8 @@ const ArchivedPatients: React.FC = () => {
       const doctorsData = res.data?.data || [];
       setDoctors(doctorsData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
-    }
-  };
-
- const sendToTriage = async (id: string) => {
-    try {
-      await sendToTriageService.sendToTriage(id, { to: 'Triage' });
-      toast.success('Patient sent to triage successfully');
-      fetchPatients(); // Refresh the patient list after sending to triage
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to send patient to triage');
-      console.error('Error sending patient to triage:', err);
     }
   };
 
@@ -270,6 +259,7 @@ const ArchivedPatients: React.FC = () => {
     fetchPatients();
     fetchDepartments();
     fetchPatientCategories();
+
     fetchDoctors();
   }, [filters]);
 
@@ -302,7 +292,7 @@ const ArchivedPatients: React.FC = () => {
   };
 
   return (
-    <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -10 }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
       {/* Search and Filter Section */}
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Header with Back Button and Summary Stats */}
@@ -314,16 +304,10 @@ const ArchivedPatients: React.FC = () => {
             mb: 3,
           }}
         >
+          {/* Back Button */}
+
           {/* Summary Stats */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              alignItems: 'flex-end',
-              gap: 1,
-            }}
-          >
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Chip
                 label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
@@ -347,10 +331,20 @@ const ArchivedPatients: React.FC = () => {
           </Box>
         </Box>
 
+        {/* Patient Category Cards */}
         <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
           {summaryLoading ? (
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <CircularProgress size={30} sx={{ color: 'primary.main' }} />
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                py: 4,
+              }}
+            >
+              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
+              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
             </Box>
           ) : (
             summary.map((category: any) => (
@@ -561,28 +555,21 @@ const ArchivedPatients: React.FC = () => {
             />
           </Box>
 
-          {/* Visit Type */}
-          {/* Visit Type */}
+          {/* Department */}
           <TextField
             size="small"
             select
-            value={filters.visit_type}
-            onChange={e => setFilters({ ...filters, visit_type: e.target.value })}
-            SelectProps={{
-              displayEmpty: true,
-              renderValue: (selected: unknown) => {
-                if (selected === '' || !selected) {
-                  return <span>All Visit Types</span>;
-                }
-                return <span>{selected as string}</span>;
-              },
-            }}
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="">All Visit Types</MenuItem>
-            <MenuItem value="Follow Up">Follow Up</MenuItem>
-            <MenuItem value="Emergency">Emergency</MenuItem>
-            <MenuItem value="New">New</MenuItem>
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
           </TextField>
 
           {/* Patient Category */}
@@ -615,8 +602,8 @@ const ArchivedPatients: React.FC = () => {
       </Paper>
 
       {/* Patient Table */}
-      <Paper sx={{ p: 0, borderRadius: '8px', overflow: 'hidden' }}>
-        <input type="file" ref={fileInputRef} style={{ display: 'none' }} multiple />
+      <Paper sx={{ p: 0 }}>
+        <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
 
         <TableContainer>
           <Table>
@@ -758,9 +745,8 @@ const ArchivedPatients: React.FC = () => {
                     color: 'white',
                     width: 200,
                     fontSize: '0.8rem',
-                    textAlign: 'center',
                     py: 1.5,
-                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    textAlign: 'center',
                   }}
                 >
                   Action
@@ -772,32 +758,25 @@ const ArchivedPatients: React.FC = () => {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={24} sx={{ color: 'primary.main' }} />
+                    <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                      Loading patients...
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
-                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <ErrorPrompt
-                      title="No patients found"
-                      message="An error occurred while loading patients. Please try again later."
-                    />
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="error">
+                      Error loading patients. Please try again.
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : patients.length > 0 ? (
                 patients.map((patient, index) => (
-                  <TableRow
-                    key={patient.id || index}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: '#f8f9fa',
-                      },
-                      '&:nth-of-type(even)': {
-                        backgroundColor: '#fafafa',
-                      },
-                    }}
-                  >
+                  <TableRow key={patient.id || index}>
                     <TableCell>
+                      {' '}
                       <Box
                         sx={{
                           width: 16,
@@ -805,8 +784,8 @@ const ArchivedPatients: React.FC = () => {
                           borderRadius: '10%',
                           backgroundColor: patient.patient_category?.color || '#ccc',
                           display: 'inline-block',
+                          mr: 1,
                           border: '1px solid #e0e0e0',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                         }}
                       />
                     </TableCell>
@@ -818,80 +797,44 @@ const ArchivedPatients: React.FC = () => {
                         {patient.title}
                       </Typography>
                     </TableCell>
+                    <TableCell>{patient.emr_number}</TableCell>
+                    <TableCell>{patient.age} years</TableCell>
+                    <TableCell>{patient.gender}</TableCell>
+                    <TableCell>{patient.phone}</TableCell>
+                    <TableCell>{patient.address?.city}</TableCell>
+                    <TableCell>{patient.blood_type}</TableCell>
                     <TableCell>
-                      <Typography
-                        variant="body2"
-                        sx={{ fontFamily: 'monospace', fontWeight: '500' }}
+                      {patient.current_doctor && typeof patient.current_doctor === 'object'
+                        ? patient.current_doctor.name
+                        : patient.current_doctor || 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: 'inline-block',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          backgroundColor: patient.status === '1' ? '#e8f5e8' : '#fff3e0',
+                          color: patient.status === '1' ? '#2e7d32' : '#f57c00',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                        }}
                       >
-                        {patient.emr_number}
-                      </Typography>
+                        {patient.status === '1' ? 'Active' : 'Inactive'}
+                      </Box>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: '500' }}>
-                        {patient.age} years
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={patient.gender}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          height: '24px',
-                          fontSize: '0.75rem',
-                          borderColor: patient.gender === 'Male' ? '#2196f3' : '#e91e63',
-                          color: patient.gender === 'Male' ? '#2196f3' : '#e91e63',
-                          fontWeight: '500',
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                        {patient.phone}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">{patient.address?.city}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={patient.blood_type || 'N/A'}
-                        size="small"
-                        sx={{
-                          height: '24px',
-                          fontSize: '0.75rem',
-                          backgroundColor: '#ffebee',
-                          color: '#c62828',
-                          fontWeight: 'bold',
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: '500' }}>
-                        {patient.current_doctor && typeof patient.current_doctor === 'object'
-                          ? patient.current_doctor.name
-                          : patient.current_doctor || 'N/A'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={patient.status === '1' ? 'Active' : 'Inactive'}
-                        size="small"
-                        color={patient.status === '1' ? 'success' : 'warning'}
-                        sx={{
-                          height: '24px',
-                          fontSize: '0.75rem',
-                          fontWeight: 'bold',
-                          minWidth: '70px',
-                        }}
-                      />
-                    </TableCell>
+
                     <TableCell sx={{ gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                        <Tooltip title="Send to Triage or department" arrow>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        {/* -------------------- SEND TO -------------------- */}
+                        <Tooltip title="Send to doctor or department" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => sendToTriage(patient.id)}
+                            onClick={() => {
+                              setCurrentPatientId(patient.id);
+                              setSendModalOpen(true);
+                            }}
                             sx={{
                               backgroundColor: '#1976d2',
                               color: 'white',
@@ -902,53 +845,43 @@ const ArchivedPatients: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- EXAMINATIONS -------------------- */}
-                        {/* <Tooltip title="Open Examination Form" arrow>
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              navigate('/examinations', {
-                                state: { consultation_id: patient.constultation_id },
-                              })
-                            }
-                            sx={{
-                              backgroundColor: '#1976d2',
-                              color: 'white',
-                              '&:hover': { backgroundColor: '#1565c0' },
-                            }}
-                          >
-                            <Eye size={18} />
-                          </IconButton>
-                        </Tooltip> */}
+                        {/* -------------------- EXAMINATIONS  and FOLLOW-UP -------------------- */}
 
-                        {/* <Button
-                            variant="contained"
-                            size="small"
-                            disabled={uploadingId === patient.id}
-                            onClick={() => {
-                              if (fileInputRef.current) {
-                                fileInputRef.current.onchange = (e: any) =>
-                                  handleFileChange(e, patient.id);
-                                fileInputRef.current.click();
+                        {patient.visit_type === 'Follow Up' ? (
+                          // Follow-Up patient → go to hidden Follow-Up page
+                          <Tooltip title="Open Follow-Up Form" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() => navigate('/triage/follow-up')}
+                              sx={{
+                                backgroundColor: '#1b5e20', // dark green
+                                color: 'white',
+                                '&:hover': { backgroundColor: '#2e7d32' },
+                              }}
+                            >
+                              <Eye size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          // New patient → go to normal examinations
+                          <Tooltip title="Open Examination Form" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                navigate('/triage/examinations', {
+                                  state: { consultation_id: patient.constultation_id },
+                                })
                               }
-                            }}
-                            sx={{
-                              textTransform: 'none',
-                              borderRadius: '16px',
-                              px: 1,
-                              py: 0.5,
-                              minWidth: 80,
-                              fontSize: '0.7rem',
-                              backgroundColor: '#626568',
-                              '&:hover': { backgroundColor: '#424242' },
-                            }}
-                          >
-                            {uploadingId === patient.id ? (
-                              <CircularProgress size={16} color="inherit" />
-                            ) : (
-                              'Attach Files'
-                            )}
-                          </Button> */}
+                              sx={{
+                                backgroundColor: '#1976d2',
+                                color: 'white',
+                                '&:hover': { backgroundColor: '#1565c0' },
+                              }}
+                            >
+                              <Eye size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
@@ -992,29 +925,60 @@ const ArchivedPatients: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
+
+                        {/* Hidden File Input */}
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          style={{ display: 'none' }}
+                          accept="*/*"
+                        />
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
-                    <Fallbacks
-                      title="No patients found"
-                      description="No patients found matching the criteria."
-                    />
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      No patients found.
+                    </Typography>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
+        <SendModal
+          open={sendModalOpen}
+          onClose={() => setSendModalOpen(false)}
+          onSend={(department, doctor_id) => {
+            if (currentPatientId) {
+              const patientToSend = patients.find(p => p.id === currentPatientId);
+              if (!patientToSend) return;
+
+              sendToDepartmentService
+                .sendToDepartment(currentPatientId, {
+                  department,
+                  doctor_id,
+                  from: patientToSend.constultation_id,
+                })
+                .then(() => {
+                  toast.success('Patient sent to department successfully');
+                  fetchPatients();
+                })
+                .catch((err: any) => {
+                  toast.error(err.response?.data?.message || 'Failed to send patient');
+                });
+            }
+          }}
+        />
+
         <AttachmentsModal
           open={attachModalOpen}
           onClose={() => setAttachModalOpen(false)}
           attachments={currentAttachments}
         />
-
         <TablePagination
           component="div"
           count={pagination.total}
@@ -1028,4 +992,4 @@ const ArchivedPatients: React.FC = () => {
   );
 };
 
-export default ArchivedPatients;
+export default TriageTwo;

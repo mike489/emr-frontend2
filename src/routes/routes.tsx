@@ -44,6 +44,13 @@ import PendingPayments from '../pages/front_desk/bills/PendingPayments';
 import RequestedPayments from '../pages/front_desk/bills/RequestedPayments';
 import AppointmentsCalendars from '../pages/front_desk/appointments-lists/AppointmentsCalendars';
 import FollowUp from '../pages/follow_up/FollowUp';
+import TriageLists from '../layouts/TriageLists';
+import TriageTwo from '../pages/triage/TriageTwo';
+import TriageThree from '../pages/triage/TriageThree';
+import EmergencyLists from '../pages/front_desk/emergency/EmergencyList';
+import EmergencyPatientForm from '../pages/front_desk/emergency/EmergencyPatientForm';
+
+
 
 
 export const ROUTES = {
@@ -76,6 +83,14 @@ export const ROUTES = {
       element: (
         <PrivateRoute>
           <ClinicLists />
+        </PrivateRoute>
+      ),
+    },
+     triageLists: {
+      path: '/triage-lists',
+      element: (
+        <PrivateRoute>
+          <TriageLists />
         </PrivateRoute>
       ),
     },
@@ -112,25 +127,29 @@ export const ROUTES = {
       ),
     },
     triage: {
-      path: '/triage',
+      path: '/triage-one/patients-list',
       element: (
         <PrivateRoute>
           <Triage />
         </PrivateRoute>
       ),
-      children: [
-    {
-      index: true,       // /triage
-      element: <Triage />,
+
     },
-    {
-      path: 'follow-up', // /triage/follow-up
+    triageOnePatientList: {
+      path: '/triage-two/patients-list',
       element: (
         <PrivateRoute>
-          <FollowUp />
+          <TriageTwo />
         </PrivateRoute>
       ),
-    },]
+    },
+    triageThree: {
+      path: '/triage-three/patients-list',
+      element: (
+        <PrivateRoute>
+          <TriageThree />
+        </PrivateRoute>
+      ),
     },
     referrals: {
       path: '/triage/referrals',
@@ -509,6 +528,22 @@ export const ROUTES = {
       element: (
         <PrivateRoute>
           <Checkout />
+        </PrivateRoute>
+      ),
+    },
+    emergencyPatients: {
+      path: '/front-desk/emergency-patients',
+      element: (
+        <PrivateRoute>
+          <EmergencyLists/>
+        </PrivateRoute>
+      ),
+    },
+    createEmergencyPatients: {
+      path: '/front-desk/add-new-emergency-patients',
+      element: (
+        <PrivateRoute>
+          <EmergencyPatientForm/>
         </PrivateRoute>
       ),
     },

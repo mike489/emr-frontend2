@@ -111,7 +111,7 @@ const Triage: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: 'Triage',
+    department: 'Triage 1',
     search: '',
     gender: '',
     doctor_id: '',
@@ -150,7 +150,7 @@ const Triage: React.FC = () => {
       per_page: 25,
       sort_by: 'full_name',
       sort_order: 'asc',
-      department: '',
+      department: 'Triage 1',
       search: '',
       gender: '',
       doctor_id: '',
@@ -223,7 +223,7 @@ const Triage: React.FC = () => {
     }
   };
 
-  const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage');
+  const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage 1');
 
   // Then use it
   const fetchSummary = async () => {

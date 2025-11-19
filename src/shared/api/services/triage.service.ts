@@ -6,4 +6,7 @@ export const TriageService = {
   getAll: (filters?: Record<string, any>) => {
     return triageApi.get('/patient-lists', { params: filters });
   },
+  getTriageWithCount: () => {
+    return triageApi.get('/triages');
+  },
 };

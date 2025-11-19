@@ -16,7 +16,7 @@ import  Diagnosis from '../assets/icons/Diagnosis.svg';
 
 export const CLINIC_MODULES = [
   { title: 'FRONT DESK', Icon: Front, entryRoute: '/front-desk' },
-  { title: 'Triage', Icon: Triag, entryRoute: '/triage' },
+  { title: 'Triage', Icon: Triag, entryRoute: '/triage-lists' },
   { title: 'Refraction', Icon: Ophthalmic, entryRoute: '/refraction' },
   { title: 'OPHTHALMOLOGY', Icon: Otham, entryRoute: '/clinic-lists' },
   { title: 'Diagnosis', Icon: Diagnosis, entryRoute: '/diagnosis' },
