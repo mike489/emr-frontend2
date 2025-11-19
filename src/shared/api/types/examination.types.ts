@@ -8,6 +8,7 @@ export interface ExaminationData {
   family_history: string[];
   systemic_conditions: string[];
   allergies: string[];
+  complaint_details: string | null;
 
   // Visual Acuity
   distance_od_ucva: string | null;

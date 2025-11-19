@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -29,11 +29,20 @@ import { PatientSummaryService } from '../../shared/api/services/patientsSummary
 import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToTriageService, UploadService } from '../../shared/api/services/sendTo.service';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
-import { FileSearch, FileUp, Send } from 'lucide-react';
+import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
 import ErrorPrompt from '../../features/shared/components/ErrorPrompt';
 import Fallbacks from '../../features/shared/components/Fallbacks';
+import PatientDetailsModal from '../../features/patients/PatientDetailsModal';
 
 // Updated Type definitions to match your API response
+interface Flag {
+  is_checked_out: boolean;
+  requires_payment: boolean;
+  has_pending_bills: boolean;
+  has_unpaid_bills: boolean;
+  active_patient: boolean;
+  overdue_bills: boolean;
+}
 interface Patient {
   id: string;
   title: string;
@@ -43,6 +52,7 @@ interface Patient {
   gender: string;
   phone: string;
   email: string;
+  visit_type: string;
   address: {
     city: string;
     kifle_ketema: string;
@@ -58,6 +68,7 @@ interface Patient {
   allergies: string | null;
   medical_conditions: string | null;
   created_by: string;
+  flag: Flag;
   patient_category_id: string;
   patient_category: {
     id: string;
@@ -129,7 +140,13 @@ const FrontDesk: React.FC = () => {
     last_page: 0,
     total: 0,
   });
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
+  const handleViewDetails = (patient: any) => {
+    setSelectedPatient(patient);
+    setDetailsOpen(true);
+  };
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
   };
@@ -735,7 +752,19 @@ const FrontDesk: React.FC = () => {
                     borderRight: '1px solid rgba(255,255,255,0.1)',
                   }}
                 >
-                  Consultant
+                Payment
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    width: 100,
+                    fontSize: '0.8rem',
+                    py: 1.5,
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  Visit Type
                 </TableCell>
                 <TableCell
                   sx={{
@@ -787,9 +816,12 @@ const FrontDesk: React.FC = () => {
                     key={patient.id || index}
                     sx={{
                       '&:hover': {
-                        backgroundColor: '#f8f9fa',
+                        backgroundColor: '#bfdbf7ff',
                       },
                       '&:nth-of-type(even)': {
+                        '&:hover': {  
+                          backgroundColor: '#bfdbf7ff',
+                        },
                         backgroundColor: '#fafafa',
                       },
                     }}
@@ -865,9 +897,12 @@ const FrontDesk: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" sx={{ fontWeight: '500' }}>
-                        {patient.current_doctor && typeof patient.current_doctor === 'object'
-                          ? patient.current_doctor.name
-                          : patient.current_doctor || 'N/A'}
+                      
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" sx={{ fontWeight: '500' }}>
+                        {patient.visit_type}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -947,6 +982,27 @@ const FrontDesk: React.FC = () => {
                             )}
                           </Button> */}
                         {/* -------------------- ATTACH FILES -------------------- */}
+                        <Tooltip title="View patient details" arrow>
+                          <span>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleViewDetails(patient)}
+                              disabled={uploadingId === patient.id}
+                              sx={{
+                                backgroundColor: 'success.main',
+                                color: 'white',
+                                '&:hover': { backgroundColor: 'success.dark' },
+                              }}
+                            >
+                              {uploadingId === patient.id ? (
+                                <CircularProgress size={16} color="inherit" />
+                              ) : (
+                                <Eye size={18} />
+                              )}
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
                             <IconButton
@@ -1021,6 +1077,12 @@ const FrontDesk: React.FC = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      {/* Modal */}
+      <PatientDetailsModal
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        patient={selectedPatient}
+      />
     </Box>
   );
 };

@@ -53,7 +53,7 @@ const DILATED_OPTIONS = ['Yes', 'No'] as const;
 // === DEFAULT INITIAL VALUES ===
 const defaultInitialValues: ExaminationData = {
   primary_complaint: '',
-  // complaint_details: '',
+  complaint_details: '',
   current_oscular_medication: '',
   current_contact_lense_use: false,
   lens_type: '',
