@@ -30,6 +30,8 @@
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.19",
     "formik": "^2.4.8",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.4",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.553.0",
     "react": "^19.1.1",

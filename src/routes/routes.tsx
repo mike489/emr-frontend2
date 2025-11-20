@@ -49,7 +49,10 @@ import TriageTwo from '../pages/triage/TriageTwo';
 import TriageThree from '../pages/triage/TriageThree';
 import EmergencyLists from '../pages/front_desk/emergency/EmergencyList';
 import EmergencyPatientForm from '../pages/front_desk/emergency/EmergencyPatientForm';
+// import Patients from '../pages/patients/Patients';
+import { lazy } from 'react';
 
+const Patients = lazy(() => import("../pages/patients/Patients"));
 
 
 
@@ -102,6 +105,7 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
+
      examinationsDoctor: {
       path: '/doctor/examinations',
       element: (
@@ -546,6 +550,15 @@ refraction: {
         </PrivateRoute>
       ),
     },
+  patientDetails: {
+  path: '/front-desk/patient-details',   // ✅ relative parent /front-desk to
+  element: (
+    <PrivateRoute>
+      <Patients />
+    </PrivateRoute>
+  ),
+},
+
     createEmergencyPatients: {
       path: '/front-desk/add-new-emergency-patients',
       element: (

@@ -1,16 +1,17 @@
-import { Box, CssBaseline, useTheme, useMediaQuery } from '@mui/material';
+import { Box, CssBaseline, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import TopBar from './TopBar';
 import type { TabItem } from '../data/data';
-import { useState } from 'react';
+import { Outlet } from "react-router-dom";
+import { Suspense, useState } from "react";
+
 
 interface Props {
-  children: React.ReactNode;
   tabsData?: TabItem[];
-  darkMode: boolean;               
-  onToggleTheme: () => void;       
+  darkMode: boolean;
+  onToggleTheme: () => void;
 }
 
-export default function AppLayout({ children, tabsData = [], darkMode, onToggleTheme }: Props) {
+export default function AppLayout({ tabsData = [], darkMode, onToggleTheme }: Props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -32,8 +33,10 @@ export default function AppLayout({ children, tabsData = [], darkMode, onToggleT
       />
 
       {/* Main Content */}
-      <Box component="main" sx={{}}>
-        {children}
+      <Box component="main">
+        <Suspense fallback={<CircularProgress />}>
+          <Outlet /> 
+        </Suspense>
       </Box>
     </Box>
   );

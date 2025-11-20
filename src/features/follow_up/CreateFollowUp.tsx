@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
-import { FollowUpService } from '../../shared/api/services/followUp.services';
+import { FollowUpService } from '../../shared/api/services/followUp.service';
 
 interface CreateFollowUpProps {
   open: boolean;

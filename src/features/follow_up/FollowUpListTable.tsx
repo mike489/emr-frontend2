@@ -24,7 +24,7 @@ import { toast } from 'react-toastify';
 import CreateFollowUp from './CreateFollowUp';
 import UpdateFollowUp from './UpdateFollowUp';
 import ViewFollowUpModal, { type FollowUpNote } from './ViewFollowUpModal'; // Import the new modal
-import { FollowUpService } from '../../shared/api/services/followUp.services';
+import { FollowUpService } from '../../shared/api/services/followUp.service';
 import { Eye } from 'lucide-react';
 import type { ExaminationData } from '../../shared/api/types/examination.types';
 import { PatientService } from '../../shared/api/services/patient.service';

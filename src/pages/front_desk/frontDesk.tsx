@@ -25,6 +25,7 @@ import PatientDetailsModal from '../../features/patients/PatientDetailsModal';
 import TriageSelectModal from '../../features/patients/TriageSelectModal';
 import PatientTable from '../../features/patients/PatientTable';
 import { BillsService } from '../../shared/api/services/bills.service';
+import { useNavigate } from 'react-router-dom';
 
 // Updated Type definitions to match your API response
 interface Flag {
@@ -133,13 +134,15 @@ const FrontDesk: React.FC = () => {
     last_page: 0,
     total: 0,
   });
-  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [selectedPatient, _setSelectedPatient] = useState<any>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const navigate = useNavigate();
+const handleViewDetails = (patient: Patient) => {
+  navigate("/front-desk/patient-details", { state: { patient } });
+};
 
-  const handleViewDetails = (patient: any) => {
-    setSelectedPatient(patient);
-    setDetailsOpen(true);
-  };
+
+
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
   };

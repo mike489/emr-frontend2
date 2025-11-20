@@ -22,14 +22,13 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
   const [activeParent, setActiveParent] = useState<number | null>(0);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
 
-  // Sync URL + Auto-select first child
   useEffect(() => {
     let found = false;
-    let targetParentIndex: number | null = 0;
+    let targetParentIndex: number | null = null;
     let targetChildLabel: string | null = null;
 
     tabsData.forEach((parent, pIndex) => {
-      // Match child path
+      // Check children first
       if (parent.children) {
         parent.children.forEach((child) => {
           if (location.pathname === child.path) {
@@ -40,29 +39,23 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
         });
       }
 
-      // Match parent path
+      // Check parent path
       if (!found && location.pathname === parent.path) {
         targetParentIndex = pIndex;
         targetChildLabel = null;
         found = true;
       }
+
+      // If still not found, check if the path starts with parent path
+      if (!found && location.pathname.startsWith(parent.path)) {
+        targetParentIndex = pIndex;
+      }
     });
 
-    // Update state from URL
     setActiveParent(targetParentIndex);
-    setSelectedChild(targetChildLabel);
-
-    if (
-      targetParentIndex !== null &&
-      !found &&
-      tabsData[targetParentIndex].children &&
-      tabsData[targetParentIndex].children!.length > 0
-    ) {
-      const firstChild = tabsData[targetParentIndex].children![0];
-      setSelectedChild(firstChild.label);
-      navigate(firstChild.path, { replace: true });
-    }
-  }, [location.pathname, tabsData, navigate]);
+    setSelectedChild(found ? targetChildLabel : null);
+    // ❌ DO NOT auto-navigate to first child
+  }, [location.pathname, tabsData]);
 
   const handleParentClick = (index: number) => {
     const parent = tabsData[index];
@@ -96,7 +89,6 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
           borderRadius: 0,
           display: "flex",
           alignItems: "center",
-          // pt: 2,
           pb: 0,
           px: 4,
           gap: { xs: 2, md: 20 },
@@ -106,10 +98,9 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
           backdropFilter: "blur(8px)",
         }}
       >
-        {/* SPECIAL BACK BUTTON */}
         {showBackButton && (
           <Button
-            onClick={() => navigate('/clinics')}
+            onClick={() => navigate(-1)}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -125,15 +116,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
               bgcolor: "rgba(255, 255, 255, 0.12)",
               border: "1px solid rgba(255, 255, 255, 0.3)",
               transition: "all 0.2s ease-in-out",
-              '&:hover': {
-                bgcolor: "rgba(255, 255, 255, 0.22)",
-                borderColor: "rgba(255, 255, 255, 0.6)",
-                transform: "translateY(-1px)",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-              },
-              '&:active': {
-                transform: "translateY(0)",
-              },
+              '&:hover': { bgcolor: "rgba(255, 255, 255, 0.22)" },
             }}
           >
             <ArrowBackIcon sx={{ fontSize: 18 }} />
@@ -162,11 +145,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
               py: 2,
               opacity: 0.9,
               transition: "all 0.2s",
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.15)",
-                color: "white",
-                opacity: 1,
-              },
+              "&:hover": { bgcolor: "rgba(255, 255, 255, 0.15)", color: "white", opacity: 1 },
             },
             "& .Mui-selected": {
               bgcolor: "rgba(255, 255, 255, 0.25)",
@@ -213,22 +192,8 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
                   fontWeight: 500,
                   fontSize: "0.8125rem",
                   py: 0.75,
-                  transition: "all 0.2s",
-                  "&.MuiButton-contained": {
-                    bgcolor: "primary.main",
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "primary.dark",
-                    },
-                  },
-                  "&.MuiButton-outlined": {
-                    borderColor: "#d0d0d0",
-                    color: "text.primary",
-                    "&:hover": {
-                      borderColor: "primary.main",
-                      bgcolor: "rgba(25, 118, 210, 0.04)",
-                    },
-                  },
+                  "&.MuiButton-contained": { bgcolor: "primary.main", color: "white" },
+                  "&.MuiButton-outlined": { borderColor: "#d0d0d0", color: "text.primary" },
                 }}
               >
                 {child.label}

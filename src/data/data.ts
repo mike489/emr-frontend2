@@ -19,6 +19,8 @@ export const FRONT_DESK_TABS: TabItem[] = [
       { label: 'Add new patients', path: '/new-patient' },
       { label: 'Emergency Patients', path: '/front-desk/emergency-patients' },
       { label: 'Add New Emergency Patients', path: '/front-desk/add-new-emergency-patients' },
+      // { label: 'Patient Details', path: '/front-desk/patient-details' },
+
     
       { label: 'Checkout Patients', path: '/front-desk/checkout' },
       { label: 'Archived patients', path: '/front-desk/archived-patients' },
@@ -144,15 +146,16 @@ export const TRIAGE_TABS_ONE: TabItem[] = [
       { label: 'Checkout patients ', path: '/triage-one/checkout-patients' },
       { label: 'Follow up', path: '/triage-one/follow-up' },
       { label: 'Emergency Patients', path: '/triage-one/emergency-patients' },
+      
     ],
   },
   {
     label: 'Examinations',
-    path: '/triage/examinations',
+    path: '/triage-one/examinations',
   },
   {
     label: 'Discussion',
-    path: '/triage/discussion',
+    path: '/triage-one/discussion',
   },
 
   // {
