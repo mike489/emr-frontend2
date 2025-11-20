@@ -1,5 +1,5 @@
 // src/components/followup/CreateFollowUp.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -11,18 +11,12 @@ import {
   Box,
   Typography,
   CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  type SelectChangeEvent,
 } from '@mui/material';
 import { toast } from 'react-toastify';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
 import { FollowUpService } from '../../shared/api/services/followUp.services';
-import { PatientService } from '../../shared/api/services/patient.service';
 
 interface CreateFollowUpProps {
   open: boolean;
@@ -30,13 +24,6 @@ interface CreateFollowUpProps {
   onSuccess: () => void;
   patientId?: string;   // Optional: pre-select patient if opened from patient profile
   visitId?: string;
-}
-
-interface Patient {
-  id: string;
-  full_name: string;
-  patient_id?: string;   // MR number
-  phone?: string;
 }
 
 interface FollowUpFormData {
@@ -59,29 +46,30 @@ const CreateFollowUp: React.FC<CreateFollowUpProps> = ({
   open,
   onClose,
   onSuccess,
-  patientId: initialPatientId,
+  patientId,
   visitId,
+
+
 }) => {
   const [loading, setLoading] = useState(false);
-  const [patientsLoading, setPatientsLoading] = useState(false);
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<string>('');
+
 
   const [formData, setFormData] = useState<FollowUpFormData>({
-    patient_id: '',
-    od_s_correction: '',
-    od_c_correction: '',
-    od_iop: '',
-    od_cct: '',
-    os_s_correction: '',
-    os_c_correction: '',
-    os_iop: '',
-    os_cct: '',
-    examination_findings: '',
-    plan: '',
-    remark: '',
-    diagnosis: '',
-  });
+  patient_id: patientId || '',
+  od_s_correction: '',
+  od_c_correction: '',
+  od_iop: '',
+  od_cct: '',
+  os_s_correction: '',
+  os_c_correction: '',
+  os_iop: '',
+  os_cct: '',
+  examination_findings: '',
+  plan: '',
+  remark: '',
+  diagnosis: '',
+});
+
 
   // React Quill toolbar config
   const quillModules = {
@@ -108,42 +96,6 @@ const CreateFollowUp: React.FC<CreateFollowUpProps> = ({
   ];
 
   // Fetch patients when dialog opens
-  useEffect(() => {
-    const fetchPatients = async () => {
-      if (!open) return;
-
-      setPatientsLoading(true);
-      try {
-        // You can switch to getAll() if you want all patients
-        const response = await PatientService.getList({ department: 'Triage' });
-        const patientList: Patient[] = response.data?.data?.data || [];
-
-        setPatients(patientList);
-
-        // Auto-select if patientId was passed (e.g. from patient detail page)
-        if (initialPatientId) {
-          const matched = patientList.find(p => p.id === initialPatientId);
-          if (matched) {
-            setSelectedPatientId(initialPatientId);
-            setFormData(prev => ({ ...prev, patient_id: initialPatientId }));
-          }
-        }
-      } catch (err: any) {
-        console.error('Failed to load patients:', err);
-        toast.error('Could not load patient list');
-      } finally {
-        setPatientsLoading(false);
-      }
-    };
-
-    fetchPatients();
-  }, [open, initialPatientId]);
-
-  const handlePatientChange = (e: SelectChangeEvent<string>) => {
-    const pid = e.target.value;
-    setSelectedPatientId(pid);
-    setFormData(prev => ({ ...prev, patient_id: pid }));
-  };
 
   const handleInputChange = (field: keyof FollowUpFormData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,9 +153,18 @@ const CreateFollowUp: React.FC<CreateFollowUpProps> = ({
       remark: '',
       diagnosis: '',
     });
-    setSelectedPatientId('');
+   
     onClose();
   };
+  React.useEffect(() => {
+  if (open && patientId) {
+    setFormData(prev => ({
+      ...prev,
+      patient_id: patientId,
+    }));
+  }
+}, [open, patientId]);
+
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
@@ -215,35 +176,6 @@ const CreateFollowUp: React.FC<CreateFollowUpProps> = ({
 
       <DialogContent dividers>
         <Box sx={{ pt: 1 }}>
-          {/* Patient Selection */}
-          <Grid container spacing={3}>
-            <Grid  width={600}>
-              <FormControl fullWidth required>
-                <InputLabel>Patient</InputLabel>
-                <Select
-                  value={selectedPatientId}
-                  label="Patient"
-                  onChange={handlePatientChange}
-                  disabled={patientsLoading}
-                >
-                  {patientsLoading ? (
-                    <MenuItem disabled>
-                      <CircularProgress size={20} sx={{ mr: 1 }} />
-                    </MenuItem>
-                  ) : patients.length === 0 ? (
-                    <MenuItem disabled>No patients found</MenuItem>
-                  ) : (
-                    patients.map((patient) => (
-                      <MenuItem key={patient.id} value={patient.id}>
-                        {patient.full_name}
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-
           {/* OD (Right Eye) */}
           <Grid container spacing={3} sx={{ mt: 2 }}>
             <Grid size={12}>

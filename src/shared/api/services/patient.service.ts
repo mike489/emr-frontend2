@@ -8,7 +8,7 @@ export const PatientService = {
     return patientApi.get('/patient-lists', { params: filters });
   },
   getEmergencyList: (filters?: Record<string, any>) => {
-    return patientApi.get('/patient-lists', { params: filters });
+    return patientApi.get('/emergency-patients', { params: filters });
   },
    getPatientCheckout: (filters?: Record<string, any>) => {
     return patientApi.get('/patient-checked-out', { params: filters });

@@ -17,43 +17,30 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
-  Grid,
 } from '@mui/material';
 import { Edit, Delete, Add, Visibility } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 import CreateFollowUp from './CreateFollowUp';
 import UpdateFollowUp from './UpdateFollowUp';
+import ViewFollowUpModal, { type FollowUpNote } from './ViewFollowUpModal'; // Import the new modal
 import { FollowUpService } from '../../shared/api/services/followUp.services';
-
-interface FollowUpNote {
-  id: string;
-  patient_id: string;
-  od_s_correction: string;
-  od_c_correction: string;
-  od_iop: number;
-  od_cct: string;
-  os_s_correction: string;
-  os_c_correction: string;
-  os_iop: number;
-  os_cct: string;
-  examination_findings: string;
-  plan: string;
-  remark: string;
-  diagnosis: string;
-  created_at: string;
-  updated_at: string;
-  patient?: {
-    name: string;
-  };
-}
+import { Eye } from 'lucide-react';
+import type { ExaminationData } from '../../shared/api/types/examination.types';
+import { PatientService } from '../../shared/api/services/patient.service';
+import PreviousHistoryModal from './PreviousHistoryModal';
 
 interface FollowUpListTableProps {
   patientId?: string;
   visitId?: string;
+  consultantId: string;
 }
 
-const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitId }) => {
+const FollowUpListTable: React.FC<FollowUpListTableProps> = ({
+  patientId,
+  visitId,
+  consultantId,
+}) => {
   const [followUps, setFollowUps] = useState<FollowUpNote[]>([]);
   const [loading, setLoading] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -62,6 +49,31 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedFollowUp, setSelectedFollowUp] = useState<FollowUpNote | null>(null);
   const [selectedFollowUpId, setSelectedFollowUpId] = useState<string>('');
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [examData, setExamData] = useState<ExaminationData | null>(null);
+
+  const handleOpenHistory = async () => {
+    try {
+      setHistoryOpen(true);
+
+      if (!consultantId) {
+        toast.error('Consultant ID is required to fetch history');
+        return;
+      }
+
+      const response = await PatientService.getExaminationData(consultantId);
+      const examData =response.data?.data?.data.examination_data 
+      setExamData(examData);
+      setHistoryOpen(true);
+    } catch (error: any) {
+    
+      const errorMessage =
+        error.response?.data?.data.message;
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch follow-up notes
   const fetchFollowUps = async () => {
@@ -128,6 +140,7 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
 
   // Strip HTML tags for table display
   const stripHtml = (html: string) => {
+    if (!html) return '';
     return html.replace(/<[^>]*>/g, '').substring(0, 100) + '...';
   };
 
@@ -136,19 +149,26 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
   }, [patientId, visitId]);
 
   return (
-    <Box>
+    <Box sx={{ p: 4, backgroundColor: '#f5f5f5' }}>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" fontWeight="bold">
-          Follow-up Notes
+          Follow up Notes
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => setCreateOpen(true)}
-        >
-          New Follow-up
-        </Button>
+        <Box sx={{display:'flex', justifyContent:'space-between', gap:4}}>
+          <Button
+            variant="outlined"
+            startIcon={<Eye />}
+            onClick={handleOpenHistory}
+            disabled={loading}
+          >
+            See Previous History
+          </Button>
+
+          <Button variant="contained" startIcon={<Add />} onClick={() => setCreateOpen(true)}>
+            New Follow-up
+          </Button>
+        </Box>
       </Box>
 
       {/* Table */}
@@ -156,13 +176,27 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell><strong>Date</strong></TableCell>
-              <TableCell><strong>Diagnosis</strong></TableCell>
-              <TableCell><strong>Examination Findings</strong></TableCell>
-              <TableCell><strong>Plan</strong></TableCell>
-              <TableCell><strong>OD IOP</strong></TableCell>
-              <TableCell><strong>OS IOP</strong></TableCell>
-              <TableCell><strong>Actions</strong></TableCell>
+              <TableCell>
+                <strong>Date</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Diagnosis</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Examination Findings</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Plan</strong>
+              </TableCell>
+              <TableCell>
+                <strong>OD IOP</strong>
+              </TableCell>
+              <TableCell>
+                <strong>OS IOP</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Actions</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -175,36 +209,36 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
             ) : followUps.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} align="center">
-                  <Typography color="textSecondary">
-                    No follow-up notes found
-                  </Typography>
+                  <Typography color="textSecondary">No follow-up notes found</Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              followUps.map((followUp) => (
+              followUps.map(followUp => (
                 <TableRow key={followUp.id}>
                   <TableCell>{formatDate(followUp.created_at)}</TableCell>
                   <TableCell>
                     <div dangerouslySetInnerHTML={{ __html: stripHtml(followUp.diagnosis) }} />
                   </TableCell>
                   <TableCell>
-                    <div dangerouslySetInnerHTML={{ __html: stripHtml(followUp.examination_findings) }} />
+                    <div
+                      dangerouslySetInnerHTML={{ __html: stripHtml(followUp.examination_findings) }}
+                    />
                   </TableCell>
                   <TableCell>
                     <div dangerouslySetInnerHTML={{ __html: stripHtml(followUp.plan) }} />
                   </TableCell>
                   <TableCell>
-                    <Chip 
-                      label={followUp.od_iop || 'N/A'} 
-                      size="small" 
-                      color={followUp.od_iop && followUp.od_iop > 21 ? 'error' : 'default'}
+                    <Chip
+                      label={followUp.od_iop || 'N/A'}
+                      size="small"
+                      color={followUp.od_iop ? 'error' : 'default'}
                     />
                   </TableCell>
                   <TableCell>
-                    <Chip 
-                      label={followUp.os_iop || 'N/A'} 
-                      size="small" 
-                      color={followUp.os_iop && followUp.os_iop > 21 ? 'error' : 'default'}
+                    <Chip
+                      label={followUp.os_iop || 'N/A'}
+                      size="small"
+                      color={followUp.os_iop ? 'error' : 'default'}
                     />
                   </TableCell>
                   <TableCell>
@@ -214,7 +248,11 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
                     <IconButton size="small" onClick={() => handleEdit(followUp)} color="primary">
                       <Edit />
                     </IconButton>
-                    <IconButton size="small" onClick={() => handleDeleteClick(followUp.id)} color="error">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteClick(followUp.id)}
+                      color="error"
+                    >
                       <Delete />
                     </IconButton>
                   </TableCell>
@@ -234,6 +272,13 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
         visitId={visitId}
       />
 
+      {/* Previous History Modal */}
+      <PreviousHistoryModal
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        data={examData}
+      />
+
       {/* Update Dialog */}
       <UpdateFollowUp
         open={updateOpen}
@@ -241,80 +286,15 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({ patientId, visitI
         onSuccess={fetchFollowUps}
         followUpId={selectedFollowUp?.id || ''}
         followUpData={selectedFollowUp || undefined}
+        patientId={patientId}
       />
 
-      {/* View Dialog */}
-      <Dialog open={viewOpen} onClose={() => setViewOpen(false)} maxWidth="lg" fullWidth>
-        <DialogTitle>
-          <Typography variant="h6" fontWeight="bold">
-            Follow-up Note Details
-          </Typography>
-          {selectedFollowUp && (
-            <Typography variant="body2" color="textSecondary">
-              Created: {formatDate(selectedFollowUp.created_at)}
-            </Typography>
-          )}
-        </DialogTitle>
-        <DialogContent>
-          {selectedFollowUp && (
-            <Box sx={{ pt: 2 }}>
-              <Grid container spacing={3}>
-                {/* OD Section */}
-                <Grid size={{xs:12, md:6}}>
-                  <Typography variant="h6" color="primary.main" gutterBottom>
-                    OD (Right Eye)
-                  </Typography>
-                  <Box sx={{ pl: 2 }}>
-                    <Typography><strong>S Correction:</strong> {selectedFollowUp.od_s_correction || 'N/A'}</Typography>
-                    <Typography><strong>C Correction:</strong> {selectedFollowUp.od_c_correction || 'N/A'}</Typography>
-                    <Typography><strong>IOP:</strong> {selectedFollowUp.od_iop || 'N/A'}</Typography>
-                    <Typography><strong>CCT:</strong> {selectedFollowUp.od_cct || 'N/A'}</Typography>
-                  </Box>
-                </Grid>
-
-                {/* OS Section */}
-                <Grid size={{xs:12, md:6}}>
-                  <Typography variant="h6" color="primary.main" gutterBottom>
-                    OS (Left Eye)
-                  </Typography>
-                  <Box sx={{ pl: 2 }}>
-                    <Typography><strong>S Correction:</strong> {selectedFollowUp.os_s_correction || 'N/A'}</Typography>
-                    <Typography><strong>C Correction:</strong> {selectedFollowUp.os_c_correction || 'N/A'}</Typography>
-                    <Typography><strong>IOP:</strong> {selectedFollowUp.os_iop || 'N/A'}</Typography>
-                    <Typography><strong>CCT:</strong> {selectedFollowUp.os_cct || 'N/A'}</Typography>
-                  </Box>
-                </Grid>
-
-                {/* Rich Text Content */}
-                <Grid size={12}>
-                  <Typography variant="h6" gutterBottom>Examination Findings</Typography>
-                  <div dangerouslySetInnerHTML={{ __html: selectedFollowUp.examination_findings }} />
-                </Grid>
-
-                <Grid size={12}>
-                  <Typography variant="h6" gutterBottom>Diagnosis</Typography>
-                  <div dangerouslySetInnerHTML={{ __html: selectedFollowUp.diagnosis }} />
-                </Grid>
-
-                <Grid size={12}>
-                  <Typography variant="h6" gutterBottom>Plan</Typography>
-                  <div dangerouslySetInnerHTML={{ __html: selectedFollowUp.plan }} />
-                </Grid>
-
-                {selectedFollowUp.remark && (
-                  <Grid size={12}>
-                    <Typography variant="h6" gutterBottom>Remark</Typography>
-                    <div dangerouslySetInnerHTML={{ __html: selectedFollowUp.remark }} />
-                  </Grid>
-                )}
-              </Grid>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setViewOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      {/* View Dialog - Using the new component */}
+      <ViewFollowUpModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        selectedFollowUp={selectedFollowUp}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>

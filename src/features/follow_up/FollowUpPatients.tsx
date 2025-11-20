@@ -17,7 +17,6 @@ import {
   TablePagination,
   Tooltip,
   IconButton,
-  Chip,
 } from '@mui/material';
 import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
 import { Search, ArrowDropDown } from '@mui/icons-material';
@@ -26,7 +25,6 @@ import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
 import { DepartmentsService } from '../../shared/api/services/departments.service';
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
-import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
 import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
 import SendModal from '../../features/triage/components/sendModal';
@@ -86,21 +84,21 @@ interface Attachment {
   url: string;
 }
 
-const Triage: React.FC = () => {
+const FollowUpPatients: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
   const [departments, setDepartments] = React.useState<string[]>([]);
-  const [summary, setSummary] = React.useState<any[]>([]);
+
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
   const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
-  const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
+
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
@@ -113,6 +111,7 @@ const Triage: React.FC = () => {
     sort_order: 'asc',
     department: 'Triage 1',
     search: '',
+    visit_type:'Follow Up',
     gender: '',
     doctor_id: '',
     patient_category_id: '',
@@ -151,6 +150,7 @@ const Triage: React.FC = () => {
       sort_by: 'full_name',
       sort_order: 'asc',
       department: 'Triage 1',
+      visit_type:'Follow Up',
       search: '',
       gender: '',
       doctor_id: '',
@@ -223,26 +223,7 @@ const Triage: React.FC = () => {
     }
   };
 
-  const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage 1');
 
-  // Then use it
-  const fetchSummary = async () => {
-    setSummaryLoading(true);
-    try {
-      const res = await getFrontDeskSummary();
-      const summaryData = res.data?.data?.patient_categories || [];
-      setSummary(summaryData);
-    } catch (err: any) {
-      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
-      console.error('Error fetching summary:', err);
-    } finally {
-      setSummaryLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSummary();
-  }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -292,131 +273,7 @@ const Triage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
-      {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
-        {/* Header with Back Button and Summary Stats */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            mb: 3,
-          }}
-        >
-          {/* Back Button */}
-
-          {/* Summary Stats */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Chip
-                label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
-                sx={{
-                  backgroundColor: '#1976d2',
-                  color: 'white',
-                  fontWeight: '600',
-                  fontSize: '0.875rem',
-                }}
-              />
-              <Chip
-                label="Total Checkouts: 0"
-                sx={{
-                  backgroundColor: '#757575',
-                  color: 'white',
-                  fontWeight: '600',
-                  fontSize: '0.875rem',
-                }}
-              />
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Patient Category Cards */}
-        <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
-          {summaryLoading ? (
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                py: 4,
-              }}
-            >
-              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
-              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
-            </Box>
-          ) : (
-            summary.map((category: any) => (
-              <Box
-                key={category.category_id}
-                sx={{
-                  flex: '1 1 220px',
-                  minWidth: 220,
-                  backgroundColor: '#fff',
-                  borderRadius: 3,
-                  p: 2,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                  border: '1px solid #ededed',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  height: 120,
-                }}
-              >
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
-                  {category.category_name}
-                </Typography>
-
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    mt: 1,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1a1a1a',
-                    }}
-                  >
-                    {category.patient_count}
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: '10%',
-                      backgroundColor: `${category.color}20`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '10%',
-                        backgroundColor: category.color,
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
-                  {category.percentage_text}
-                </Typography>
-              </Box>
-            ))
-          )}
-        </Box>
-      </Paper>
-
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: 0 }}>
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Compact Filter Row */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end' }}>
@@ -847,16 +704,14 @@ const Triage: React.FC = () => {
 
                         {/* -------------------- EXAMINATIONS  and FOLLOW-UP -------------------- */}
 
-                        {patient.visit_type === 'Follow Up' ? (
-                          // Follow-Up patient → go to hidden Follow-Up page
                           <Tooltip title="Open Follow-Up Form" arrow>
                             <IconButton
                               size="small"
-                              onClick={() => navigate('/triage/follow-up', {
-                                  state: { patientId: patient.id , consultantId: patient.constultation_id},
+                               onClick={() => navigate('/triage/follow-up', {
+                                  state: { patientId: patient.id, consultantId: patient.constultation_id },
                                 })}
                               sx={{
-                                backgroundColor: '#1b5e20', // dark green
+                                backgroundColor: '#1b5e20', 
                                 color: 'white',
                                 '&:hover': { backgroundColor: '#2e7d32' },
                               }}
@@ -864,26 +719,6 @@ const Triage: React.FC = () => {
                               <Eye size={18} />
                             </IconButton>
                           </Tooltip>
-                        ) : (
-                          // New patient → go to normal examinations
-                          <Tooltip title="Open Examination Form" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                navigate('/triage/examinations', {
-                                  state: { consultation_id: patient.constultation_id },
-                                })
-                              }
-                              sx={{
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                              }}
-                            >
-                              <Eye size={18} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
                         {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
@@ -994,4 +829,4 @@ const Triage: React.FC = () => {
   );
 };
 
-export default Triage;
+export default FollowUpPatients;
