@@ -95,7 +95,7 @@ export const ROUTES = {
       ),
     },
     examinationsTriage: {
-      path: '/triage/examinations',
+      path: '/triage-one/examinations',
       element: (
         <PrivateRoute>
           <PatientTabsLayout />
@@ -152,7 +152,7 @@ export const ROUTES = {
       ),
     },
     referrals: {
-      path: '/triage/referrals',
+      path: '/triage-one/referrals',
       element: (
         <PrivateRoute>
           <Referrals />
@@ -160,7 +160,7 @@ export const ROUTES = {
       ),
     },
       followUp: {
-      path: '/triage/follow-up',
+      path: '/triage-one/follow-up',
       element: (
         <PrivateRoute>
           <FollowUp />
@@ -168,7 +168,7 @@ export const ROUTES = {
       ),
     },
     triagePatients: {
-      path: '/triage/patients-list',
+      path: '/triage-one/patients-list',
       element: (
         <PrivateRoute>
           <Triage />
@@ -184,7 +184,7 @@ export const ROUTES = {
       ),
     },
     discussion: {
-      path: '/triage/discussion',
+      path: '/triage-one/discussion',
       element: (
         <PrivateRoute>
           <Discussion />
@@ -192,7 +192,7 @@ export const ROUTES = {
       ),
     },
     checkoutPatients: {
-      path: '/triage/checkout-patients',
+      path: '/triage-one/checkout-patients',
       element: (
         <PrivateRoute>
           <Discussion />
@@ -200,16 +200,23 @@ export const ROUTES = {
       ),
     },
     emergencyPatient: {
-      path: '/triage/emergency-patients',
+      path: '/triage-one/emergency-patients',
       element: (
         <PrivateRoute>
           <Discussion />
         </PrivateRoute>
       ),
     },
-
-    refraction: {
+refraction: {
       path: '/refraction',
+      element: (
+        <PrivateRoute>
+          <Refraction />
+        </PrivateRoute>
+      ),
+    },
+    refractionPatient: {
+      path: '/refraction/patients-list',
       element: (
         <PrivateRoute>
           <Refraction />

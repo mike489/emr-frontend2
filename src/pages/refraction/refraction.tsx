@@ -18,8 +18,7 @@ import {
   Chip,
 } from '@mui/material';
 
-import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Search, ArrowDropDown } from '@mui/icons-material';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
 import { DepartmentsService } from '../../shared/api/services/departments.service';
@@ -84,7 +83,7 @@ interface Attachment {
 }
 
 const Refraction: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
@@ -284,7 +283,7 @@ const Refraction: React.FC = () => {
 
   return (
  
-      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt:-10  }}>
+      <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt:-16  }}>
 
         {/* Search and Filter Section */}
         <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
@@ -297,27 +296,6 @@ const Refraction: React.FC = () => {
               mb: 3,
             }}
           >
-            {/* Back Button */}
-            <Button
-              variant="outlined"
-              onClick={() => navigate(-1)}
-              startIcon={<ArrowBackIos sx={{ fontSize: 16 }} />}
-              sx={{
-                textTransform: 'none',
-                borderRadius: '8px',
-                borderColor: '#1976d2',
-                color: '#1976d2',
-                px: 2,
-                py: 0.8,
-                fontSize: '0.875rem',
-                '&:hover': {
-                  backgroundColor: '#e3f2fd',
-                  borderColor: '#1976d2',
-                },
-              }}
-            >
-              Back
-            </Button>
 
             {/* Summary Stats */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
@@ -651,26 +629,10 @@ const Refraction: React.FC = () => {
                       fontSize: '0.8rem',
                       py: 1.5,
                       borderRight: '1px solid rgba(255,255,255,0.1)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.5,
                     }}
                   >
                     Patient Name
-                    {filters.sort_by === 'full_name' &&
-                      (filters.sort_dir === 'asc' ? (
-                        <ArrowDropDown
-                          sx={{
-                            transform: 'rotate(180deg)',
-                            color: 'white',
-                            transition: '0.3s',
-                          }}
-                        />
-                      ) : (
-                        <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                      ))}
+                   
                   </TableCell>
 
                   <TableCell
