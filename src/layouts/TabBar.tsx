@@ -100,7 +100,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
       >
         {showBackButton && (
           <Button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/clinics")}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -121,7 +121,7 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
           >
             <ArrowBackIcon sx={{ fontSize: 18 }} />
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              Back
+              Back to Home
             </Typography>
           </Button>
         )}

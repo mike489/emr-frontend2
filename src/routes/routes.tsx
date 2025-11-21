@@ -50,9 +50,8 @@ import TriageThree from '../pages/triage/TriageThree';
 import EmergencyLists from '../pages/front_desk/emergency/EmergencyList';
 import EmergencyPatientForm from '../pages/front_desk/emergency/EmergencyPatientForm';
 // import Patients from '../pages/patients/Patients';
-import { lazy } from 'react';
+import PatientTabs from '../pages/patients/PatientTabs';
 
-const Patients = lazy(() => import("../pages/patients/Patients"));
 
 
 
@@ -554,7 +553,7 @@ refraction: {
   path: '/front-desk/patient-details',   // ✅ relative parent /front-desk to
   element: (
     <PrivateRoute>
-      <Patients />
+      <PatientTabs />
     </PrivateRoute>
   ),
 },

@@ -27,7 +27,11 @@ interface Flag {
   requires_payment: boolean;
 }
 
+interface Doctor {
+  id:string;
+  name:string;
 
+}
 interface Attachment {
   name: string;
   mime_type: string;
@@ -35,7 +39,7 @@ interface Attachment {
   url: string;
 }
 
-interface Patient {
+ export interface Patient {
   id: string;
   title: string;
   full_name: string;
@@ -61,6 +65,7 @@ interface Patient {
   medical_conditions: string | null;
   created_by: string;
   flags: Flag;
+  doctor: Doctor;
   patient_category_id: string;
   patient_category: {
     id: string;

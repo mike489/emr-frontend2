@@ -23,11 +23,10 @@ import { toast } from 'react-toastify';
 
 import CreateFollowUp from './CreateFollowUp';
 import UpdateFollowUp from './UpdateFollowUp';
-import ViewFollowUpModal, { type FollowUpNote } from './ViewFollowUpModal'; // Import the new modal
+import ViewFollowUpModal, { type FollowUpNote } from './ViewFollowUpModal';
 import { FollowUpService } from '../../shared/api/services/followUp.service';
-import { Eye } from 'lucide-react';
 import type { ExaminationData } from '../../shared/api/types/examination.types';
-import { PatientService } from '../../shared/api/services/patient.service';
+// import { PatientService } from '../../shared/api/services/patient.service';
 import PreviousHistoryModal from './PreviousHistoryModal';
 
 interface FollowUpListTableProps {
@@ -39,7 +38,7 @@ interface FollowUpListTableProps {
 const FollowUpListTable: React.FC<FollowUpListTableProps> = ({
   patientId,
   visitId,
-  consultantId,
+  // consultantId,
 }) => {
   const [followUps, setFollowUps] = useState<FollowUpNote[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,30 +49,30 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({
   const [selectedFollowUp, setSelectedFollowUp] = useState<FollowUpNote | null>(null);
   const [selectedFollowUpId, setSelectedFollowUpId] = useState<string>('');
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [examData, setExamData] = useState<ExaminationData | null>(null);
+  const [examData, _setExamData] = useState<ExaminationData | null>(null);
 
-  const handleOpenHistory = async () => {
-    try {
-      setHistoryOpen(true);
+  // const handleOpenHistory = async () => {
+  //   try {
+  //     setHistoryOpen(true);
 
-      if (!consultantId) {
-        toast.error('Consultant ID is required to fetch history');
-        return;
-      }
+  //     if (!consultantId) {
+  //       toast.error('Consultant ID is required to fetch history');
+  //       return;
+  //     }
 
-      const response = await PatientService.getExaminationData(consultantId);
-      const examData =response.data?.data?.data.examination_data 
-      setExamData(examData);
-      setHistoryOpen(true);
-    } catch (error: any) {
+  //     const response = await PatientService.getExaminationData(consultantId);
+  //     const examData =response.data?.data?.data.examination_data 
+  //     setExamData(examData);
+  //     setHistoryOpen(true);
+  //   } catch (error: any) {
     
-      const errorMessage =
-        error.response?.data?.data.message;
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     const errorMessage =
+  //       error.response?.data?.data.message;
+  //     toast.error(errorMessage);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Fetch follow-up notes
   const fetchFollowUps = async () => {
@@ -146,6 +145,7 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({
 
   useEffect(() => {
     fetchFollowUps();
+    // handleOpenHistory();
   }, [patientId, visitId]);
 
   return (
@@ -156,17 +156,17 @@ const FollowUpListTable: React.FC<FollowUpListTableProps> = ({
           Follow up Notes
         </Typography>
         <Box sx={{display:'flex', justifyContent:'space-between', gap:4}}>
-          <Button
+          {/* <Button
             variant="outlined"
             startIcon={<Eye />}
             onClick={handleOpenHistory}
             disabled={loading}
           >
             See Previous History
-          </Button>
+          </Button> */}
 
           <Button variant="contained" startIcon={<Add />} onClick={() => setCreateOpen(true)}>
-            New Follow-up
+            New Follow Up
           </Button>
         </Box>
       </Box>

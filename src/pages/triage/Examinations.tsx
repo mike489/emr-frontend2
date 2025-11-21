@@ -30,6 +30,7 @@ import { doctorsService } from '../../shared/api/services/Doctor.service';
 import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
 import SendModal from '../../features/triage/components/sendModal';
 import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
+import Fallbacks from '../../features/shared/components/Fallbacks';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -109,7 +110,7 @@ const Examinations: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: 'Triage',
+    department: 'Triage 1',
     search: '',
     gender: '',
     doctor_id: '',
@@ -148,7 +149,7 @@ const Examinations: React.FC = () => {
       per_page: 25,
       sort_by: 'full_name',
       sort_order: 'asc',
-      department: '',
+      department: 'Triage 1',
       search: '',
       gender: '',
       doctor_id: '',
@@ -182,7 +183,7 @@ const Examinations: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.data.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -198,7 +199,7 @@ const Examinations: React.FC = () => {
       setDepartments(departmentsData);
       setError(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch departments');
+      toast.error(err.response?.data?.data.message || 'Failed to fetch departments');
       console.error('Error fetching departments:', err);
     }
   };
@@ -214,14 +215,14 @@ const Examinations: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
+      toast.error(err.response?.data?.data.message || 'Failed to fetch patient categories');
       console.error('Error fetching patient categories:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage');
+  const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage 1');
 
   // Then use it
   const fetchSummary = async () => {
@@ -231,7 +232,7 @@ const Examinations: React.FC = () => {
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     } finally {
       setSummaryLoading(false);
@@ -244,7 +245,7 @@ const Examinations: React.FC = () => {
       const doctorsData = res.data?.data || [];
       setDoctors(doctorsData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     }
   };
@@ -286,7 +287,7 @@ const Examinations: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16,  }}>
 
       <Paper sx={{ p: 2, mb: 2, mt: 12, borderRadius: 2 }}>
         {/* Compact Filter Row */}
@@ -647,9 +648,6 @@ const Examinations: React.FC = () => {
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
-                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                      Loading patients...
-                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : error ? (
@@ -810,9 +808,7 @@ const Examinations: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No patients found.
-                    </Typography>
+                    <Fallbacks title=' No patients found.' description='There is no the patient list. Please add new patient first.' />
                   </TableCell>
                 </TableRow>
               )}

@@ -26,12 +26,10 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import Fallbacks from "../shared/components/Fallbacks";
 import PrintableCertificate from "./PrintableCertificate";
+import type { Patient } from "../patients/PatientTable";
 
 // Types
-interface Patient {
-  id: string;
-  full_name: string;
-}
+
 
 interface MedicalCertificate {
   id: string;
@@ -41,6 +39,10 @@ interface MedicalCertificate {
   injury_description: string;
   recommendations: string;
   remarks: string;
+  doctor:{
+    name:string;
+
+  }
   date_of_examination: string;
   rest_days: number;
   status: 'issued' | 'draft';
@@ -51,6 +53,7 @@ interface MedicalCertificate {
 
 interface MedicalCertificatesTableProps {
   certificates: MedicalCertificate[];
+  patient: Patient,
   onEdit: (certificate: MedicalCertificate) => void;
   onDelete: (id: string) => void;
   onView: (certificate: MedicalCertificate) => void;
@@ -58,6 +61,7 @@ interface MedicalCertificatesTableProps {
 
 const MedicalCertificatesTable: React.FC<MedicalCertificatesTableProps> = ({
   certificates,
+  patient,
   onEdit,
   onDelete,
   onView,
@@ -120,7 +124,7 @@ const MedicalCertificatesTable: React.FC<MedicalCertificatesTableProps> = ({
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ pt:2 }}>
       {/* Hidden printable copies */}
       <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
         {certificates.map((cert) => (
@@ -130,7 +134,7 @@ const MedicalCertificatesTable: React.FC<MedicalCertificatesTableProps> = ({
               if (el) printRefs.current[cert.id] = el;
             }}
           >
-            <PrintableCertificate certificate={cert} />
+            <PrintableCertificate certificate={cert} patient={patient}/>
           </div>
         ))}
       </div>
@@ -138,12 +142,11 @@ const MedicalCertificatesTable: React.FC<MedicalCertificatesTableProps> = ({
       {/* Table */}
       <TableContainer
         component={Paper}
-        sx={{ borderRadius: 3, boxShadow: 0, border: "1px solid #ddd" }}
+        sx={{ borderRadius: 1, borderBottom:0, boxShadow: 0, border: "1px solid #ddd" }}
       >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>Patient</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Diagnosis</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Date of Examination</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
@@ -154,11 +157,22 @@ const MedicalCertificatesTable: React.FC<MedicalCertificatesTableProps> = ({
           </TableHead>
 
           <TableBody>
-            {certificates.length > 0 ? (
-              certificates.map((cert) => (
+            {certificates?.length > 0 ? (
+              certificates?.map((cert) => (
                 <TableRow key={cert.id} hover>
-                  <TableCell>{cert.patient?.full_name}</TableCell>
-                  <TableCell>{cert.diagnosis}</TableCell>
+                  <TableCell>
+  <Box
+    sx={{
+   
+      maxHeight: 100,
+      overflowY: "auto",
+      "& p": { margin: "4px 0" },
+      "& ul, & ol": { margin: "8px 0", paddingLeft: 20 },
+      "& li": { margin: "4px 0" },
+    }}
+    dangerouslySetInnerHTML={{ __html: cert.diagnosis || "" }}
+  />
+</TableCell>
                   <TableCell>{cert.date_of_examination}</TableCell>
                   <TableCell>{cert.status}</TableCell>
 

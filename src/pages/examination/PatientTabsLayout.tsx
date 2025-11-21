@@ -8,6 +8,7 @@ const PatientTabsLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { consultation_id } = (location.state as { consultation_id?: string }) || {};
+  console.log("Consultant Id:", consultation_id);
 
   React.useEffect(() => {
     if (!consultation_id) {

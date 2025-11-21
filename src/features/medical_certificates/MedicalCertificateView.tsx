@@ -6,40 +6,44 @@ import { Close, Download } from "@mui/icons-material";
 import PrintableCertificate from "./PrintableCertificate";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import type { Patient } from "../patients/PatientTable";
 
 // Types
-interface Patient {
-  full_name?: string;
-  emr_number?: string;
-  date_of_birth?: string;
-  gender?: string;
-  phone?: string;
-  email?: string;
-}
 
 interface MedicalCertificate {
   id: string;
+  patient_id: string;
   patient?: Patient;
-  diagnosis?: string;
-  injury_description?: string;
-  recommendations?: string;
-  date_of_examination?: string;
-  rest_days?: number;
-  status?: "issued" | "draft";
-  remarks?: string;
+  diagnosis: string;
+  doctor:{
+    name:string;
+
+  }
+  injury_description: string;
+  recommendations: string;
+  remarks: string;
+  date_of_examination: string;
+  rest_days: number;
+  status: 'issued' | 'draft';
   certificate_number?: string;
+  created_at?: string;
 }
+
 
 interface MedicalCertificateViewProps {
   open: boolean;
   onClose: () => void;
   certificate: MedicalCertificate | null;
+  patient : Patient
 }
 
 const MedicalCertificateView: React.FC<MedicalCertificateViewProps> = ({ 
   open, 
   onClose, 
-  certificate 
+  certificate,
+  patient
+
+
 }) => {
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -98,7 +102,7 @@ const MedicalCertificateView: React.FC<MedicalCertificateViewProps> = ({
       {/* Hidden for PDF & Print */}
       <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
         <div ref={printRef}>
-          <PrintableCertificate certificate={certificate} />
+          <PrintableCertificate certificate={certificate} patient={patient} />
         </div>
       </div>
 
@@ -116,7 +120,7 @@ const MedicalCertificateView: React.FC<MedicalCertificateViewProps> = ({
         </DialogTitle>
 
         <DialogContent dividers>
-          <PrintableCertificate certificate={certificate} />
+          <PrintableCertificate certificate={certificate}  patient={patient}/>
         </DialogContent>
 
         <DialogActions>

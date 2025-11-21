@@ -37,7 +37,6 @@ import { Formik, Form, Field, ErrorMessage, type FieldProps, getIn } from 'formi
 import { toast } from 'react-toastify';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { validationSchema } from './validationSchema';
 import dayjs from 'dayjs';
 import { PatientService } from '../../shared/api/services/patient.service';
 import type { ExaminationData } from '../../shared/api/types/examination.types';
@@ -232,7 +231,7 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
       toast.success('Examination saved successfully!');
     } catch (err: any) {
       console.error('API Error:', err.response?.data);
-      toast.error(err?.response?.data?.message || 'Failed to save examination');
+      toast.error(err?.response?.data?.data.message || 'Failed to save examination');
     } finally {
       setSubmitting(false);
     }
@@ -254,7 +253,6 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={validationSchema}
       onSubmit={handleSubmit}
       enableReinitialize
     >

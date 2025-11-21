@@ -1,26 +1,26 @@
-import { useEffect, useState } from "react";
-import { Box, CircularProgress, Button, Container, Stack, Typography } from "@mui/material";
-import { Add } from "@mui/icons-material";
-import { toast, ToastContainer } from "react-toastify";
-import MedicalCertificateForm from "../../features/medical_certificates/MedicalCertificateForm";
-import MedicalCertificatesTable from "../../features/medical_certificates/MedicalCertificatesTable";
-import MedicalCertificateView from "../../features/medical_certificates/MedicalCertificateView";
-import { PatientService } from "../../shared/api/services/patient.service";
-import { MedicalCertificateService } from "../../shared/api/services/sickLeave.service";
+import { useEffect, useState } from 'react';
+import {
+  Box,
+  CircularProgress,
+  Button,
+  Container,
+  Stack,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from '@mui/material';
+import { Add } from '@mui/icons-material';
+import { toast, ToastContainer } from 'react-toastify';
+import MedicalCertificateForm from '../../features/medical_certificates/MedicalCertificateForm';
+import MedicalCertificatesTable from '../../features/medical_certificates/MedicalCertificatesTable';
+import MedicalCertificateView from '../../features/medical_certificates/MedicalCertificateView';
+import { MedicalCertificateService } from '../../shared/api/services/sickLeave.service';
+import type { Patient } from '../../features/patients/PatientTable';
+import Fallbacks from '../../features/shared/components/Fallbacks';
 
-
-
-
-// Types
-interface Patient {
-  id: string;
-  full_name: string;
-  emr_number?: string;
-  date_of_birth?: string;
-  gender?: string;
-  phone?: string;
-  email?: string;
-}
 
 interface MedicalCertificate {
   id: string;
@@ -30,16 +30,18 @@ interface MedicalCertificate {
   injury_description: string;
   recommendations: string;
   remarks: string;
+  doctor:{
+    name:string;
+
+  }
   date_of_examination: string;
   rest_days: number;
   status: 'issued' | 'draft';
   certificate_number?: string;
   created_at?: string;
-  updated_at?: string;
 }
 
 interface FormData {
-  patient_id: string;
   diagnosis: string;
   injury_description: string;
   recommendations: string;
@@ -49,9 +51,12 @@ interface FormData {
   status: 'issued' | 'draft';
 }
 
-export default function MedicalCertificatesIndex() {
+interface MedicalCertificatesIndexProps {
+  patient: Patient;
+}
+
+export default function MedicalCertificatesIndex({ patient }: MedicalCertificatesIndexProps) {
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([]);
-  const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [openForm, setOpenForm] = useState(false);
@@ -59,80 +64,62 @@ export default function MedicalCertificatesIndex() {
   const [selectedCertificate, setSelectedCertificate] = useState<MedicalCertificate | null>(null);
   const [openViewDialog, setOpenViewDialog] = useState(false);
 
+  // Delete confirmation
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [certificateToDelete, setCertificateToDelete] = useState<string | null>(null);
+
   const [formData, setFormData] = useState<FormData>({
-    patient_id: "",
-    diagnosis: "",
-    injury_description: "",
-    recommendations: "",
-    date_of_examination: "",
-    rest_days: 0,
-    remarks: "",
-    status: "issued",
+    diagnosis: '',
+    injury_description: '',
+    recommendations: '',
+    date_of_examination: new Date().toISOString().split('T')[0],
+    rest_days: 7,
+    remarks: '',
+    status: 'draft',
   });
 
-  // Fetch all certificates
-  const fetchCertificates = async () => {
+  // Fetch only this patient's certificates
+   const fetchCertificates = async () => {
     setLoading(true);
     try {
-      const response = await MedicalCertificateService.getAll();
+      const response = await MedicalCertificateService.getMedicalCertificateMy(patient.id);
       if (response.data.success) {
         setCertificates(response.data.data?.data || []);
-      } else {
-        toast.warning(response.data.message || "Failed to fetch certificates");
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Error fetching certificates");
+      toast.error(err.response?.data?.data.message || 'Error loading certificates');
     } finally {
       setLoading(false);
     }
   };
-
-  // Fetch patients
-  const fetchPatients = async () => {
-    try {
-      const response = await PatientService.getAll();
-      if (response.data.success) {
-        setPatients(response.data.data?.data || []);
-      } else {
-        toast.warning(response.data.message || "Failed to fetch patients");
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Error fetching patients");
-    }
-  };
-
   useEffect(() => {
-    fetchCertificates();
-    fetchPatients();
-  }, []);
+    if (patient.id) fetchCertificates();
+  }, [patient.id]);
 
-  // Open add/edit form
   const handleOpenForm = (cert: MedicalCertificate | null = null) => {
     if (cert) {
       setEditMode(true);
       setSelectedCertificate(cert);
       setFormData({
-        patient_id: cert.patient_id || "",
-        diagnosis: cert.diagnosis || "",
-        injury_description: cert.injury_description || "",
-        recommendations: cert.recommendations || "",
-        date_of_examination: cert.date_of_examination || "",
+        diagnosis: cert.diagnosis || '',
+        injury_description: cert.injury_description || '',
+        recommendations: cert.recommendations || '',
+        date_of_examination: cert.date_of_examination?.split('T')[0] || '',
         rest_days: cert.rest_days || 0,
-        remarks: cert.remarks || "",
-        status: cert.status || "issued",
+        remarks: cert.remarks || '',
+        status: cert.status || 'draft',
       });
     } else {
       setEditMode(false);
       setSelectedCertificate(null);
       setFormData({
-        patient_id: "",
-        diagnosis: "",
-        injury_description: "",
-        recommendations: "",
-        date_of_examination: "",
-        rest_days: 0,
-        remarks: "",
-        status: "issued",
+        diagnosis: '',
+        injury_description: '',
+        recommendations: '',
+        date_of_examination: new Date().toISOString().split('T')[0],
+        rest_days: 7,
+        remarks: '',
+        status: 'draft',
       });
     }
     setOpenForm(true);
@@ -149,74 +136,104 @@ export default function MedicalCertificatesIndex() {
     setOpenViewDialog(true);
   };
 
-  const handleCloseView = () => {
-    setOpenViewDialog(false);
-    setSelectedCertificate(null);
+  // Delete with confirmation
+  const handleDeleteClick = (id: string) => {
+    setCertificateToDelete(id);
+    setDeleteDialogOpen(true);
   };
 
-  // Handle delete (you might want to implement this properly)
-  const handleDelete = async (id: string) => {
+  const handleDeleteConfirm = async () => {
+    if (!certificateToDelete) return;
+
     try {
-      await MedicalCertificateService.delete(id);
-      toast.success("Certificate deleted successfully");
+      await MedicalCertificateService.delete(certificateToDelete);
+      toast.success('Certificate deleted successfully');
       fetchCertificates();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Error deleting certificate");
+      toast.error(err.response?.data?.data.message || 'Failed to delete certificate');
+    } finally {
+      setDeleteDialogOpen(false);
+      setCertificateToDelete(null);
     }
   };
 
   return (
-    <Container
-    
-      maxWidth="lg"
-      sx={{ mt: 4, mb: 4 }}
-     
-    >
-        <Stack sx={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-            <Box>
-                <Typography>Medical Certificates</Typography>
-            </Box>
-            <Box>
- <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => handleOpenForm()}
-          >
-            Add Certificate
-          </Button>
-            </Box>
-        </Stack>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+      {/* Header */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+        <Box>
+          <Typography variant="h6" fontWeight={600}>
+            Medical Certificates
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Patient: <strong>{patient.full_name}</strong> {patient.emr_number && `(EMR: ${patient.emr_number})`}
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={() => handleOpenForm()}
+        >
+          Issue Certificate
+        </Button>
+      </Stack>
+
+      {/* Loading / Empty / Table */}
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+        <Box display="flex" justifyContent="center" my={10}>
           <CircularProgress />
         </Box>
+      ) : certificates.length === 0 ? (
+       
+          <Fallbacks title='No data Found' description='   No medical certificates issued yet for this patient.'/>
+      
       ) : (
         <MedicalCertificatesTable
+          patient={patient}
           certificates={certificates}
-          onEdit={handleOpenForm}
-          onDelete={handleDelete}
+          onEdit={(cert) => handleOpenForm(cert)}
           onView={handleOpenView}
+          onDelete={handleDeleteClick}
         />
       )}
 
+      {/* Form Dialog */}
       <MedicalCertificateForm
         open={openForm}
         onClose={handleCloseForm}
         editMode={editMode}
         formData={formData}
-        setFormData={setFormData}
-        patients={patients}
+        patientId={patient.id}
+        patientName={patient.full_name}
+        selectedCertificate={selectedCertificate || undefined}
         refreshList={fetchCertificates}
-        // selectedCertificate={selectedCertificate}
       />
 
+      {/* View Dialog */}
       <MedicalCertificateView
         open={openViewDialog}
-        onClose={handleCloseView}
+        onClose={() => setOpenViewDialog(false)}
+        patient={patient}
         certificate={selectedCertificate}
       />
 
-      <ToastContainer />
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Certificate?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this medical certificate? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </Container>
   );
 }

@@ -853,7 +853,7 @@ const Triage: React.FC = () => {
                             <IconButton
                               size="small"
                               onClick={() => navigate('/triage-one/follow-up', {
-                                  state: { patientId: patient.id , consultantId: patient.constultation_id},
+                                  state: { patientId: patient.id , consultantId: patient.constultation_id, index:1},
                                 })}
                               sx={{
                                 backgroundColor: '#1b5e20', // dark green
@@ -870,8 +870,8 @@ const Triage: React.FC = () => {
                             <IconButton
                               size="small"
                               onClick={() =>
-                                navigate('/triage/examinations', {
-                                  state: { consultation_id: patient.constultation_id },
+                                navigate('/triage-one/examinations', {
+                                  state: { consultation_id: patient.constultation_id , index:0},
                                 })
                               }
                               sx={{
