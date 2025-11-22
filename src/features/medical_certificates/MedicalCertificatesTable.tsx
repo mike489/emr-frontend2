@@ -26,9 +26,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import Fallbacks from "../shared/components/Fallbacks";
 import PrintableCertificate from "./PrintableCertificate";
-import type { Patient } from "../patients/PatientTable";
-
-// Types
+import type { Patient } from "../../shared/api/types/patient.types";
 
 
 interface MedicalCertificate {

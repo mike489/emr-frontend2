@@ -6,7 +6,8 @@ import { Close, Download } from "@mui/icons-material";
 import PrintableCertificate from "./PrintableCertificate";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import type { Patient } from "../patients/PatientTable";
+import type { Patient } from "../../shared/api/types/patient.types";
+
 
 // Types
 

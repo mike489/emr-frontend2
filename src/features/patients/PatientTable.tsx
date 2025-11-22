@@ -15,23 +15,9 @@ import {
   CircularProgress,
   Paper,
 } from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Eye, FileUp, Send } from 'lucide-react';
+import type { Patient } from '../../shared/api/types/patient.types';
 
-interface Flag {
-  can_be_send_to_triage: boolean; 
-  is_checked_out: boolean;
-  is_checked_in: boolean;
-  bill_paid: boolean;
-  requires_payment: boolean;
-}
-
-interface Doctor {
-  id:string;
-  name:string;
-
-}
 interface Attachment {
   name: string;
   mime_type: string;
@@ -39,46 +25,7 @@ interface Attachment {
   url: string;
 }
 
- export interface Patient {
-  id: string;
-  title: string;
-  full_name: string;
-  emr_number: string;
-  date_of_birth: string;
-  gender: string;
-  phone: string;
-  email: string;
-  visit_type: string;
-  address: {
-    city: string;
-    kifle_ketema: string;
-    wereda: string;
-  };
-  blood_type: string;
-  height: string;
-  weight: string;
-  national_id: string;
-  constultation_id: string;
-  passport_number: string;
-  medical_history: string | null;
-  allergies: string | null;
-  medical_conditions: string | null;
-  created_by: string;
-  flags: Flag;
-  doctor: Doctor;
-  patient_category_id: string;
-  patient_category: {
-    id: string;
-    name: string;
-    description: string;
-    color: string;
-  };
-  status: string;
-  age: number;
-  is_card_expired: boolean;
-  current_doctor: string | { id?: string; name?: string } | null;
-  attachments: Attachment[];
-}
+
 
 interface PatientTableProps {
   patients: Patient[];
@@ -366,13 +313,23 @@ const PatientTable: React.FC<PatientTableProps> = ({
 
               {/* Payment Required */}
               <TableCell>
-                {
-                  patient.flags.requires_payment ? (
-                    <CheckIcon color="error" />
-                  ) : (
-                    <CheckCircleIcon color="success" />
-                  )
-                }
+                {patient.flags.bill_paid? (
+                  <Chip
+                    label="Paid"
+                    color="success"
+                    variant="filled"
+                    size="small"
+                    sx={{ fontWeight: 'bold', p:1 }}
+                  />
+                ) : (
+                  <Chip
+                    label="Unpaid"
+                    color="error"
+                    variant="filled"
+                    size="small"
+                    sx={{ fontWeight: 'bold', p:1 }}
+                  />
+                )}
               </TableCell>
 
               {/* Checkout Button */}
@@ -394,7 +351,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
                   variant="contained"
                   size="small"
                   color="primary"
-                  disabled={!patient.flags.requires_payment}
+                  disabled={!patient.flags.bill_paid}
                   onClick={() => onPay(patient)}
                 >
                   Pay
@@ -415,24 +372,38 @@ const PatientTable: React.FC<PatientTableProps> = ({
 <TableCell>
   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
     {/* Send to Triage */}
-    <Tooltip title={patient.flags.can_be_send_to_triage ? "Send to Triage" : "Cannot send to triage"}>
-      <span>
-        <IconButton
-          size="small"
-          onClick={() => onSendToTriage(patient)}
-          disabled={!patient.flags.can_be_send_to_triage}
-          sx={{
-            bgcolor:patient.flags.can_be_send_to_triage ? '#1976d2' : '#9e9e9e',
-            color: patient.flags.can_be_send_to_triage ? '#fff' : '#000', 
-            '&:hover': {
-              backgroundColor: patient.flags.can_be_send_to_triage ? 'rgba(25, 118, 210, 0.1)' : 'transparent',
-            },
-          }}
-        >
-          <Send size={20} />
-        </IconButton>
-      </span>
-    </Tooltip>
+ <Tooltip
+  title={
+  patient.flags.is_checked_out
+      ? "Send to Triage"
+      : "Cannot send to triage"
+  }
+>
+  <span>
+    <IconButton
+      size="small"
+      onClick={() => onSendToTriage(patient)}
+      disabled={!patient.flags.is_checked_out || !patient.flags.can_be_send_to_triage}
+      sx={{
+        bgcolor:patient.flags.is_checked_out
+            ? '#1976d2'
+            : '#9e9e9e',
+        color: patient.flags.is_checked_out
+            ? '#fff'
+            : '#000',
+        '&:hover': {
+          backgroundColor:
+            patient.flags.can_be_send_to_triage && patient.flags.is_checked_out
+              ? 'rgba(25, 118, 210, 0.1)'
+              : 'transparent',
+        },
+      }}
+    >
+      <Send size={20} />
+    </IconButton>
+  </span>
+</Tooltip>
+
 
     {/* View Details */}
     <Tooltip title="View Details">

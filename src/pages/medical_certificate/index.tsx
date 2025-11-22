@@ -18,8 +18,9 @@ import MedicalCertificateForm from '../../features/medical_certificates/MedicalC
 import MedicalCertificatesTable from '../../features/medical_certificates/MedicalCertificatesTable';
 import MedicalCertificateView from '../../features/medical_certificates/MedicalCertificateView';
 import { MedicalCertificateService } from '../../shared/api/services/sickLeave.service';
-import type { Patient } from '../../features/patients/PatientTable';
+
 import Fallbacks from '../../features/shared/components/Fallbacks';
+import type { Patient } from '../../shared/api/types/patient.types';
 
 
 interface MedicalCertificate {

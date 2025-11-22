@@ -25,54 +25,8 @@ import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
 import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
 import { PatientService } from '../../../shared/api/services/patient.service';
+import type { Patient } from '../../../shared/api/types/patient.types';
 
-// Updated Type definitions to match your API response
-interface Flag {
-  can_be_send_to_triage: boolean; 
-  is_checked_out: boolean;
-  is_checked_in: boolean;
-  bill_paid: boolean;
-  requires_payment: boolean;
-}
-interface Patient {
-  id: string;
-  title: string;
-  full_name: string;
-  emr_number: string;
-  date_of_birth: string;
-  gender: string;
-  phone: string;
-  email: string;
-  visit_type: string;
-  address: {
-    city: string;
-    kifle_ketema: string;
-    wereda: string;
-  };
-  blood_type: string;
-  height: string;
-  weight: string;
-  national_id: string;
-  constultation_id: string;
-  passport_number: string;
-  medical_history: string | null;
-  allergies: string | null;
-  medical_conditions: string | null;
-  created_by: string;
-  flags: Flag;
-  patient_category_id: string;
-  patient_category: {
-    id: string;
-    name: string;
-    description: string;
-    color: string;
-  };
-  status: string;
-  age: number;
-  is_card_expired: boolean;
-  current_doctor: string | { id?: string; name?: string } | null;
-  attachments: Attachment[];
-}
 
 interface PaginationState {
   page: number;

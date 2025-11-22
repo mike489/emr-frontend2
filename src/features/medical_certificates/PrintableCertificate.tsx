@@ -1,7 +1,8 @@
 import React from "react";
 import { Box, Typography, Divider, Grid, Avatar } from "@mui/material";
 import { LocalHospitalOutlined } from "@mui/icons-material";
-import type { Patient } from "../patients/PatientTable";
+import type { Patient } from "../../shared/api/types/patient.types";
+
 
 
 
