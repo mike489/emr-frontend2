@@ -14,6 +14,8 @@ import {
   Button,
   CircularProgress,
   Paper,
+  MenuItem,
+  Select,
 } from '@mui/material';
 import { Eye, FileUp, Send } from 'lucide-react';
 import type { Patient } from '../../shared/api/types/patient.types';
@@ -310,26 +312,33 @@ const PatientTable: React.FC<PatientTableProps> = ({
               </TableCell>
               <TableCell>{patient.visit_type || 'N/A'}</TableCell>
 
-              {/* Payment Required */}
-              <TableCell>
-                {patient.flags.bill_paid? (
-                  <Chip
-                    label="Paid"
-                    color="success"
-                    variant="filled"
-                    size="small"
-                    sx={{ fontWeight: 'bold', p:1 }}
-                  />
-                ) : (
-                  <Chip
-                    label="Unpaid"
-                    color="error"
-                    variant="filled"
-                    size="small"
-                    sx={{ fontWeight: 'bold', p:1 }}
-                  />
-                )}
-              </TableCell>
+             
+
+<TableCell>
+  <Select
+    value={patient.flags.bill_paid ? "Paid" : "Unpaid"}
+    size="small"
+    sx={{ minWidth: 100 }}
+    // onChange={(e) => onChangePaymentStatus(patient, e.target.value)}
+    renderValue={(selected) => (
+      <Chip
+        label={selected}
+        color={selected === "Paid" ? "success" : "error"}
+        variant="filled"
+        size="small"
+        sx={{ fontWeight: 'bold', p: 1 }}
+      />
+    )}
+  >
+    <MenuItem value="Paid">
+      <Chip label="Paid" color="success" variant="filled" size="small" sx={{ fontWeight: 'bold', p:1 }} />
+    </MenuItem>
+    <MenuItem value="Unpaid">
+      <Chip label="Unpaid" color="error" variant="filled" size="small" sx={{ fontWeight: 'bold', p:1 }} />
+    </MenuItem>
+  </Select>
+</TableCell>
+
 
               {/* Checkout Button */}
               <TableCell>
