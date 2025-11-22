@@ -53,12 +53,13 @@ const TriageLists = () => {
 
   return (
     <Container>
+      <PageHeader title="Welcome to EMR" onBack={() => navigate(-1)} />
       {isSubRoute ? (
         // 🔸 Show nested content (e.g., PatientTabsLayout)
         <Outlet />
       ) : (
         <Container
-          // sx={{ mt: 4, mb: 20, display: 'center', justifyContent: 'center', alignItems: 'center' }}
+          sx={{ mt: 4, mb: 20, display: 'center', justifyContent: 'center', alignItems: 'center' }}
         >
           <Grid container spacing={2} mb={200}>
             {accessibleModules.map(mod => {

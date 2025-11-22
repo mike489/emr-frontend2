@@ -382,7 +382,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
     {/* Send to Triage */}
  <Tooltip
   title={
-  patient.flags.is_checked_out
+  patient.flags.can_be_send_to_triage
       ? "Send to Triage"
       : "Cannot send to triage"
   }
@@ -391,17 +391,17 @@ const PatientTable: React.FC<PatientTableProps> = ({
     <IconButton
       size="small"
       onClick={() => onSendToTriage(patient)}
-      disabled={!patient.flags.is_checked_out || !patient.flags.can_be_send_to_triage}
+      disabled={!patient.flags.can_be_send_to_triage }
       sx={{
-        bgcolor:patient.flags.is_checked_out
+        bgcolor:patient.flags.can_be_send_to_triage
             ? '#1976d2'
             : '#9e9e9e',
-        color: patient.flags.is_checked_out
+        color: patient.flags.can_be_send_to_triage
             ? '#fff'
             : '#000',
         '&:hover': {
           backgroundColor:
-            patient.flags.can_be_send_to_triage && patient.flags.is_checked_out
+            patient.flags.can_be_send_to_triage 
               ? 'rgba(25, 118, 210, 0.1)'
               : 'transparent',
         },

@@ -20,7 +20,7 @@ import {
   IconButton,
 } from '@mui/material';
 
-import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
+import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -95,7 +95,7 @@ const Opd2: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -292,34 +292,8 @@ const Opd2: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
-      {/* Header */}
-      {/* <TabBar tabsData={DOCTOR_TABS}/> */}
-
-      <Box sx={{ display: 'flex', p: 2, alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box sx={{}}>
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-            sx={{ fontWeight: 'bold', color: '#333' }}
-          >
-            OPD Two Dashboard
-          </Typography>
-          {/* <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
-              Real-time patient flow and management - Total: {total}
-            </Typography> */}
-        </Box>
-        {/* <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate('/new-patient')}
-            sx={{ textTransform: 'none', borderRadius: '20px', px: 3, height: '40px' }}
-          >
-            + New Patient
-          </Button> */}
-      </Box>
-
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
+      
       {/* Search and Filter Section */}
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Header with Back Button and Summary Stats */}
@@ -331,27 +305,6 @@ const Opd2: React.FC = () => {
             mb: 3,
           }}
         >
-          {/* Back Button */}
-          <Button
-            variant="outlined"
-            onClick={() => navigate(-1)}
-            startIcon={<ArrowBackIos sx={{ fontSize: 16 }} />}
-            sx={{
-              textTransform: 'none',
-              borderRadius: '8px',
-              borderColor: '#1976d2',
-              color: '#1976d2',
-              px: 2,
-              py: 0.8,
-              fontSize: '0.875rem',
-              '&:hover': {
-                backgroundColor: '#e3f2fd',
-                borderColor: '#1976d2',
-              },
-            }}
-          >
-            Back
-          </Button>
 
           {/* Summary Stats */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
@@ -603,7 +556,7 @@ const Opd2: React.FC = () => {
           </Box>
 
           {/* Department */}
-          {/* <TextField
+          <TextField
                       size="small"
                       select
                       value={filters.department}
@@ -617,7 +570,7 @@ const Opd2: React.FC = () => {
                           {dept}
                         </MenuItem>
                       ))}
-                    </TextField> */}
+                    </TextField>
 
           {/* Patient Category */}
           <TextField

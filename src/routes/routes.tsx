@@ -104,6 +104,24 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
+     examinationsTriage2: {
+      path: '/triage-two/examinations',
+      element: (
+        <PrivateRoute>
+          <PatientTabsLayout />
+        </PrivateRoute>
+      ),
+    },
+     examinationsTriage3: {
+      path: '/triage-three/examinations',
+      element: (
+        <PrivateRoute>
+          <PatientTabsLayout />
+        </PrivateRoute>
+      ),
+    },
+    
+    
 
      examinationsDoctor: {
       path: '/doctor/examinations',
@@ -146,6 +164,30 @@ export const ROUTES = {
         </PrivateRoute>
       ),
     },
+     referralsTwo: {
+      path: '/triage-two/referrals',
+      element: (
+        <PrivateRoute>
+          <Referrals />
+        </PrivateRoute>
+      ),
+    },
+      followUpTwo: {
+      path: '/triage-two/follow-up',
+      element: (
+        <PrivateRoute>
+          <FollowUp />
+        </PrivateRoute>
+      ),
+    },
+    triagePatientsTwo: {
+      path: '/triage-two/patients-list',
+      element: (
+        <PrivateRoute>
+          <Triage />
+        </PrivateRoute>
+      ),
+    },
     triageThree: {
       path: '/triage-three/patients-list',
       element: (
@@ -164,6 +206,22 @@ export const ROUTES = {
     },
       followUp: {
       path: '/triage-one/follow-up',
+      element: (
+        <PrivateRoute>
+          <FollowUp />
+        </PrivateRoute>
+      ),
+    },
+    referrals3: {
+      path: '/triage-three/referrals',
+      element: (
+        <PrivateRoute>
+          <Referrals />
+        </PrivateRoute>
+      ),
+    },
+      followUp3: {
+      path: '/triage-three/follow-up',
       element: (
         <PrivateRoute>
           <FollowUp />
@@ -198,12 +256,60 @@ export const ROUTES = {
       path: '/triage-one/checkout-patients',
       element: (
         <PrivateRoute>
-          <Discussion />
+          <Checkout />
         </PrivateRoute>
       ),
     },
     emergencyPatient: {
       path: '/triage-one/emergency-patients',
+      element: (
+        <PrivateRoute>
+          <EmergencyLists/>
+        </PrivateRoute>
+      ),
+    },
+    emergencyPatientTriage3: {
+      path: '/triage-three/emergency-patients',
+      element: (
+        <PrivateRoute>
+          <EmergencyLists/>
+        </PrivateRoute>
+      ),
+    },
+    emergencyPatientTriage2: {
+      path: '/triage-two/emergency-patients',
+      element: (
+        <PrivateRoute>
+          <EmergencyLists/>
+        </PrivateRoute>
+      ),
+    },
+    discussionTriage2: {
+      path: '/triage-two/discussion',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+    checkoutPatientsTriage2: {
+      path: '/triage-two/checkout-patients',
+      element: (
+        <PrivateRoute>
+          <Checkout />
+        </PrivateRoute>
+      ),
+    },
+    discussionTriage3: {
+      path: '/triage-three/discussion',
+      element: (
+        <PrivateRoute>
+          <Discussion />
+        </PrivateRoute>
+      ),
+    },
+    checkoutPatientsTriage3: {
+      path: '/triage-three/checkout-patients',
       element: (
         <PrivateRoute>
           <Discussion />
@@ -246,7 +352,7 @@ refraction: {
       path: '/refraction/checkout-patients',
       element: (
         <PrivateRoute>
-          <Discussion />
+          <EmergencyLists />
         </PrivateRoute>
       ),
     },
@@ -254,7 +360,7 @@ refraction: {
       path: '/refraction/emergency-patients',
       element: (
         <PrivateRoute>
-          <Discussion />
+          <EmergencyLists />
         </PrivateRoute>
       ),
     },
@@ -294,7 +400,7 @@ refraction: {
       path: '/doctor/checkout-patients',
       element: (
         <PrivateRoute>
-          <Discussion />
+          <Checkout />
         </PrivateRoute>
       ),
     },
@@ -302,7 +408,7 @@ refraction: {
       path: '/doctor/emergency-patients',
       element: (
         <PrivateRoute>
-          <Discussion />
+          <EmergencyLists/>
         </PrivateRoute>
       ),
     },

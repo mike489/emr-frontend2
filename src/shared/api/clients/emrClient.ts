@@ -4,6 +4,7 @@ import type { ApiResponse, PaginationResponse } from '../types/api.types';
 const emsClient = createApiClient(import.meta.env.VITE_EMS_URL);
 
 export interface Patient {
+  full_name: any;
   id: string;
   mrn: string;
   name: string;

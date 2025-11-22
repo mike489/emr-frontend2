@@ -91,7 +91,7 @@ const Examinations: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [_summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -428,7 +428,7 @@ const Examinations: React.FC = () => {
           </Box>
 
           {/* Department */}
-          {/* <TextField
+          <TextField
                       size="small"
                       select
                       value={filters.department}
@@ -442,7 +442,7 @@ const Examinations: React.FC = () => {
                           {dept}
                         </MenuItem>
                       ))}
-                    </TextField> */}
+                    </TextField>
 
           {/* Patient Category */}
           <TextField

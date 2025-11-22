@@ -451,6 +451,38 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     {
       path: ROUTES.protected.triageOnePatientList.path,
       element: ROUTES.protected.triageOnePatientList.element,
+    },
+    {
+      path: ROUTES.protected.referralsTwo.path,
+      element: ROUTES.protected.referralsTwo.element,
+    },
+    {
+      path: ROUTES.protected.followUpTwo.path,
+      element: ROUTES.protected.followUpTwo.element,
+    },
+    {
+      path: ROUTES.protected.triagePatientsTwo.path,
+      element: ROUTES.protected.triagePatientsTwo.element,
+    },
+    {
+      path: ROUTES.protected.emergencyPatientTriage2.path,
+      element: ROUTES.protected.emergencyPatientTriage2.element,
+    },
+    {
+      path: ROUTES.protected.checkoutPatientsTriage2.path,
+      element: ROUTES.protected.checkoutPatientsTriage2.element,
+    },
+    {
+      path: ROUTES.protected.discussionTriage2.path,
+      element: ROUTES.protected.discussionTriage2.element,
+    },
+    {
+      path: ROUTES.protected.emergencyPatientTriage3.path,
+      element: ROUTES.protected.emergencyPatientTriage3.element,
+    },
+    {
+      path: ROUTES.protected.examinationsTriage2.path,
+      element: ROUTES.protected.examinationsTriage2.element,
     }
   ]
 },
@@ -467,6 +499,30 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     {
       path: ROUTES.protected.triageThree.path,
       element: ROUTES.protected.triageThree.element,
+    },
+    {
+      path: ROUTES.protected.emergencyPatientTriage3.path,
+      element: ROUTES.protected.emergencyPatientTriage3.element,
+    },
+    {
+      path: ROUTES.protected.checkoutPatientsTriage3.path,
+      element: ROUTES.protected.checkoutPatientsTriage3.element,
+    },
+    {
+      path: ROUTES.protected.discussionTriage3.path,
+      element: ROUTES.protected.discussionTriage3.element,
+    },
+    {
+      path: ROUTES.protected.referrals3.path,
+      element: ROUTES.protected.referrals3.element,
+    },
+    {
+      path: ROUTES.protected.followUp3.path,
+      element: ROUTES.protected.followUp3.element,
+    },
+    {
+      path: ROUTES.protected.examinationsTriage3.path,
+      element: ROUTES.protected.examinationsTriage3.element,
     }
   ]
 },

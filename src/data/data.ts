@@ -274,7 +274,192 @@ export const DOCTOR_TABS: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+export const PEDIATRIC_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/pediatric/patients',
+    children: [
+      { label: 'Patient List', path: '/pediatric/patients-list' },
+      { label: 'Referrals', path: '/pediatric/referrals' },
+      { label: 'Checkout patients ', path: '/pediatric/checkout-patients' },
+      { label: 'Emergency Patients', path: '/pediatric/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examination',
+    path: '/pediatric/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/pediatric/discussion',
+  },
 
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const RETINA_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/retina/patients',
+    children: [
+      { label: 'Patient List', path: '/retina/patients-list' },
+      { label: 'Referrals', path: '/retina/referrals' },
+      { label: 'Checkout patients ', path: '/retina/checkout-patients' },
+      { label: 'Emergency Patients', path: '/retina/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examination',
+    path: '/retina/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/retina/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const GLAUCOMA_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/glaucoma/patients',
+    children: [
+      { label: 'Patient List', path: '/glaucoma/patients-list' },
+      { label: 'Referrals', path: '/glaucoma/referrals' },
+      { label: 'Checkout patients ', path: '/glaucoma/checkout-patients' },
+      { label: 'Emergency Patients', path: '/glaucoma/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examination',
+    path: '/glaucoma/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/glaucoma/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const OPD_ONE_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/opd-one/patients',
+    children: [
+      { label: 'Patient List', path: '/opd-one/patients-list' },
+      { label: 'Referrals', path: '/opd-one/referrals' },
+      { label: 'Checkout patients ', path: '/opd-one/checkout-patients' },
+      { label: 'Emergency Patients', path: '/opd-one/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examination',
+    path: '/opd-one/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/opd-one/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const OPD_TWO_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/opd-two/patients',
+    children: [
+      { label: 'Patient List', path: '/opd-two/patients-list' },
+      { label: 'Referrals', path: '/opd-two/referrals' },
+      { label: 'Checkout patients ', path: '/opd-two/checkout-patients' },
+      { label: 'Emergency Patients', path: '/opd-two/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examination',
+    path: '/opd-two/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/opd-two/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
+export const OPD_THREE_TABS: TabItem[] = [
+  {
+    label: 'Patients',
+    path: '/opd-three/patients',
+    children: [
+      { label: 'Patient List', path: '/opd-three/patients-list' },
+      { label: 'Referrals', path: '/opd-three/referrals' },
+      { label: 'Checkout patients ', path: '/opd-three/checkout-patients' },
+      { label: 'Emergency Patients', path: '/opd-three/emergency-patients' },
+    ],
+  },
+  {
+    label: 'Examination',
+    path: '/opd-three/examinations',
+  },
+  {
+    label: 'Discussion',
+    path: '/opd-three/discussion',
+  },
+
+  // {
+  //   label: 'Notifications',
+  //   path: '/notifications',
+  // },
+
+  // {
+  //   label: 'Settings',
+  //   path: '/settings',
+  // },
+  // { label: "Logout", path: "/logout" },
+];
 // ───────────────────────────────────────────
 // DIAGNOSIS / SPECIALIST
 // ───────────────────────────────────────────
@@ -322,14 +507,6 @@ export const PHARMACY_TABS: TabItem[] = [
     path: '/pharmacy/results',
   },
   
-  {
-    label: 'Notifications',
-    path: '/pharmacy/notifications',
-  },
-  {
-    label: 'Settings',
-    path: '/pharmacy/settings',
-  },
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -342,15 +519,6 @@ export const OPTICAL_TABS: TabItem[] = [
   {
     label: 'Results',
     path: '/optical/results',
-  },
-  
-  {
-    label: 'Notifications',
-    path: '/optical/notifications',
-  },
-  {
-    label: 'Settings',
-    path: '/optical/settings',
   },
   // { label: "Logout", path: "/logout" },
 ];
