@@ -15,61 +15,30 @@ import {
   Button,
   CircularProgress,
   TablePagination,
+  Chip,
   Tooltip,
   IconButton,
 } from '@mui/material';
-import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
-import { Search, ArrowDropDown } from '@mui/icons-material';
+
+import { Search, ArrowDropDown, ArrowBackIos } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../shared/api/services/patient.service';
+import { PatientService } from '../../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
-import { DepartmentsService } from '../../shared/api/services/departments.service';
-import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
-import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
-import { doctorsService } from '../../shared/api/services/Doctor.service';
-import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
-import SendModal from '../../features/triage/components/sendModal';
-import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
-import Fallbacks from '../../features/shared/components/Fallbacks';
+import { DepartmentsService } from '../../../shared/api/services/departments.service';
+import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
+import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
+import { doctorsService } from '../../../shared/api/services/Doctor.service';
+import {
+  sendToDepartmentService,
+  UploadService,
+} from '../../../shared/api/services/sendTo.service';
+import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
+import SendCrossModal from '../../../features/triage/components/SendCrossModal';
+import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
+import type { Patient } from '../../../shared/api/types/patient.types';
 
 // Updated Type definitions to match your API response
-interface Patient {
-  id: string;
-  title: string;
-  full_name: string;
-  emr_number: string;
-  date_of_birth: string;
-  gender: string;
-  phone: string;
-  email: string;
-  address: {
-    city: string;
-    kifle_ketema: string;
-    wereda: string;
-  };
-  blood_type: string;
-  height: string;
-  weight: string;
-  national_id: string;
-  constultation_id: string;
-  passport_number: string;
-  medical_history: string | null;
-  allergies: string | null;
-  medical_conditions: string | null;
-  created_by: string;
-  patient_category_id: string;
-  patient_category: {
-    id: string;
-    name: string;
-    description: string;
-    color: string;
-  };
-  status: string;
-  age: number;
-  is_card_expired: boolean;
-  current_doctor: string | { id?: string; name?: string } | null;
-  attachments: Attachment[];
-}
+
 
 interface PaginationState {
   page: number;
@@ -85,21 +54,21 @@ interface Attachment {
   url: string;
 }
 
-const Examinations1: React.FC = () => {
+const EmergencyTriage: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  const [departments, setDepartments] = React.useState<string[]>([]);
-  const [_summary, setSummary] = React.useState<any[]>([]);
+  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, setUploadingId] = React.useState<string | null>(null);
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
   const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
-  const [_summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
+  const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
@@ -183,7 +152,7 @@ const Examinations1: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.data.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -199,7 +168,7 @@ const Examinations1: React.FC = () => {
       setDepartments(departmentsData);
       setError(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.data.message || 'Failed to fetch departments');
+      toast.error(err.response?.data?.message || 'Failed to fetch departments');
       console.error('Error fetching departments:', err);
     }
   };
@@ -215,13 +184,14 @@ const Examinations1: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.data.message || 'Failed to fetch patient categories');
+      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
       console.error('Error fetching patient categories:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Wrapper function with hardcoded department for this page
   const getFrontDeskSummary = () => PatientSummaryService.getAll('Triage 1');
 
   // Then use it
@@ -232,7 +202,7 @@ const Examinations1: React.FC = () => {
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
-      toast.error(err.response?.data?.data.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     } finally {
       setSummaryLoading(false);
@@ -245,7 +215,7 @@ const Examinations1: React.FC = () => {
       const doctorsData = res.data?.data || [];
       setDoctors(doctorsData);
     } catch (err: any) {
-      toast.error(err.response?.data?.data.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     }
   };
@@ -287,9 +257,179 @@ const Examinations1: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16,  }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
+      {/* Header */}
+      {/* <TabBar tabsData={DOCTOR_TABS}/> */}
 
-      <Paper sx={{ p: 2, mb: 2, mt: 12, borderRadius: 2 }}>
+      <Box sx={{ display: 'flex', p: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{}}>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: 'bold', color: '#333' }}
+          >
+            OPD One Dashboard
+          </Typography>
+          {/* <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
+              Real-time patient flow and management - Total: {total}
+            </Typography> */}
+        </Box>
+        {/* <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate('/new-patient')}
+            sx={{ textTransform: 'none', borderRadius: '20px', px: 3, height: '40px' }}
+          >
+            + New Patient
+          </Button> */}
+      </Box>
+
+      {/* Search and Filter Section */}
+      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+        {/* Header with Back Button and Summary Stats */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            mb: 3,
+          }}
+        >
+          {/* Back Button */}
+          <Button
+            variant="outlined"
+            onClick={() => navigate(-1)}
+            startIcon={<ArrowBackIos sx={{ fontSize: 16 }} />}
+            sx={{
+              textTransform: 'none',
+              borderRadius: '8px',
+              borderColor: '#1976d2',
+              color: '#1976d2',
+              px: 2,
+              py: 0.8,
+              fontSize: '0.875rem',
+              '&:hover': {
+                backgroundColor: '#e3f2fd',
+                borderColor: '#1976d2',
+              },
+            }}
+          >
+            Back
+          </Button>
+
+          {/* Summary Stats */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Chip
+                label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
+                sx={{
+                  backgroundColor: '#1976d2',
+                  color: 'white',
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                }}
+              />
+              <Chip
+                label="Total Checkouts: 0"
+                sx={{
+                  backgroundColor: '#757575',
+                  color: 'white',
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                }}
+              />
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Patient Category Cards */}
+        <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
+          {summaryLoading ? (
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                py: 4,
+              }}
+            >
+              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
+              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
+            </Box>
+          ) : (
+            summary.map((category: any) => (
+              <Box
+                key={category.category_id}
+                sx={{
+                  flex: '1 1 220px',
+                  minWidth: 220,
+                  backgroundColor: '#fff',
+                  borderRadius: 3,
+                  p: 2,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                  border: '1px solid #ededed',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  height: 120,
+                }}
+              >
+                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
+                  {category.category_name}
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mt: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: '2rem',
+                      fontWeight: 700,
+                      color: '#1a1a1a',
+                    }}
+                  >
+                    {category.patient_count}
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '10%',
+                      backgroundColor: `${category.color}20`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '10%',
+                        backgroundColor: category.color,
+                      }}
+                    />
+                  </Box>
+                </Box>
+
+                <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
+                  {category.percentage_text}
+                </Typography>
+              </Box>
+            ))
+          )}
+        </Box>
+      </Paper>
+
+      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Compact Filter Row */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end' }}>
           {/* Search */}
@@ -428,7 +568,7 @@ const Examinations1: React.FC = () => {
           </Box>
 
           {/* Department */}
-          <TextField
+          {/* <TextField
                       size="small"
                       select
                       value={filters.department}
@@ -442,7 +582,7 @@ const Examinations1: React.FC = () => {
                           {dept}
                         </MenuItem>
                       ))}
-                    </TextField>
+                    </TextField> */}
 
           {/* Patient Category */}
           <TextField
@@ -614,7 +754,7 @@ const Examinations1: React.FC = () => {
                     borderRight: '1px solid rgba(255,255,255,0.1)',
                   }}
                 >
-                  Consultant
+                  Visit Type
                 </TableCell>
                 <TableCell
                   sx={{
@@ -648,11 +788,14 @@ const Examinations1: React.FC = () => {
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                      Loading patients...
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="error">
                       Error loading patients. Please try again.
                     </Typography>
@@ -690,9 +833,7 @@ const Examinations1: React.FC = () => {
                     <TableCell>{patient.address?.city}</TableCell>
                     <TableCell>{patient.blood_type}</TableCell>
                     <TableCell>
-                      {patient.current_doctor && typeof patient.current_doctor === 'object'
-                        ? patient.current_doctor.name
-                        : patient.current_doctor || 'N/A'}
+                      {patient.visit_type}
                     </TableCell>
                     <TableCell>
                       <Box
@@ -808,14 +949,17 @@ const Examinations1: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Fallbacks title=' No patients found.' description='There is no the patient list. Please add new patient first.' />
+                    <Typography variant="body1" color="text.secondary">
+                      No patients found.
+                    </Typography>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        <SendModal
+
+        <SendCrossModal
           open={sendModalOpen}
           onClose={() => setSendModalOpen(false)}
           onSend={(department, doctor_id) => {
@@ -858,4 +1002,4 @@ const Examinations1: React.FC = () => {
   );
 };
 
-export default Examinations1;
+export default EmergencyTriage;

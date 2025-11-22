@@ -6,8 +6,7 @@ import {
 } from '@mui/material';
 
 
-const OpticalTodayCases
-: React.FC = () => {
+const Or: React.FC = () => {
   
   return (
  
@@ -25,4 +24,4 @@ const OpticalTodayCases
   );
 };
 
-export default OpticalTodayCases;
+export default Or;

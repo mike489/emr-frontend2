@@ -85,7 +85,7 @@ interface Attachment {
   url: string;
 }
 
-const Examinations1: React.FC = () => {
+const Examinations2: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -858,4 +858,4 @@ const Examinations1: React.FC = () => {
   );
 };
 
-export default Examinations1;
+export default Examinations2;

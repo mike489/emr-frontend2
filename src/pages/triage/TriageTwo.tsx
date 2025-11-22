@@ -852,7 +852,7 @@ const TriageTwo: React.FC = () => {
                           <Tooltip title="Open Follow-Up Form" arrow>
                             <IconButton
                               size="small"
-                              onClick={() => navigate('/triage/follow-up')}
+                              onClick={() => navigate('/triage-two/follow-up')}
                               sx={{
                                 backgroundColor: '#1b5e20', // dark green
                                 color: 'white',
@@ -868,7 +868,7 @@ const TriageTwo: React.FC = () => {
                             <IconButton
                               size="small"
                               onClick={() =>
-                                navigate('/triage/examinations', {
+                                navigate('/triage-three/examinations', {
                                   state: { consultation_id: patient.constultation_id },
                                 })
                               }

@@ -85,7 +85,7 @@ interface Attachment {
   url: string;
 }
 
-const Examinations1: React.FC = () => {
+const Examinations3: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -736,7 +736,7 @@ const Examinations1: React.FC = () => {
                           <IconButton
                             size="small"
                             onClick={() =>
-                              navigate('/triage-one/examinations', {
+                              navigate('/triage-three/examinations', {
                                 state: { consultation_id: patient.constultation_id },
                               })
                             }
@@ -858,4 +858,4 @@ const Examinations1: React.FC = () => {
   );
 };
 
-export default Examinations1;
+export default Examinations3;
