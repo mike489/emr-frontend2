@@ -45,7 +45,6 @@ const PatientTable: React.FC<PatientTableProps> = ({
   uploadingId =  "",
   onViewDetails,
   onCheckout,
-  onPay,
   onSendToTriage,
 //   onAttachFiles,
 //   onViewAttachments,
@@ -198,7 +197,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
                 borderRight: '1px solid rgba(255,255,255,0.1)',
               }}
             >
-              Payment Required
+              Payment
             </TableCell>
             <TableCell
               sx={{
@@ -212,7 +211,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
             >
               Checkout
             </TableCell>
-            <TableCell
+            {/* <TableCell
               sx={{
                 fontWeight: 'bold',
                 color: 'white',
@@ -223,7 +222,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
               }}
             >
               Pay
-            </TableCell>
+            </TableCell> */}
             <TableCell
               sx={{
                 fontWeight: 'bold',
@@ -346,7 +345,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
               </TableCell>
 
               {/* Pay Button */}
-              <TableCell>
+              {/* <TableCell>
                 <Button
                   variant="contained"
                   size="small"
@@ -356,7 +355,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
                 >
                   Pay
                 </Button>
-              </TableCell>
+              </TableCell> */}
 
               {/* Status */}
               <TableCell>

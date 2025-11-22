@@ -112,7 +112,7 @@ const MedicalCertificateForm: React.FC<MedicalCertificateFormProps> = ({
           </Alert> */}
 
           <Grid container spacing={3}>
-            {/* Diagnosis */}
+            {/* Diagnosis */} 
             <Grid size={12}>
               <Typography variant="subtitle2" gutterBottom>
                 Diagnosis <span style={{ color: 'red' }}>*</span>
