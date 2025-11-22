@@ -48,7 +48,7 @@ const FrontDesk: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [_error, setError] = React.useState<boolean>(false);
-  const [_departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -587,7 +587,24 @@ const handlePay = async (patient: Patient) => {
             {/* <MenuItem value="Emergency">Emergency</MenuItem> */}
             <MenuItem value="New">New</MenuItem>
           </TextField>
+{/* Department */}
+          <TextField
+                      size="small"
+                      select
+                      value={filters.department}
+                      onChange={e => setFilters({ ...filters, department: e.target.value })}
+                      placeholder="Department"
+                      sx={{ minWidth: 150 }}
+                    >
+                      <MenuItem value="">All Departments</MenuItem>
+                      {departments.map((dept, index) => (
+                        <MenuItem key={index} value={dept}>
+                          {dept}
+                        </MenuItem>
+                      ))}
+                    </TextField>
 
+        
           {/* Patient Category */}
           <TextField
             size="small"
