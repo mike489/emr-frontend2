@@ -74,7 +74,7 @@ const SectionCard: React.FC<SectionCardProps> = ({ icon, title, content, simple,
       </Typography>
     </Box>
     {content ? (
-      <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+      <Typography  variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
         {content || 'N/A'}
       </Typography>
     ) : (

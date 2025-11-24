@@ -257,7 +257,7 @@ const EmergencyTriage3: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
       
       {/* Search and Filter Section */}
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
@@ -931,7 +931,7 @@ const EmergencyTriage3: React.FC = () => {
                   fetchPatients();
                 })
                 .catch((err: any) => {
-                  toast.error(err.response?.data?.message || 'Failed to send patient');
+                  toast.error(err.response?.data?.data.message || 'Failed to send patient');
                 });
             }
           }}
@@ -944,10 +944,10 @@ const EmergencyTriage3: React.FC = () => {
         />
         <TablePagination
           component="div"
-          count={pagination.total}
-          page={pagination.page}
+          count={pagination?.total}
+          page={pagination?.page}
           onPageChange={handleChangePage}
-          rowsPerPage={pagination.per_page}
+          rowsPerPage={pagination?.per_page}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>

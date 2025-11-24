@@ -20,7 +20,7 @@ import {
   Tooltip,
 } from '@mui/material';
 
-import { Search, ArrowDropDown} from '@mui/icons-material';
+import { Search, ArrowDropDown } from '@mui/icons-material';
 
 import { toast } from 'react-toastify';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
@@ -33,8 +33,7 @@ import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { PatientService } from '../../../shared/api/services/patient.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
 import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
-import { FileSearch, FileUp, Send } from 'lucide-react';
-
+import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -756,7 +755,7 @@ const Checkout: React.FC = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
-                    width: 200,
+                    width: 250,
                     fontSize: '0.8rem',
                     textAlign: 'center',
                     py: 1.5,
@@ -901,7 +900,21 @@ const Checkout: React.FC = () => {
                             <Send size={18} />
                           </IconButton>
                         </Tooltip>
-
+                        <Tooltip title="View Medical Certificate">
+                          <Tooltip title="View">
+                            <IconButton
+                              color="primary"
+                              sx={{
+                                backgroundColor: 'success.main',
+                                color: 'white',
+                                '&:hover': { backgroundColor: 'success.dark' },
+                              }}
+                              onClick={() => {}}
+                            >
+                              <Eye size={18} />
+                            </IconButton>
+                          </Tooltip>
+                        </Tooltip>
                         {/* -------------------- EXAMINATIONS -------------------- */}
                         {/* <Tooltip title="Open Examination Form" arrow>
                           <IconButton

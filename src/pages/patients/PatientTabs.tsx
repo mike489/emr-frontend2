@@ -22,6 +22,7 @@ export default function PatientTabs() {
 
   const [currentTab, setCurrentTab] = useState<string>("examinations");
   const [examData, setExamData] = useState<any>(null);
+  console.log("Examinations:", examData);
   const [loading, setLoading] = useState(true);
 
   const fetchExaminationHistory = async () => {
@@ -33,7 +34,7 @@ export default function PatientTabs() {
     try {
       setLoading(true);
       const response = await PatientService.getExaminationData(patient.constultation_id);
-      setExamData(response.data?.data?.data?.examination_data || null);
+      setExamData(response.data?.data?.examination_data || null);
     } catch (error: any) {
       toast.error("Failed to load examination history");
     } finally {
@@ -60,7 +61,7 @@ export default function PatientTabs() {
   };
 
   return (
-    <Box display="flex" flexDirection="column" height="100vh" width="100%" sx={{px:2, pb:4, mt:-16}}>
+    <Box display="flex" flexDirection="column"  width="100%" sx={{px:2, pb:4, mt:-16}}>
       {/* Patient Header */}
       <Box sx={{ mb: 3 }}>
         <Patients patient={patient} />
