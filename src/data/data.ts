@@ -21,7 +21,6 @@ export const FRONT_DESK_TABS: TabItem[] = [
       { label: 'Add New Emergency Patients', path: '/front-desk/add-new-emergency-patients' },
       // { label: 'Patient Details', path: '/front-desk/patient-details' },
 
-    
       { label: 'Checkout Patients', path: '/front-desk/checkout' },
       { label: 'Archived patients', path: '/front-desk/archived-patients' },
     ],
@@ -41,9 +40,9 @@ export const FRONT_DESK_TABS: TabItem[] = [
     label: 'Bills',
     path: '/front-desk/bills',
     children: [
+      { label: 'Laboratory Requested Payments ', path: '/front-desk/requested-payments' },
       { label: 'Patient Payments ', path: '/front-desk/patient-payments' },
       { label: 'Pending Payments ', path: '/front-desk/pending-payments' },
-      { label: 'Requested Payments ', path: '/front-desk/requested-payments' },
     ],
   },
   // {
@@ -61,10 +60,10 @@ export const FRONT_DESK_TABS: TabItem[] = [
   //   label: 'Settings',
   //   path: '/settings',
   //   // children: [
-    //   { label: 'User Profile', path: '/front-desk/profile' },
-    //   { label: 'Change Password', path: '/front-desk/change-password' },
-    //   { label: 'Logout ', path: '/' },
-    // ],
+  //   { label: 'User Profile', path: '/front-desk/profile' },
+  //   { label: 'Change Password', path: '/front-desk/change-password' },
+  //   { label: 'Logout ', path: '/' },
+  // ],
   // },
 ];
 
@@ -146,7 +145,6 @@ export const TRIAGE_TABS_ONE: TabItem[] = [
       { label: 'Checkout patients ', path: '/triage-one/checkout-patients' },
       { label: 'Follow up', path: '/triage-one/follow-up' },
       { label: 'Emergency Patients', path: '/triage-one/emergency-patients' },
-      
     ],
   },
   {
@@ -470,14 +468,14 @@ export const DIAGNOSIS_TABS: TabItem[] = [
     path: '/diagnosis/cases',
     children: [{ label: 'Today’s Case', path: '/diagnosis/today-cases' }],
   },
-  {
-    label: 'Laboratory',
-    path: '/diagnosis/Laboratory',
-  },
-  {
-    label: 'Radiology',
-    path: '/diagnosis/radiology',
-  },
+  // {
+  //   label: 'Laboratory',
+  //   path: '/diagnosis/Laboratory',
+  // },
+  // {
+  //   label: 'Radiology',
+  //   path: '/diagnosis/radiology',
+  // },
   {
     label: 'Case History',
     path: '/diagnosis/case-history',
@@ -495,7 +493,7 @@ export const DIAGNOSIS_TABS: TabItem[] = [
 ];
 
 // Results
-// 
+//
 export const PHARMACY_TABS: TabItem[] = [
   {
     label: 'Cases',
@@ -506,7 +504,7 @@ export const PHARMACY_TABS: TabItem[] = [
     label: 'Results',
     path: '/pharmacy/results',
   },
-  
+
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -532,7 +530,7 @@ export const IN_PATIENT_TABS: TabItem[] = [
     label: 'Ward Management',
     path: '/in-patient/ward-management',
   },
-   {
+  {
     label: 'Patient Beds',
     path: '/in-patient/patient-beds',
   },
@@ -553,7 +551,7 @@ export const COUNSELOR_TABS: TabItem[] = [
     path: '/counselor/patients',
     // children: [{ label: 'Today’s Case', path: '/counselor/today-cases' }],
   },
- 
+
   // {
   //   label: 'Notifications',
   //   path: '/counselor/notifications',

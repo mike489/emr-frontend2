@@ -22,7 +22,6 @@ import { MedicalCertificateService } from '../../shared/api/services/sickLeave.s
 import Fallbacks from '../../features/shared/components/Fallbacks';
 import type { Patient } from '../../shared/api/types/patient.types';
 
-
 interface MedicalCertificate {
   id: string;
   patient_id: string;
@@ -31,10 +30,9 @@ interface MedicalCertificate {
   injury_description: string;
   recommendations: string;
   remarks: string;
-  doctor:{
-    name:string;
-
-  }
+  doctor: {
+    name: string;
+  };
   date_of_examination: string;
   rest_days: number;
   status: 'issued' | 'draft';
@@ -80,7 +78,7 @@ export default function MedicalCertificatesIndex({ patient }: MedicalCertificate
   });
 
   // Fetch only this patient's certificates
-   const fetchCertificates = async () => {
+  const fetchCertificates = async () => {
     setLoading(true);
     try {
       const response = await MedicalCertificateService.getMedicalCertificateMy(patient.id);
@@ -167,14 +165,11 @@ export default function MedicalCertificatesIndex({ patient }: MedicalCertificate
             Medical Certificates
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Patient: <strong>{patient.full_name}</strong> {patient.emr_number && `(EMR: ${patient.emr_number})`}
+            Patient: <strong>{patient.full_name}</strong>{' '}
+            {patient.emr_number && `(EMR: ${patient.emr_number})`}
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => handleOpenForm()}
-        >
+        <Button variant="contained" startIcon={<Add />} onClick={() => handleOpenForm()}>
           Issue Certificate
         </Button>
       </Stack>
@@ -185,14 +180,15 @@ export default function MedicalCertificatesIndex({ patient }: MedicalCertificate
           <CircularProgress />
         </Box>
       ) : certificates.length === 0 ? (
-       
-          <Fallbacks title='No data Found' description='   No medical certificates issued yet for this patient.'/>
-      
+        <Fallbacks
+          title="No data Found"
+          description="   No medical certificates issued yet for this patient."
+        />
       ) : (
         <MedicalCertificatesTable
           patient={patient}
           certificates={certificates}
-          onEdit={(cert) => handleOpenForm(cert)}
+          onEdit={cert => handleOpenForm(cert)}
           onView={handleOpenView}
           onDelete={handleDeleteClick}
         />

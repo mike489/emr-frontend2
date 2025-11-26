@@ -6,8 +6,17 @@ import Notifications from '../pages/Notifications';
 import Settings from '../pages/Settings';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
+import DiagnosisList from '../layouts/DiagnosisList';
 
 export const diagnosticRoutes: RouteCollection = {
+  diagnosisList: {
+    path: '/diagnosis-list',
+    element: (
+      <PrivateRoute>
+        <DiagnosisList />
+      </PrivateRoute>
+    ),
+  },
   diagnosis: {
     path: '/diagnosis',
     element: (
