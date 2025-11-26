@@ -20,7 +20,7 @@ import {
   IconButton,
 } from '@mui/material';
 
-import { Search, ArrowDropDown } from '@mui/icons-material';
+import { Search, ArrowDropDown, Science } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
@@ -37,6 +37,8 @@ import SendCrossModal from '../../../features/triage/components/SendCrossModal';
 import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
 import ErrorPrompt from '../../../features/shared/components/ErrorPrompt';
 import Fallbacks from '../../../features/shared/components/Fallbacks';
+import LabModal from '../../../features/case/LabModal';
+import PatientLaboratories from '../../../features/case/PatientLaboratories';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -136,6 +138,44 @@ const Retina: React.FC = () => {
     last_page: 0,
     total: 0,
   });
+
+  const [patientLabsModalOpen, setPatientLabsModalOpen] = React.useState(false);
+  const [selectedPatientForLabs, setSelectedPatientForLabs] = React.useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const handleOpenPatientLabsModal = (patient: Patient) => {
+    setSelectedPatientForLabs({
+      id: patient.id,
+      name: patient.full_name,
+    });
+    setPatientLabsModalOpen(true);
+  };
+
+  const handleClosePatientLabsModal = () => {
+    setPatientLabsModalOpen(false);
+    setSelectedPatientForLabs(null);
+  };
+
+  const [labModalOpen, setLabModalOpen] = React.useState(false);
+  const [selectedPatientForLab, setSelectedPatientForLab] = React.useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const handleOpenLabModal = (patient: Patient) => {
+    setSelectedPatientForLab({
+      id: patient.id,
+      name: patient.full_name,
+    });
+    setLabModalOpen(true);
+  };
+
+  const handleCloseLabModal = () => {
+    setLabModalOpen(false);
+    setSelectedPatientForLab(null);
+  };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
@@ -293,7 +333,6 @@ const Retina: React.FC = () => {
       sort_dir: prev.sort_dir === 'asc' ? 'desc' : 'asc',
     }));
   };
-  
 
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
@@ -308,7 +347,6 @@ const Retina: React.FC = () => {
             // mb: 3,
           }}
         >
-          
           {/* Summary Stats */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -336,72 +374,71 @@ const Retina: React.FC = () => {
 
         {/* Patient Category Cards */}
         <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
-        
-            {summary.map((category: any) => (
+          {summary.map((category: any) => (
+            <Box
+              key={category.category_id}
+              sx={{
+                flex: '1 1 220px',
+                minWidth: 220,
+                backgroundColor: '#fff',
+                borderRadius: 3,
+                p: 2,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                border: '1px solid #ededed',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                height: 120,
+              }}
+            >
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
+                {category.category_name}
+              </Typography>
+
               <Box
-                key={category.category_id}
                 sx={{
-                  flex: '1 1 220px',
-                  minWidth: 220,
-                  backgroundColor: '#fff',
-                  borderRadius: 3,
-                  p: 2,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                  border: '1px solid #ededed',
                   display: 'flex',
-                  flexDirection: 'column',
+                  alignItems: 'center',
                   justifyContent: 'space-between',
-                  height: 120,
+                  mt: 1,
                 }}
               >
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
-                  {category.category_name}
+                <Typography
+                  sx={{
+                    fontSize: '2rem',
+                    fontWeight: 700,
+                    color: '#1a1a1a',
+                  }}
+                >
+                  {category.patient_count}
                 </Typography>
 
                 <Box
                   sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '10%',
+                    backgroundColor: `${category.color}20`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    mt: 1,
+                    justifyContent: 'center',
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1a1a1a',
-                    }}
-                  >
-                    {category.patient_count}
-                  </Typography>
-
                   <Box
                     sx={{
-                      width: 36,
-                      height: 36,
+                      width: 20,
+                      height: 20,
                       borderRadius: '10%',
-                      backgroundColor: `${category.color}20`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      backgroundColor: category.color,
                     }}
-                  >
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '10%',
-                        backgroundColor: category.color,
-                      }}
-                    />
-                  </Box>
+                  />
                 </Box>
-
-                <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
-                  {category.percentage_text}
-                </Typography>
               </Box>
+
+              <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
+                {category.percentage_text}
+              </Typography>
+            </Box>
           ))}
         </Box>
       </Paper>
@@ -546,20 +583,20 @@ const Retina: React.FC = () => {
 
           {/* Department */}
           <TextField
-                      size="small"
-                      select
-                      value={filters.department}
-                      onChange={e => setFilters({ ...filters, department: e.target.value })}
-                      placeholder="Department"
-                      sx={{ minWidth: 150 }}
-                    >
-                      <MenuItem value="">All Departments</MenuItem>
-                      {departments.map((dept, index) => (
-                        <MenuItem key={index} value={dept}>
-                          {dept}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
 
           {/* Patient Category */}
           <TextField
@@ -770,8 +807,7 @@ const Retina: React.FC = () => {
               ) : error ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                   
-                    <ErrorPrompt title='Error loading patients. Please try again.' />
+                    <ErrorPrompt title="Error loading patients. Please try again." />
                   </TableCell>
                 </TableRow>
               ) : patients.length > 0 ? (
@@ -846,7 +882,6 @@ const Retina: React.FC = () => {
                             <Send size={18} />
                           </IconButton>
                         </Tooltip>
-
                         {/* -------------------- EXAMINATIONS -------------------- */}
                         <Tooltip title="Open Examination Form" arrow>
                           <IconButton
@@ -865,7 +900,35 @@ const Retina: React.FC = () => {
                             <Eye size={18} />
                           </IconButton>
                         </Tooltip>
+                        {/* {----------------- Request Laboratory Tests ------------} */}
+                        <Tooltip title="Request Laboratory Tests" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenLabModal(patient)}
+                            sx={{
+                              backgroundColor: '#1976d2',
+                              color: 'white',
+                              '&:hover': { backgroundColor: '#1565c0' },
+                            }}
+                          >
+                            <Science fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
 
+                        {/* {------------------ View Laboratory Tests ------------ */}
+                        <Tooltip title="View Laboratory Tests" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenPatientLabsModal(patient)}
+                            sx={{
+                              backgroundColor: '#9c27b0',
+                              color: 'white',
+                              '&:hover': { backgroundColor: '#7b1fa2' },
+                            }}
+                          >
+                            <Science fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                         {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
@@ -893,7 +956,6 @@ const Retina: React.FC = () => {
                             </IconButton>
                           </span>
                         </Tooltip>
-
                         {/* -------------------- VIEW / DOWNLOAD -------------------- */}
                         <Tooltip title="View or download attachments" arrow>
                           <IconButton
@@ -909,7 +971,6 @@ const Retina: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
-
                         {/* Hidden File Input */}
                         <input
                           type="file"
@@ -924,13 +985,30 @@ const Retina: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Fallbacks title="No patients found" description="No patients found matching the criteria." />
+                    <Fallbacks
+                      title="No patients found"
+                      description="No patients found matching the criteria."
+                    />
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
+
+        <LabModal
+          open={labModalOpen}
+          onClose={handleCloseLabModal}
+          patientId={selectedPatientForLab?.id || ''}
+          patientName={selectedPatientForLab?.name || ''}
+        />
+
+        <PatientLaboratories
+          open={patientLabsModalOpen}
+          onClose={handleClosePatientLabsModal}
+          patientId={selectedPatientForLabs?.id || ''}
+          patientName={selectedPatientForLabs?.name || ''}
+        />
         <SendCrossModal
           open={sendModalOpen}
           onClose={() => setSendModalOpen(false)}
