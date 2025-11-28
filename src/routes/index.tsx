@@ -14,6 +14,7 @@ import {
   TRIAGE_TABS_TWO,
   TRIAGE_TABS_THREE,
   TRIAGE_TABS_ONE,
+  PATIENTDETILES_TABS,
 } from '../data/data';
 import { PublicLayout } from '../layouts/PublicLayout';
 import PrivateTopBar from '../layouts/PrivateTopBar';
@@ -119,10 +120,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.newPatient.path,
           element: ROUTES.protected.newPatient.element,
         },
-        {
-          path: ROUTES.protected.patientDetails.path,
-          element: ROUTES.protected.patientDetails.element,
-        },
+        // {
+        //   path: ROUTES.protected.patientDetails.path,
+        //   element: ROUTES.protected.patientDetails.element,
+        // },
 
         // Child routes that won't show in topbar
         // {
@@ -274,6 +275,24 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.emergencyRefraction.path,
           element: ROUTES.protected.emergencyRefraction.element,
+        },
+      ],
+    },
+
+    // 🔹 Patient Details Routes Group
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_TABS}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.patientDetails.path,
+          element: ROUTES.protected.patientDetails.element,
         },
       ],
     },

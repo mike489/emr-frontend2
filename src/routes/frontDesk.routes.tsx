@@ -15,6 +15,7 @@ import PendingPayments from '../pages/front_desk/bills/PendingPayments';
 import RequestedPayments from '../pages/front_desk/bills/RequestedPayments';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
+import PatientDetails from '../pages/patients/PatientDetail';
 
 export const frontDeskRoutes: RouteCollection = {
   frontDesk: {
@@ -37,7 +38,15 @@ export const frontDeskRoutes: RouteCollection = {
     path: '/front-desk/patient-details',
     element: (
       <PrivateRoute>
-        <PatientTabs />
+        <PatientDetails />
+      </PrivateRoute>
+    ),
+  },
+  PatientExaminations: {
+    path: '/front-desk/examinations',
+    element: (
+      <PrivateRoute>
+        <PatientDetails />
       </PrivateRoute>
     ),
   },

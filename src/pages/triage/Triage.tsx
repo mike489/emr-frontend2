@@ -109,8 +109,8 @@ const Triage: React.FC = () => {
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
-    sort_by: 'full_name',
-    sort_order: 'asc',
+    sort_by: '',
+    sort_order: '',
     department: 'Triage 1',
     search: '',
     gender: '',
@@ -122,7 +122,7 @@ const Triage: React.FC = () => {
     age_max: '',
     created_from: '',
     created_to: '',
-    sort_dir: 'asc',
+    sort_dir: '',
   });
 
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -148,8 +148,8 @@ const Triage: React.FC = () => {
     setFilters({
       page: 1,
       per_page: 25,
-      sort_by: 'full_name',
-      sort_order: 'asc',
+      sort_by: '',
+      sort_order: '',
       department: 'Triage 1',
       search: '',
       gender: '',
@@ -161,7 +161,7 @@ const Triage: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
-      sort_dir: 'asc',
+      sort_dir: '',
     });
     fetchPatients();
   };
@@ -847,14 +847,16 @@ const Triage: React.FC = () => {
 
                         {/* -------------------- EXAMINATIONS  and FOLLOW-UP -------------------- */}
 
-                        {patient.visit_type === 'Follow Up' ? (
+                        {/* {patient.visit_type === 'Follow Up' ? (
                           // Follow-Up patient → go to hidden Follow-Up page
                           <Tooltip title="Open Follow-Up Form" arrow>
                             <IconButton
                               size="small"
-                              onClick={() => navigate('/triage-one/follow-up', {
-                                  state: { patient:patient},
-                                })}
+                              onClick={() =>
+                                navigate('/triage-one/follow-up', {
+                                  state: { patient: patient },
+                                })
+                              }
                               sx={{
                                 backgroundColor: '#1b5e20', // dark green
                                 color: 'white',
@@ -871,7 +873,7 @@ const Triage: React.FC = () => {
                               size="small"
                               onClick={() =>
                                 navigate('/triage-one/examinations', {
-                                  state: { consultation_id: patient.constultation_id , index:0},
+                                  state: { consultation_id: patient.constultation_id, index: 0 },
                                 })
                               }
                               sx={{
@@ -883,7 +885,29 @@ const Triage: React.FC = () => {
                               <Eye size={18} />
                             </IconButton>
                           </Tooltip>
-                        )}
+                        )} */}
+
+                        <Tooltip title="Open Patient  Detail" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              navigate('/front-desk/patient-details', {
+                                state: {
+                                  consultation_id: patient.constultation_id,
+                                  index: 0,
+                                  patient: patient,
+                                },
+                              })
+                            }
+                            sx={{
+                              backgroundColor: '#1976d2',
+                              color: 'white',
+                              '&:hover': { backgroundColor: '#1565c0' },
+                            }}
+                          >
+                            <Eye size={18} />
+                          </IconButton>
+                        </Tooltip>
                         {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>

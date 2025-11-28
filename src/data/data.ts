@@ -71,6 +71,19 @@ export const FRONT_DESK_TABS: TabItem[] = [
 // TRIAGE
 // ───────────────────────────────────────────
 
+export const PATIENTDETILES_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/front-desk/patient-details',
+    children: [
+      { label: 'Examination', path: '/front-desk/examinations' },
+      { label: 'Medical History', path: '/front-desk/patient-details/medical-history' },
+      { label: 'Appointments', path: '/front-desk/patient-details/appointments' },
+      { label: 'Payments', path: '/front-desk/patient-details/payments' },
+    ],
+  },
+];
+
 export const TRIAGE_TABS: TabItem[] = [
   {
     label: 'Patients',
