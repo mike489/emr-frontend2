@@ -1,8 +1,6 @@
-// ExaminationModal.tsx
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Button,
@@ -287,7 +285,7 @@ const ExaminationModal: React.FC<ExaminationModalProps> = ({
       }}
     >
       <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
-        {({ values, isSubmitting, touched, errors, setFieldValue }) => (
+        {({ values, isSubmitting, touched, errors }) => (
           <Form>
             {/* Header */}
             <AppBar position="static" elevation={1}>

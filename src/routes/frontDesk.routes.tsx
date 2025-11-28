@@ -4,7 +4,6 @@ import Checkout from '../pages/front_desk/checkout/checkout';
 import ArchivedPatients from '../pages/front_desk/archived-patients/PrchivedPatients';
 import EmergencyLists from '../pages/front_desk/emergency/EmergencyList';
 import EmergencyPatientForm from '../pages/front_desk/emergency/EmergencyPatientForm';
-import PatientTabs from '../pages/patients/PatientTabs';
 import AppointmentsLists from '../pages/front_desk/appointments-lists/AppointmentsLists';
 import AppointmentsCalendars from '../pages/front_desk/appointments-lists/AppointmentsCalendars';
 import CreateAppointment from '../pages/front_desk/appointments-lists/CreateAppointment';
