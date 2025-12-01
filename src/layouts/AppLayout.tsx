@@ -1,9 +1,8 @@
 import { Box, CssBaseline, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import TopBar from './TopBar';
 import type { TabItem } from '../data/data';
-import { Outlet } from "react-router-dom";
-import { Suspense, useState } from "react";
-
+import { Outlet } from 'react-router-dom';
+import { Suspense, useState } from 'react';
 
 interface Props {
   tabsData?: TabItem[];
@@ -35,7 +34,7 @@ export default function AppLayout({ tabsData = [], darkMode, onToggleTheme }: Pr
       {/* Main Content */}
       <Box component="main">
         <Suspense fallback={<CircularProgress />}>
-          <Outlet /> 
+          <Outlet />
         </Suspense>
       </Box>
     </Box>

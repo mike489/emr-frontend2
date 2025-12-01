@@ -15,19 +15,11 @@ export const CLINIC_MODULES = [
   { title: 'Refraction', Icon: Ophthalmic, entryRoute: '/refraction' },
   { title: 'OPHTHALMOLOGY', Icon: Otham, entryRoute: '/clinic-lists' },
   { title: 'Diagnosis', Icon: Diagnosis, entryRoute: '/diagnosis-list' },
-  // { title: 'OPHTHALMIC', Icon: Ophthalmic, entryRoute: '/ophthalmic' },
   { title: 'OPTICALS', Icon: Optical, entryRoute: '/optical' },
   { title: 'PHARMACY', Icon: Pharmacy, entryRoute: '/pharmacy' },
 
-  // { title: 'Retina', Icon: Retina, entryRoute: '/retina' },
-  // { title: 'Pediatrics Ophthalmology', Icon: Pediatrics, entryRoute: '/pediatrics-ophthalmology' },
   { title: 'IN PATIENT', Icon: InPatient, entryRoute: '/in-patient' },
   { title: 'OR', Icon: InPatient, entryRoute: '/or' },
-  // { title: 'CLINICAL AUDIT', Icon: ClipboardList, entryRoute: '/audit' },
-  // { title: 'VISION TECHNICIAN', Icon: Eye, entryRoute: '/vision-tech' },
-  // { title: 'VISION GUARDIAN', Icon: Users, entryRoute: '/vision-guardian' },
-  // { title: 'Glacoma', Icon: Glacoma, entryRoute: '/glacoma' },
-  // { title: 'UVEA', Icon: UVEA, entryRoute: '/uvea' },
 ] as const;
 
 export type ClinicModule = (typeof CLINIC_MODULES)[number];

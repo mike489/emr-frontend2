@@ -57,7 +57,7 @@ interface Visit {
 const PatientDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const patient = location.state?.patient as Patient;
+  const patient = location.state?.patient as Patient; // Type the patient
   const { consultation_id } = (location.state as { consultation_id?: string }) || {};
 
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -217,7 +217,7 @@ interface VisitsTableProps {
   onOpenExamination: (visit: Visit) => void;
   onOpenExaminationData: (visit: Visit) => void;
   onOpenFollowUp: (visit: Visit) => void;
-  navigate: (path: string, state?: any) => void;
+  navigate: (path: string, state?: any) => void; // Update navigate signature to accept state
   consultationId: string;
   patient: Patient; // Add patient prop
 }
@@ -238,18 +238,6 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
         consultation_id: consultationId,
       },
     });
-  };
-
-  const handleRowClick = (visit: Visit) => {
-    // Logic for row click based on requirements
-    if (visit.visit_type === 'New' && visit.flags?.is_locked) {
-      // New and locked: open front-desk/examinations
-      handleNavigateWithState('/front-desk/examinations');
-    } else if (visit.visit_type === 'Follow-up' && !visit.flags?.is_locked) {
-      // Follow-up and not locked: open front-desk/follow-up
-      handleNavigateWithState('/front-desk/follow-up');
-    }
-    // For other cases, do nothing or add additional logic as needed
   };
   return (
     <TableContainer component={Paper}>
@@ -273,25 +261,7 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
         </TableHead>
         <TableBody>
           {visits.map(visit => (
-            <TableRow
-              key={visit.id}
-              hover
-              onClick={() => handleRowClick(visit)}
-              sx={{
-                cursor:
-                  (visit.visit_type === 'New' && visit.flags?.is_locked) ||
-                  (visit.visit_type === 'Follow-up' && !visit.flags?.is_locked)
-                    ? 'pointer'
-                    : 'default',
-                '&:hover': {
-                  backgroundColor:
-                    (visit.visit_type === 'New' && visit.flags?.is_locked) ||
-                    (visit.visit_type === 'Follow-up' && !visit.flags?.is_locked)
-                      ? 'action.hover'
-                      : 'inherit',
-                },
-              }}
-            >
+            <TableRow key={visit.id} hover>
               <TableCell>
                 <Typography variant="body2" fontWeight={500}>
                   {new Date(visit.datetime).toLocaleDateString()}
@@ -357,7 +327,7 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
                       //     state: { consultation_id: patient.constultation_id },
                       //   })
                       // }
-                      onClick={() => handleNavigateWithState('/triage/examinations')}
+                      onClick={() => handleNavigateWithState('/front-desk/examinations')}
                       sx={{
                         bgcolor: 'primary.main',
                         color: '#fff',
@@ -376,7 +346,7 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
                       //     state: { patient: patient },
                       //   })
                       // }
-                      onClick={() => handleNavigateWithState('/triage/follow-up')}
+                      onClick={() => handleNavigateWithState('/front-desk/follow-up')}
                       sx={{
                         bgcolor: 'primary.main',
                         color: '#fff',

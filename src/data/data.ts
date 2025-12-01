@@ -74,13 +74,44 @@ export const FRONT_DESK_TABS: TabItem[] = [
 export const PATIENTDETILES_TABS: TabItem[] = [
   {
     label: 'Visit Patient',
-    path: '/front-desk/patient-details',
-    children: [
-      { label: 'Examination', path: '/front-desk/examinations' },
-      { label: 'Medical History', path: '/front-desk/patient-details/medical-history' },
-      { label: 'Appointments', path: '/front-desk/patient-details/appointments' },
-      { label: 'Payments', path: '/front-desk/patient-details/payments' },
-    ],
+    path: '/triage/patient-details',
+    // children: [
+    //   {
+    //     label: 'Examination',
+    //     path: '/front-desk/examinations',
+    //   },
+    //   {
+    //     label: 'Follow Up',
+    //     path: '/front-desk/follow-up',
+    //   },
+    //   {
+    //     label: 'Orders',
+    //     path: '/front-desk/patient-details/orders',
+    //   },
+    //   {
+    //     label: 'Laboratory',
+    //     path: '/front-desk/patient-details/laboratory',
+    //   },
+    // ],
+  },
+];
+
+export const PATIENTDETILES_TABS_TWO: TabItem[] = [
+  {
+    label: 'Examination',
+    path: '/triage/examinations',
+  },
+  {
+    label: 'Follow Up',
+    path: '/triage/follow-up',
+  },
+  {
+    label: 'Orders',
+    path: '/triage/patient-details/orders',
+  },
+  {
+    label: 'Laboratory',
+    path: '/triage/patient-details/laboratory',
   },
 ];
 

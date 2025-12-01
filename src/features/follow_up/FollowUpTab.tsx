@@ -1,18 +1,16 @@
 import { Box, Typography } from '@mui/material';
-import { useLocation } from 'react-router-dom';
-import FollowUpPatients from '../../features/follow_up/FollowUpPatients';
+import { usePatientDetailsState } from '../../contexts/PatientContext';
+import CreateFollowUpForm from './CreateFollowUpForm';
+// import { usePatientDetailsState } from './PatientDetailsWrapper';
 
-import type { Patient } from '../../shared/api/types/patient.types';
-import CreateFollowUpForm from '../../features/follow_up/CreateFollowUpForm';
+const FollowUpTab = () => {
+  const patientDetailsState = usePatientDetailsState();
 
-export default function FollowUp() {
-  const location = useLocation();
-  const { patient } = (location.state as { patient: Patient }) || {};
+  if (!patientDetailsState) {
+    return <div>Loading patient data...</div>;
+  }
 
-  const patientId = patient?.id;
-  const consultantId = patient?.constultation_id;
-
-  console.log('Patient Id:', patientId, 'Consultation ID:', consultantId);
+  const { patient, consultation_id } = patientDetailsState;
 
   return (
     <Box
@@ -27,7 +25,7 @@ export default function FollowUp() {
       }}
     >
       <Box sx={{ flex: 1, p: 3, overflowY: 'auto' }}>
-        {patientId ? (
+        {patient?.id ? (
           <>
             <Box
               maxWidth="lg"
@@ -47,15 +45,14 @@ export default function FollowUp() {
               <Typography variant="body1">Patient: {patient?.full_name}</Typography>
             </Box>
 
-            {/* PASS patientId & visitId HERE */}
-            <CreateFollowUpForm patientId={patientId} visitId={consultantId} />
+            <CreateFollowUpForm patientId={patient?.id} visitId={consultation_id} />
           </>
         ) : (
-          <Box>
-            <FollowUpPatients />
-          </Box>
+          <Box color="error.main">No FollowUp ID found</Box>
         )}
       </Box>
     </Box>
   );
-}
+};
+
+export default FollowUpTab;

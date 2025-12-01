@@ -891,7 +891,7 @@ const Triage: React.FC = () => {
                           <IconButton
                             size="small"
                             onClick={() =>
-                              navigate('/front-desk/patient-details', {
+                              navigate('/triage/patient-details', {
                                 state: {
                                   consultation_id: patient.constultation_id,
                                   index: 0,

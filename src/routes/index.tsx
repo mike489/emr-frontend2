@@ -15,9 +15,13 @@ import {
   TRIAGE_TABS_THREE,
   TRIAGE_TABS_ONE,
   PATIENTDETILES_TABS,
+  PATIENTDETILES_TABS_TWO,
 } from '../data/data';
-import { PublicLayout } from '../layouts/PublicLayout';
+// import { PublicLayout } from '../layouts/PublicLayout';
 import PrivateTopBar from '../layouts/PrivateTopBar';
+import Home from '../pages/public/Home';
+import Clinics from '../pages/Clinics';
+import Administration from '../pages/Administration';
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
@@ -33,24 +37,36 @@ interface AppRouterProps {
 export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
   const router = createBrowserRouter([
     // 🔹 Public Routes
+    // {
+    //   element: <PublicLayout />,
+    //   children: [
+    //     {
+    //       path: '/',
+    //       element: <Suspense fallback={<Loading />}>{ROUTES.public.home.element}</Suspense>,
+    //     },
+    //     {
+    //       path: '/clinics',
+    //       element: <Suspense fallback={<Loading />}>{ROUTES.public.clinics.element}</Suspense>,
+    //     },
+    //     {
+    //       path: '/administration',
+    //       element: (
+    //         <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>
+    //       ),
+    //     },
+    //   ],
+    // },
     {
-      element: <PublicLayout />,
-      children: [
-        {
-          path: '/',
-          element: <Suspense fallback={<Loading />}>{ROUTES.public.home.element}</Suspense>,
-        },
-        {
-          path: '/clinics',
-          element: <Suspense fallback={<Loading />}>{ROUTES.public.clinics.element}</Suspense>,
-        },
-        {
-          path: '/administration',
-          element: (
-            <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>
-          ),
-        },
-      ],
+      path: '/',
+      element: <Home />,
+    },
+    {
+      path: '/clinics',
+      element: <Clinics />,
+    },
+    {
+      path: '/administration',
+      element: <Administration />,
     },
     {
       path: '/login',
@@ -120,6 +136,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.newPatient.path,
           element: ROUTES.protected.newPatient.element,
         },
+
         // {
         //   path: ROUTES.protected.patientDetails.path,
         //   element: ROUTES.protected.patientDetails.element,
@@ -293,6 +310,35 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.patientDetails.path,
           element: ROUTES.protected.patientDetails.element,
+        },
+        // {
+        //   path: ROUTES.protected.examinationTab.path,
+        //   element: ROUTES.protected.examinationTab.element,
+        // },
+        // {
+        //   path: ROUTES.protected.followUpTab.path,
+        //   element: ROUTES.protected.followUpTab.element,
+        // },
+      ],
+    },
+
+    // 🔹 Patient Details Routes Group 2
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_TABS_TWO}
+        />
+      ),
+      children: [
+        {
+          path: ROUTES.protected.examinationTab.path,
+          element: ROUTES.protected.examinationTab.element,
+        },
+        {
+          path: ROUTES.protected.followUpTab.path,
+          element: ROUTES.protected.followUpTab.element,
         },
       ],
     },

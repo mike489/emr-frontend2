@@ -24,7 +24,7 @@ import PatientDetailsModal from '../../features/patients/PatientDetailsModal';
 import TriageSelectModal from '../../features/patients/TriageSelectModal';
 import PatientTable from '../../features/patients/PatientTable';
 import { BillsService } from '../../shared/api/services/bills.service';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import type { Patient } from '../../shared/api/types/patient.types';
 
 // Updated Type definitions to match your API response
@@ -89,10 +89,14 @@ const FrontDesk: React.FC = () => {
   });
   const [selectedPatient, _setSelectedPatient] = useState<any>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
+  // const handleViewDetails = (patient: Patient) => {
+  //   navigate('/front-desk/patient-details', { state: { patient } });
+  // };
   const handleViewDetails = (patient: Patient) => {
-    navigate('/front-desk/patient-details', { state: { patient } });
+    _setSelectedPatient(patient);
+    setDetailsOpen(true);
   };
 
   const handleChangePage = (_event: unknown, newPage: number) => {

@@ -6,13 +6,15 @@ interface ModuleCardProps {
   image?: string;
   onClick?: () => void;
   icon?: React.ReactNode;
+  sx?: object;
 }
 
-export const ModuleCard: React.FC<ModuleCardProps> = ({ title, image, onClick }) => {
+export const ModuleCard: React.FC<ModuleCardProps> = ({ title, image, onClick, sx }) => {
   return (
     <Card
       onClick={onClick}
       sx={{
+        ...sx,
         width: 200,
         height: 200,
         m: 1,

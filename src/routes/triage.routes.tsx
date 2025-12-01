@@ -13,6 +13,9 @@ import type { RouteCollection } from './types';
 import EmergencyTriage from '../pages/triage/emergency/EmergencyTriage';
 import EmergencyTriage3 from '../pages/triage/emergency/EmergencyTriage3';
 import EmergencyTriage2 from '../pages/triage/emergency/EmergencyTriage2';
+import ExaminationTab from '../features/examination/ExaminationTab';
+import FollowUpTab from '../features/follow_up/FollowUpTab';
+import PatientDetails from '../pages/patients/PatientDetail';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
@@ -204,6 +207,30 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <Discussion />
+      </PrivateRoute>
+    ),
+  },
+  patientDetails: {
+    path: '/triage/patient-details',
+    element: (
+      <PrivateRoute>
+        <PatientDetails />
+      </PrivateRoute>
+    ),
+  },
+  examinationTab: {
+    path: '/triage/examinations',
+    element: (
+      <PrivateRoute>
+        <ExaminationTab />
+      </PrivateRoute>
+    ),
+  },
+  followUpTab: {
+    path: '/triage/follow-up',
+    element: (
+      <PrivateRoute>
+        <FollowUpTab />
       </PrivateRoute>
     ),
   },

@@ -304,8 +304,6 @@ const Opd1: React.FC = () => {
             mb: 3,
           }}
         >
-
-
           {/* Summary Stats */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -557,20 +555,20 @@ const Opd1: React.FC = () => {
 
           {/* Department */}
           <TextField
-                      size="small"
-                      select
-                      value={filters.department}
-                      onChange={e => setFilters({ ...filters, department: e.target.value })}
-                      placeholder="Department"
-                      sx={{ minWidth: 150 }}
-                    >
-                      <MenuItem value="">All Departments</MenuItem>
-                      {departments.map((dept, index) => (
-                        <MenuItem key={index} value={dept}>
-                          {dept}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
 
           {/* Patient Category */}
           <TextField

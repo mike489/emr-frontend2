@@ -16,13 +16,7 @@ import {
   DialogTitle,
   Container,
 } from '@mui/material';
-import {
-  Person,
-  Home,
-  MedicalServices,
-  Save,
-  CheckCircle,
-} from '@mui/icons-material';
+import { Person, Home, MedicalServices, Save, CheckCircle } from '@mui/icons-material';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
@@ -35,56 +29,54 @@ const genders = ['Male', 'Female', 'Other'];
 const titles = ['Mr.', 'Ms.', 'Mrs.', 'Dr.'];
 
 // Validation Schema
-const patientSchema = Yup.object().shape({
-  title: Yup.string().required('Title is required'),
-  full_name: Yup.string()
-    .required('Full name is required')
-    .min(2, 'Full name must be at least 2 characters')
-    .max(100, 'Full name too long'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  phone: Yup.string()
-    .required('Phone number is required')
-    .matches(/^251[0-9]{9}$/, 'Must start with 251 and be 12 digits total'),
-  date_of_birth: Yup.date()
-    .required('Date of birth is required')
-    .max(new Date(), 'Cannot be future date')
-    .test('min-age', 'Patient must be at least 1 year old', (value) => {
-      if (!value) return false;
-      const today = new Date();
-      const birth = new Date(value);
-      let age = today.getFullYear() - birth.getFullYear();
-      const m = today.getMonth() - birth.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-      return age >= 1;
+const patientSchema = Yup.object()
+  .shape({
+    title: Yup.string().required('Title is required'),
+    full_name: Yup.string()
+      .required('Full name is required')
+      .min(2, 'Full name must be at least 2 characters')
+      .max(100, 'Full name too long'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    phone: Yup.string()
+      .required('Phone number is required')
+      .matches(/^251[0-9]{9}$/, 'Must start with 251 and be 12 digits total'),
+    date_of_birth: Yup.date()
+      .required('Date of birth is required')
+      .max(new Date(), 'Cannot be future date')
+      .test('min-age', 'Patient must be at least 1 year old', value => {
+        if (!value) return false;
+        const today = new Date();
+        const birth = new Date(value);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        return age >= 1;
+      }),
+    gender: Yup.string().required('Gender is required'),
+    address: Yup.object().shape({
+      wereda: Yup.string().required('Wereda is required'),
+      kifle_ketema: Yup.string().required('Kifle Ketema is required'),
+      city: Yup.string().required('City is required'),
     }),
-  gender: Yup.string().required('Gender is required'),
-  address: Yup.object().shape({
-    wereda: Yup.string().required('Wereda is required'),
-    kifle_ketema: Yup.string().required('Kifle Ketema is required'),
-    city: Yup.string().required('City is required'),
-  }),
-  blood_type: Yup.string().required('Blood type is required'),
-  height: Yup.number()
-    .typeError('Height must be a number')
-    .positive('Height must be positive')
-    .min(50, 'Min 50 cm')
-    .max(250, 'Max 250 cm')
-    .required('Height is required'),
-  weight: Yup.number()
-    .typeError('Weight must be a number')
-    .positive('Weight must be positive')
-    .min(20, 'Min 20 kg')
-    .max(300, 'Max 300 kg')
-    .required('Weight is required'),
-  national_id: Yup.string(),
-  passport_number: Yup.string(),
-}).test(
-  'one-id-required',
-  'Either National ID or Passport Number is required',
-  (values) => {
+    blood_type: Yup.string().required('Blood type is required'),
+    height: Yup.number()
+      .typeError('Height must be a number')
+      .positive('Height must be positive')
+      .min(50, 'Min 50 cm')
+      .max(250, 'Max 250 cm')
+      .required('Height is required'),
+    weight: Yup.number()
+      .typeError('Weight must be a number')
+      .positive('Weight must be positive')
+      .min(20, 'Min 20 kg')
+      .max(300, 'Max 300 kg')
+      .required('Weight is required'),
+    national_id: Yup.string(),
+    passport_number: Yup.string(),
+  })
+  .test('one-id-required', 'Either National ID or Passport Number is required', values => {
     return !!(values?.national_id?.trim() || values?.passport_number?.trim());
-  }
-);
+  });
 
 const EmergencyPatientForm: React.FC = () => {
   const navigate = useNavigate();
@@ -122,7 +114,6 @@ const EmergencyPatientForm: React.FC = () => {
               initialValues={initialValues}
               validationSchema={patientSchema}
               onSubmit={async (values, { resetForm }) => {
-
                 try {
                   const payload = {
                     ...values,
@@ -143,8 +134,7 @@ const EmergencyPatientForm: React.FC = () => {
                       <Typography component="span" variant="body2">
                         EMR Number: <strong>{patient.emr_number}</strong>
                       </Typography>
-                    </>,
-                   
+                    </>
                   );
 
                   setCreatedPatient(patient);
@@ -176,8 +166,10 @@ const EmergencyPatientForm: React.FC = () => {
                         error={touched.title && !!errors.title}
                         helperText={<ErrorMessage name="title" />}
                       >
-                        {titles.map((t) => (
-                          <MenuItem key={t} value={t}>{t}</MenuItem>
+                        {titles.map(t => (
+                          <MenuItem key={t} value={t}>
+                            {t}
+                          </MenuItem>
                         ))}
                       </Field>
                     </Grid>
@@ -221,15 +213,21 @@ const EmergencyPatientForm: React.FC = () => {
                         error={touched.gender && !!errors.gender}
                         helperText={<ErrorMessage name="gender" />}
                       >
-                        {genders.map((g) => (
-                          <MenuItem key={g} value={g}>{g}</MenuItem>
+                        {genders.map(g => (
+                          <MenuItem key={g} value={g}>
+                            {g}
+                          </MenuItem>
                         ))}
                       </Field>
                     </Grid>
                   </Grid>
 
                   {/* Contact Information */}
-                  <Typography variant="h6" gutterBottom sx={{ mt: 4, color: 'primary.main', mb: 2 }}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ mt: 4, color: 'primary.main', mb: 2 }}
+                  >
                     Contact Information
                   </Typography>
                   <Grid container spacing={3}>
@@ -252,7 +250,7 @@ const EmergencyPatientForm: React.FC = () => {
                         fullWidth
                         placeholder="2519xxxxxxxx"
                         error={touched.phone && !!errors.phone}
-                        helperText={<ErrorMessage name="phone" /> }
+                        helperText={<ErrorMessage name="phone" />}
                         InputProps={{
                           startAdornment: <InputAdornment position="start">+</InputAdornment>,
                         }}
@@ -261,7 +259,11 @@ const EmergencyPatientForm: React.FC = () => {
                   </Grid>
 
                   {/* Address */}
-                  <Typography variant="h6" gutterBottom sx={{ mt: 4, color: 'primary.main', mb: 2 }}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ mt: 4, color: 'primary.main', mb: 2 }}
+                  >
                     <Home sx={{ mr: 1, verticalAlign: 'middle' }} />
                     Address Information
                   </Typography>
@@ -299,7 +301,11 @@ const EmergencyPatientForm: React.FC = () => {
                   </Grid>
 
                   {/* Medical Information */}
-                  <Typography variant="h6" gutterBottom sx={{ mt: 4, color: 'primary.main', mb: 2 }}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ mt: 4, color: 'primary.main', mb: 2 }}
+                  >
                     <MedicalServices sx={{ mr: 1, verticalAlign: 'middle' }} />
                     Medical Information
                   </Typography>
@@ -314,8 +320,10 @@ const EmergencyPatientForm: React.FC = () => {
                         error={touched.blood_type && !!errors.blood_type}
                         helperText={<ErrorMessage name="blood_type" />}
                       >
-                        {bloodTypes.map((bt) => (
-                          <MenuItem key={bt} value={bt}>{bt}</MenuItem>
+                        {bloodTypes.map(bt => (
+                          <MenuItem key={bt} value={bt}>
+                            {bt}
+                          </MenuItem>
                         ))}
                       </Field>
                     </Grid>
@@ -369,7 +377,7 @@ const EmergencyPatientForm: React.FC = () => {
 
                   {/* Root-level error for ID */}
                   <ErrorMessage name="one-id-required">
-                    {(msg) => (
+                    {msg => (
                       <Typography color="error" sx={{ mt: 2, fontSize: '0.875rem' }}>
                         {msg}
                       </Typography>
@@ -419,7 +427,7 @@ const EmergencyPatientForm: React.FC = () => {
       </Dialog>
 
       {/* Toast Container (you can also move this to App.tsx) */}
-      <ToastContainer/>
+      <ToastContainer />
     </Box>
   );
 };

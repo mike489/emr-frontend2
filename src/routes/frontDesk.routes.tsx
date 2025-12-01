@@ -15,6 +15,8 @@ import RequestedPayments from '../pages/front_desk/bills/RequestedPayments';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
 import PatientDetails from '../pages/patients/PatientDetail';
+import ExaminationTab from '../features/examination/ExaminationTab';
+import FollowUpTab from '../features/follow_up/FollowUpTab';
 
 export const frontDeskRoutes: RouteCollection = {
   frontDesk: {
@@ -33,22 +35,15 @@ export const frontDeskRoutes: RouteCollection = {
       </PrivateRoute>
     ),
   },
-  patientDetails: {
-    path: '/front-desk/patient-details',
-    element: (
-      <PrivateRoute>
-        <PatientDetails />
-      </PrivateRoute>
-    ),
-  },
-  PatientExaminations: {
-    path: '/front-desk/examinations',
-    element: (
-      <PrivateRoute>
-        <PatientDetails />
-      </PrivateRoute>
-    ),
-  },
+  // patientDetails: {
+  //   path: '/front-desk/patient-details',
+  //   element: (
+  //     <PrivateRoute>
+  //       <PatientDetails />
+  //     </PrivateRoute>
+  //   ),
+  // },
+
   checkout: {
     path: '/front-desk/checkout',
     element: (
@@ -145,4 +140,21 @@ export const frontDeskRoutes: RouteCollection = {
       </PrivateRoute>
     ),
   },
+
+  // examinationTab: {
+  //   path: '/front-desk/examinations',
+  //   element: (
+  //     <PrivateRoute>
+  //       <ExaminationTab />
+  //     </PrivateRoute>
+  //   ),
+  // },
+  // followUpTab: {
+  //   path: '/front-desk/follow-up',
+  //   element: (
+  //     <PrivateRoute>
+  //       <FollowUpTab />
+  //     </PrivateRoute>
+  //   ),
+  // },
 };
