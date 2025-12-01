@@ -14,9 +14,6 @@ import PendingPayments from '../pages/front_desk/bills/PendingPayments';
 import RequestedPayments from '../pages/front_desk/bills/RequestedPayments';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
-import PatientDetails from '../pages/patients/PatientDetail';
-import ExaminationTab from '../features/examination/ExaminationTab';
-import FollowUpTab from '../features/follow_up/FollowUpTab';
 
 export const frontDeskRoutes: RouteCollection = {
   frontDesk: {

@@ -1,5 +1,5 @@
 // PatientDetailsWrapper.tsx
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { Patient } from '../shared/api/types/patient.types';
 
