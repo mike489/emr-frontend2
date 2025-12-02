@@ -340,6 +340,14 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.followUpTab.path,
           element: ROUTES.protected.followUpTab.element,
         },
+        {
+          path: ROUTES.protected.orderTab.path,
+          element: ROUTES.protected.orderTab.element,
+        },
+        {
+          path: ROUTES.protected.operationTab.path,
+          element: ROUTES.protected.operationTab.element,
+        },
       ],
     },
 

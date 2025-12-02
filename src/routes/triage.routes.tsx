@@ -16,6 +16,8 @@ import EmergencyTriage2 from '../pages/triage/emergency/EmergencyTriage2';
 import ExaminationTab from '../features/examination/ExaminationTab';
 import FollowUpTab from '../features/follow_up/FollowUpTab';
 import PatientDetails from '../pages/patients/PatientDetail';
+import LabTab from '../features/case/LabTab';
+import OperationTab from '../features/case/operationTab';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
@@ -231,6 +233,22 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <FollowUpTab />
+      </PrivateRoute>
+    ),
+  },
+  orderTab: {
+    path: '/triage/orders',
+    element: (
+      <PrivateRoute>
+        <LabTab />
+      </PrivateRoute>
+    ),
+  },
+  operationTab: {
+    path: 'triage/operations',
+    element: (
+      <PrivateRoute>
+        <OperationTab />
       </PrivateRoute>
     ),
   },

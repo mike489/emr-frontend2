@@ -23,16 +23,7 @@ import ExaminationModal from '../../features/examination/ExaminationModal';
 import type { ExaminationData } from '../../shared/api/types/examination.types';
 import ExaminationDataModal from '../../features/examination/ExaminationDataModal';
 import CreateFollowUpModal from '../../features/follow_up/FollowUpFormModal';
-import type { Patient } from '../../shared/api/types/patient.types'; // Import Patient type
-
-interface VisitFlags {
-  is_locked: boolean;
-  is_today: boolean;
-  is_this_week: boolean;
-  age_in_days: number;
-  is_expired: boolean;
-  locked_since?: string | null;
-}
+import type { Patient } from '../../shared/api/types/patient.types';
 
 interface Visit {
   id: string;
@@ -46,12 +37,34 @@ interface Visit {
   visit_date: string;
   visit_status: string;
   flags: VisitFlags;
+  address?: {
+    kifle_ketema?: string;
+    wereda?: string;
+    city?: string;
+  };
   patient?: {
     name: string;
     email: string;
     phone: string;
+    allergies: string | string[] | null;
+    // flags?: {
+    //   is_locked: boolean;
+    //   is_today: boolean;
+    //   is_this_week: boolean;
+    //   is_expired: boolean;
+    //   locked_since: string | null;
+    // };
   };
   created_at_formatted?: string;
+}
+
+interface VisitFlags {
+  is_locked: boolean;
+  is_today: boolean;
+  is_this_week: boolean;
+  age_in_days: number;
+  is_expired: boolean;
+  locked_since?: string | null;
 }
 
 const PatientDetails = () => {
@@ -162,6 +175,16 @@ const PatientDetails = () => {
             navigate={navigate}
             consultationId={consultation_id ?? ''}
             patient={patient}
+            flags={
+              visits[0]?.flags ?? {
+                is_locked: false,
+                is_today: false,
+                is_this_week: false,
+                age_in_days: 0,
+                is_expired: false,
+                locked_since: null,
+              }
+            }
           />
         )}
       </Box>
@@ -219,7 +242,8 @@ interface VisitsTableProps {
   onOpenFollowUp: (visit: Visit) => void;
   navigate: (path: string, state?: any) => void;
   consultationId: string;
-  patient: Patient; // Add patient prop
+  patient: Patient;
+  flags: VisitFlags;
 }
 
 const VisitsTable: React.FC<VisitsTableProps> = ({
@@ -229,7 +253,8 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
   onOpenFollowUp,
   navigate,
   consultationId,
-  patient, // Destructure patient prop
+  patient,
+  flags,
 }) => {
   const handleNavigateWithState = (path: string) => {
     navigate(path, {
@@ -241,16 +266,18 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
   };
 
   const handleRowClick = (visit: Visit) => {
-    // Logic for row click based on requirements
-    if (visit.visit_type === 'New' && visit.flags?.is_locked) {
-      // New and locked: open front-desk/examinations
-      handleNavigateWithState('/front-desk/examinations');
-    } else if (visit.visit_type === 'Follow-up' && !visit.flags?.is_locked) {
-      // Follow-up and not locked: open front-desk/follow-up
-      handleNavigateWithState('/front-desk/follow-up');
+    // Check if visit_type is "New" AND can_be_send_to_triage is true
+    if (visit.visit_type === 'New' && flags?.is_locked === false) {
+      handleNavigateWithState('/triage/examinations');
     }
-    // For other cases, do nothing or add additional logic as needed
+    // if (visit.visit_type === 'New' && flags?.is_locked === true) {
+    //   handleNavigateWithState('/triage/examinations-data');
+    // }
+    if (visit.visit_type === 'Follow Up' && flags?.is_locked === false) {
+      handleNavigateWithState('/triage/follow-up');
+    }
   };
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }}>
@@ -279,14 +306,10 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
               onClick={() => handleRowClick(visit)}
               sx={{
                 cursor:
-                  (visit.visit_type === 'New' && visit.flags?.is_locked) ||
-                  (visit.visit_type === 'Follow-up' && !visit.flags?.is_locked)
-                    ? 'pointer'
-                    : 'default',
+                  visit.visit_type === 'New' && flags?.is_locked === false ? 'pointer' : 'default',
                 '&:hover': {
                   backgroundColor:
-                    (visit.visit_type === 'New' && visit.flags?.is_locked) ||
-                    (visit.visit_type === 'Follow-up' && !visit.flags?.is_locked)
+                    visit.visit_type === 'New' && flags?.is_locked === false
                       ? 'action.hover'
                       : 'inherit',
                 },
@@ -401,21 +424,21 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
                     </IconButton>
                   </Tooltip>
 
-                  {visit.flags?.is_locked && (
-                    <Tooltip title="View Examination">
-                      <IconButton
-                        size="small"
-                        onClick={() => onOpenExaminationData(visit)}
-                        sx={{
-                          bgcolor: 'secondary.main',
-                          color: '#fff',
-                          '&:hover': { backgroundColor: 'secondary.dark' },
-                        }}
-                      >
-                        <ClipboardList size={18} />
-                      </IconButton>
-                    </Tooltip>
-                  )}
+                  {/* {visit.flags?.is_locked && ( */}
+                  <Tooltip title="View Examination">
+                    <IconButton
+                      size="small"
+                      onClick={() => onOpenExaminationData(visit)}
+                      sx={{
+                        bgcolor: 'secondary.main',
+                        color: '#fff',
+                        '&:hover': { backgroundColor: 'secondary.dark' },
+                      }}
+                    >
+                      <ClipboardList size={18} />
+                    </IconButton>
+                  </Tooltip>
+                  {/* )} */}
                   <Tooltip title="Visit Details">
                     <IconButton
                       size="small"

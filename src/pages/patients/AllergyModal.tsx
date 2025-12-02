@@ -13,7 +13,7 @@ type AllergyModalProps = {
   open: boolean;
   onClose: () => void;
   onSubmit: (allergy: string) => void;
-  patientName: string;
+  patientName?: string;
 };
 
 const AllergyModal = ({ open, onClose, onSubmit, patientName }: AllergyModalProps) => {

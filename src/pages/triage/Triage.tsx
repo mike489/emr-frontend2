@@ -291,6 +291,16 @@ const Triage: React.FC = () => {
     }));
   };
 
+  const handleRowClick = (patient: Patient) => {
+    navigate('/triage/patient-details', {
+      state: {
+        consultation_id: patient.constultation_id,
+        index: 0,
+        patient: patient,
+      },
+    });
+  };
+
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
       {/* Search and Filter Section */}
@@ -766,7 +776,7 @@ const Triage: React.FC = () => {
                 </TableRow>
               ) : error ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="error">
                       Error loading patients. Please try again.
                     </Typography>
@@ -774,9 +784,17 @@ const Triage: React.FC = () => {
                 </TableRow>
               ) : patients.length > 0 ? (
                 patients.map((patient, index) => (
-                  <TableRow key={patient.id || index}>
+                  <TableRow
+                    key={patient.id || index}
+                    onClick={() => handleRowClick(patient)}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
+                  >
                     <TableCell>
-                      {' '}
                       <Box
                         sx={{
                           width: 16,
@@ -826,12 +844,16 @@ const Triage: React.FC = () => {
                     </TableCell>
 
                     <TableCell sx={{ gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        {/* -------------------- SEND TO -------------------- */}
+                      <Box
+                        sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}
+                        onClick={e => e.stopPropagation()} // Stop row click when clicking in action area
+                      >
+                        {/* Action buttons remain the same */}
                         <Tooltip title="Send to doctor or department" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => {
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
                               setCurrentPatientId(patient.id);
                               setSendModalOpen(true);
                             }}
@@ -845,60 +867,13 @@ const Triage: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- EXAMINATIONS  and FOLLOW-UP -------------------- */}
-
-                        {/* {patient.visit_type === 'Follow Up' ? (
-                          // Follow-Up patient → go to hidden Follow-Up page
-                          <Tooltip title="Open Follow-Up Form" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                navigate('/triage-one/follow-up', {
-                                  state: { patient: patient },
-                                })
-                              }
-                              sx={{
-                                backgroundColor: '#1b5e20', // dark green
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#2e7d32' },
-                              }}
-                            >
-                              <Eye size={18} />
-                            </IconButton>
-                          </Tooltip>
-                        ) : (
-                          // New patient → go to normal examinations
-                          <Tooltip title="Open Examination Form" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                navigate('/triage-one/examinations', {
-                                  state: { consultation_id: patient.constultation_id, index: 0 },
-                                })
-                              }
-                              sx={{
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                              }}
-                            >
-                              <Eye size={18} />
-                            </IconButton>
-                          </Tooltip>
-                        )} */}
-
-                        <Tooltip title="Open Patient  Detail" arrow>
+                        <Tooltip title="Open Patient Detail" arrow>
                           <IconButton
                             size="small"
-                            onClick={() =>
-                              navigate('/triage/patient-details', {
-                                state: {
-                                  consultation_id: patient.constultation_id,
-                                  index: 0,
-                                  patient: patient,
-                                },
-                              })
-                            }
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              handleRowClick(patient);
+                            }}
                             sx={{
                               backgroundColor: '#1976d2',
                               color: 'white',
@@ -908,13 +883,14 @@ const Triage: React.FC = () => {
                             <Eye size={18} />
                           </IconButton>
                         </Tooltip>
-                        {/* -------------------- ATTACH FILES -------------------- */}
+
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
                             <IconButton
                               size="small"
                               disabled={uploadingId === patient.id}
-                              onClick={() => {
+                              onClick={e => {
+                                e.stopPropagation(); // Prevent row click
                                 if (fileInputRef.current) {
                                   fileInputRef.current.onchange = (e: any) =>
                                     handleFileChange(e, patient.id);
@@ -936,11 +912,13 @@ const Triage: React.FC = () => {
                           </span>
                         </Tooltip>
 
-                        {/* -------------------- VIEW / DOWNLOAD -------------------- */}
                         <Tooltip title="View or download attachments" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => openAttachModal(patient.attachments)}
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              openAttachModal(patient.attachments);
+                            }}
                             sx={{
                               border: '1px solid #1976d2',
                               color: '#1976d2',
@@ -951,21 +929,13 @@ const Triage: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
-
-                        {/* Hidden File Input */}
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          style={{ display: 'none' }}
-                          accept="*/*"
-                        />
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       No patients found.
                     </Typography>

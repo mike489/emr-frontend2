@@ -578,9 +578,9 @@ const FrontDesk: React.FC = () => {
             sx={{ minWidth: 150 }}
           >
             <MenuItem value="">All Visit Types</MenuItem>
-            <MenuItem value="Follow Up">Follow Up</MenuItem>
-            {/* <MenuItem value="Emergency">Emergency</MenuItem> */}
             <MenuItem value="New">New</MenuItem>
+            <MenuItem value="Follow Up">Follow Up</MenuItem>
+            <MenuItem value="Follow up (after 15 days)">Follow up (after 15 days)</MenuItem>
           </TextField>
           {/* Department */}
           <TextField

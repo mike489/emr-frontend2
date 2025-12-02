@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import ExaminationForm from './ExaminationForm';
 import { usePatientDetailsState } from '../../contexts/PatientContext';
+import Patients from '../../pages/patients/Patients';
 
 const ExaminationTab = () => {
   const patientDetailsState = usePatientDetailsState();
@@ -19,9 +20,15 @@ const ExaminationTab = () => {
         height: '100vh',
         bgcolor: 'background.paper',
         p: 4,
-        mt: -10,
+        mt: -16,
       }}
     >
+      {' '}
+      <Box maxWidth="xl">
+        <Box sx={{ mb: 1 }}>
+          <Patients patient={patientDetailsState.patient} />
+        </Box>
+      </Box>
       <Box sx={{ flex: 1, p: 3, overflowY: 'auto' }}>
         {consultation_id && <ExaminationForm consultationId={consultation_id} />}
       </Box>

@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import AllergyModal from './AllergyModal';
 
 type PatientsProps = {
-  patient: Patient;
+  patient?: Patient;
   onSendClick?: () => void;
   onAllergyAdded?: (allergies: string[]) => void;
 };
@@ -17,14 +17,14 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
   const [sendModalOpen, setSendModalOpen] = useState(false);
   const [allergyModalOpen, setAllergyModalOpen] = useState(false);
   const [allergies, setAllergies] = useState<string[]>(
-    patient.allergies
+    patient?.allergies
       ? Array.isArray(patient.allergies)
         ? patient.allergies
         : patient.allergies.split(',').map(a => a.trim())
       : []
   );
 
-  const address = !patient.address
+  const address = !patient?.address
     ? '—'
     : [
         patient.address.kifle_ketema,
@@ -39,7 +39,7 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
   };
 
   const sendToDepartment = (department: string, doctor_id: string) => {
-    if (!patient.id) {
+    if (!patient?.id) {
       toast.error('Patient ID not found');
       return;
     }
@@ -80,9 +80,9 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
               <Grid size={{ xs: 12, md: 8 }}>
                 <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
                   <Typography variant="h6" fontWeight={600}>
-                    {patient.full_name}
+                    {patient?.full_name}
                   </Typography>
-                  {patient.visit_type && (
+                  {patient?.visit_type && (
                     <Chip
                       label={patient.visit_type}
                       size="small"
@@ -91,18 +91,18 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
                   )}
                 </Stack>
                 <Stack direction="row" spacing={2} mt={0.5} flexWrap="wrap">
-                  <Typography variant="body2">EMR: {patient.emr_number}</Typography>
-                  <Typography variant="body2">Age: {patient.age ?? '—'}</Typography>
-                  <Typography variant="body2">Gender: {patient.gender}</Typography>
+                  <Typography variant="body2">EMR: {patient?.emr_number}</Typography>
+                  <Typography variant="body2">Age: {patient?.age ?? '—'}</Typography>
+                  <Typography variant="body2">Gender: {patient?.gender}</Typography>
                 </Stack>
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <Stack direction="row" spacing={1} justifyContent="flex-end">
                   <Chip
-                    label={patient.flags?.is_checked_in ? 'Checked In' : 'Checked Out'}
+                    label={patient?.flags?.is_checked_in ? 'Checked In' : 'Checked Out'}
                     size="small"
                     sx={{
-                      bgcolor: patient.flags?.is_checked_in ? '#4caf50' : '#757575',
+                      bgcolor: patient?.flags?.is_checked_in ? '#4caf50' : '#757575',
                       color: 'white',
                     }}
                   />
@@ -112,6 +112,7 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
                     onClick={handleSend}
                     sx={{ bgcolor: 'white', color: '#1976d2', minWidth: 'auto', p: 0.5 }}
                   >
+                    <Typography sx={{ mr: 1 }}>Send</Typography>
                     <Send fontSize="small" />
                   </Button>
                 </Stack>
@@ -126,11 +127,11 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
                   Contact
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {patient.phone || '—'}
+                  {patient?.phone || '—'}
                 </Typography>
-                {patient.email && (
+                {patient?.email && (
                   <Typography variant="body2" color="text.secondary">
-                    {patient.email}
+                    {patient?.email}
                   </Typography>
                 )}
               </Grid>
@@ -215,15 +216,15 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
                 <Typography variant="subtitle2" fontWeight={600} color="#1976d2" gutterBottom>
                   Doctor
                 </Typography>
-                {patient.current_doctor ? (
+                {patient?.current_doctor ? (
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <Avatar
-                      src={patient.current_doctor.user?.profile_photo_url}
+                      src={patient?.current_doctor.user?.profile_photo_url}
                       sx={{ width: 32, height: 32 }}
                     />
                     <Box>
                       <Typography variant="body2" fontWeight={600}>
-                        {patient.current_doctor.name}
+                        {patient?.current_doctor.name}
                       </Typography>
                     </Box>
                   </Stack>
@@ -247,7 +248,7 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
         open={allergyModalOpen}
         onClose={() => setAllergyModalOpen(false)}
         onSubmit={addAllergy}
-        patientName={patient.full_name}
+        patientName={patient?.full_name}
       />
 
       <style>

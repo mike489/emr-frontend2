@@ -14,8 +14,6 @@ import {
   Button,
   CircularProgress,
   Paper,
-  MenuItem,
-  Select,
 } from '@mui/material';
 import { Eye, FileUp, Send } from 'lucide-react';
 import type { Patient } from '../../shared/api/types/patient.types';
@@ -187,7 +185,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
             >
               Visit Type
             </TableCell>
-            <TableCell
+            {/* <TableCell
               sx={{
                 fontWeight: 'bold',
                 color: 'white',
@@ -198,7 +196,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
               }}
             >
               Payment
-            </TableCell>
+            </TableCell> */}
             <TableCell
               sx={{
                 fontWeight: 'bold',
@@ -310,7 +308,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
               </TableCell>
               <TableCell>{patient.visit_type || 'N/A'}</TableCell>
 
-              <TableCell>
+              {/* <TableCell>
                 <Select
                   value={patient.flags?.bill_paid ? 'Paid' : 'Unpaid'}
                   size="small"
@@ -345,7 +343,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
                     />
                   </MenuItem>
                 </Select>
-              </TableCell>
+              </TableCell> */}
 
               {/* Checkout Button */}
               <TableCell>
@@ -382,7 +380,6 @@ const PatientTable: React.FC<PatientTableProps> = ({
                 />
               </TableCell>
 
-              {/* Actions */}
               {/* Actions */}
               <TableCell>
                 <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
