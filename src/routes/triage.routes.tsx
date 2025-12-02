@@ -17,7 +17,7 @@ import ExaminationTab from '../features/examination/ExaminationTab';
 import FollowUpTab from '../features/follow_up/FollowUpTab';
 import PatientDetails from '../pages/patients/PatientDetail';
 import LabTab from '../features/case/LabTab';
-import OperationTab from '../features/case/operationTab';
+import OperationTab from '../features/case/OperationTab';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
