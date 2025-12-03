@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -6,7 +6,6 @@ import {
   Grid,
   Chip,
   Divider,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -14,8 +13,7 @@ import {
   TableRow,
   Button,
   Container,
-  Breadcrumbs,
-  Link,
+  CircularProgress,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -24,6 +22,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { ExaminationData } from '../../shared/api/types/examination.types';
+import { PatientService } from '../../shared/api/services/patient.service';
 
 interface LocationState {
   examinationData?: ExaminationData;
@@ -33,28 +32,76 @@ interface LocationState {
     patientName: string;
   };
 }
+interface ExaminationDataPrintProps {
+  consultationId: string;
+}
 
-const ExaminationDataPrint: React.FC = () => {
+const ExaminationDataPrint: React.FC<ExaminationDataPrintProps> = ({ consultationId }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as LocationState;
+  const [examinationData, setExaminationData] = React.useState<ExaminationData | null>(null);
+  const [visitData, _setVisitData] = React.useState(state?.visitData);
+  const [loading, setLoading] = React.useState(true);
 
-  const examinationData = state?.examinationData;
-  const visitData = state?.visitData;
+  // Use both state and API data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (state?.examinationData) {
+        setExaminationData(state.examinationData);
+        setLoading(false);
+        return;
+      }
 
-  // Redirect if no data is passed
-  React.useEffect(() => {
-    if (!examinationData) {
-      navigate(-1); // Go back to previous page
-    }
-  }, [examinationData, navigate]);
+      if (!consultationId) {
+        setLoading(false);
+        return;
+      }
 
+      try {
+        const res = await PatientService.getExaminationData(consultationId);
+        const data = res.data.data.examination_data;
+
+        const normalized = Object.fromEntries(
+          Object.entries(data).map(([key, value]) => [key, value === '' ? null : value])
+        ) as unknown as ExaminationData;
+
+        setExaminationData({ ...normalized });
+
+        if (!visitData) {
+        }
+      } catch (err) {
+        console.log('No existing data or error:', err);
+        setExaminationData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [consultationId, state?.examinationData, state?.visitData]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Container sx={{ py: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  // Show error only after loading is complete and no data exists
   if (!examinationData) {
     return (
       <Container sx={{ py: 4 }}>
         <Typography variant="h6" color="error" align="center">
           No examination data found. Please go back and select a patient.
         </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button variant="contained" onClick={() => navigate(-1)} startIcon={<ArrowBackIcon />}>
+            Go Back
+          </Button>
+        </Box>
       </Container>
     );
   }
@@ -350,9 +397,9 @@ const ExaminationDataPrint: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton onClick={handleBack} sx={{ mr: 1 }}>
+            {/* <IconButton onClick={handleBack} sx={{ mr: 1 }}>
               <ArrowBackIcon />
-            </IconButton>
+            </IconButton> */}
             <Typography variant="h4" fontWeight="bold">
               Examination Report
             </Typography>
@@ -376,17 +423,6 @@ const ExaminationDataPrint: React.FC = () => {
             </Button>
           </Box>
         </Box>
-
-        <Breadcrumbs sx={{ mb: 2 }}>
-          <Link
-            color="inherit"
-            onClick={() => navigate('/triage')}
-            sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-          >
-            Triage
-          </Link>
-          <Typography color="text.primary">Examination Report</Typography>
-        </Breadcrumbs>
 
         {visitData && (
           <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>

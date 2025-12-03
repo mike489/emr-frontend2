@@ -86,7 +86,11 @@ const PatientDetails = () => {
       if (patient?.id) {
         try {
           setLoading(true);
-          const response = await PatientService.getPatientVisits(patient.id);
+
+          const departmentName = 'Triage 1';
+          const response = await PatientService.getPatientVisits(patient.id, {
+            department: departmentName,
+          });
           if (response.data.success) {
             setVisits(response.data.data.data);
           }
@@ -99,7 +103,7 @@ const PatientDetails = () => {
     };
 
     fetchPatientVisits();
-  }, [patient?.id]);
+  }, [patient?.id, location.state?.departmentName]);
 
   const handleOpenFollowUp = (visit: Visit) => {
     setSelectedVisit(visit);
@@ -268,13 +272,26 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
   const handleRowClick = (visit: Visit) => {
     // Check if visit_type is "New" AND can_be_send_to_triage is true
     if (visit.visit_type === 'New' && flags?.is_locked === false) {
-      handleNavigateWithState('/triage/examinations');
+      // Pass visit data in navigation state
+      navigate('/triage/examinations', {
+        state: {
+          patient: patient,
+          consultation_id: consultationId,
+          visit_type: visit.visit_type,
+          flags: visit.flags,
+        },
+      });
     }
-    // if (visit.visit_type === 'New' && flags?.is_locked === true) {
-    //   handleNavigateWithState('/triage/examinations-data');
-    // }
+
     if (visit.visit_type === 'Follow Up' && flags?.is_locked === false) {
-      handleNavigateWithState('/triage/follow-up');
+      navigate('/triage/follow-up', {
+        state: {
+          patient: patient,
+          consultation_id: consultationId,
+          visit_type: visit.visit_type,
+          flags: visit.flags,
+        },
+      });
     }
   };
 

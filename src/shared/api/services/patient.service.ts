@@ -33,6 +33,11 @@ export const PatientService = {
     patientApi.get(`/patients/examination-data`, {
       params: { consultation_id },
     }),
+  getFollowUpNotesData: (consultation_id: string) =>
+    patientApi.get(`/follow-up-notes`, {
+      params: { consultation_id },
+    }),
 
-  getPatientVisits: (patientId: string) => patientApi.get(`/patient-visits/${patientId}`),
+  getPatientVisits: (patientId: string, params?: Record<string, any>) =>
+    patientApi.get(`/patient-visits/${patientId}`, { params }),
 };

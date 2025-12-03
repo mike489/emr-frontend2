@@ -151,6 +151,7 @@ export const TRIAGE_TABS: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+
 export const TRIAGE_TABS_TWO: TabItem[] = [
   {
     label: 'Patients',
@@ -183,6 +184,7 @@ export const TRIAGE_TABS_TWO: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+
 export const TRIAGE_TABS_ONE: TabItem[] = [
   {
     label: 'Patients',
@@ -382,6 +384,7 @@ export const RETINA_TABS: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+
 export const GLAUCOMA_TABS: TabItem[] = [
   {
     label: 'Patients',
