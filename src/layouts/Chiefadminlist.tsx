@@ -1,0 +1,84 @@
+import { Container, Box, Grid, Typography, CircularProgress } from '@mui/material';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import PageHeader from '../features/shared/components/PageHeader';
+
+import { useAuthStore } from '../store/useAuthStore';
+import { ModuleCard } from '../features/shared/components/ModuleCard';
+import { CHIEFADMIN_MODULES } from '../config/chiefadminModule';
+
+const ChiefadminLists = () => {
+ const navigate = useNavigate();
+   const location = useLocation();
+  const { hasPermission, user, isLoading } = useAuthStore();
+
+  const { token, isTokenValid } = useAuthStore();
+
+  const handleClick = (route: string) => {
+    if (token && isTokenValid()) {
+      navigate(route);
+    } else {
+      navigate('/login', { state: { from: route } });
+    }
+  };
+
+  console.log('User:', user);
+
+  // ✅ Loading spinner
+  if (isLoading || !user) {
+    return (
+      <Container maxWidth="xl" sx={{ mt: 10, textAlign: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  // ✅ Filter accessible modules
+  const accessibleModules = CHIEFADMIN_MODULES.filter(mod => hasPermission(mod.permission));
+
+  if (accessibleModules.length === 0) {
+    return (
+      <Container maxWidth="xl" sx={{ mt: 6 }}>
+        <PageHeader title="Access Denied" onBack={() => navigate('/administration')} />
+        <Box mt={4} textAlign="center">
+          <Typography variant="h6" color="text.secondary">
+            You don't have access to any System Admin modules.
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
+  // ✅ Detect subroutes (like /examinations)
+  const isSubRoute = location.pathname.includes('/examinations');
+
+  return (
+    <Container>
+      <PageHeader title="System Administration" onBack={() => navigate('/administration')} />
+      {isSubRoute ? (
+        // 🔸 Show nested content (e.g., PatientTabsLayout)
+        <Outlet />
+      ) : (
+       <Container
+          sx={{ mt: 4, mb: 20, display: 'center', justifyContent: 'center', alignItems: 'center' }}
+        >
+          <Grid container spacing={2} justifyContent={{ md: 'flex-center', xs: 'center' }} pt={4}>
+            {accessibleModules.map(mod => {
+               const Icon = mod.icon;
+            return (
+              <Grid key={mod.title}>
+                <ModuleCard
+                  title={mod?.title}
+                  image={Icon}
+                  onClick={() => handleClick(mod.route)}
+                />
+              </Grid>
+            );
+            })}
+          </Grid>
+        </Container>
+      )}
+    </Container>
+  );
+};
+
+export default ChiefadminLists;

@@ -21,7 +21,6 @@ export const FRONT_DESK_TABS: TabItem[] = [
       { label: 'Add New Emergency Patients', path: '/front-desk/add-new-emergency-patients' },
       // { label: 'Patient Details', path: '/front-desk/patient-details' },
 
-    
       { label: 'Checkout Patients', path: '/front-desk/checkout' },
       { label: 'Archived patients', path: '/front-desk/archived-patients' },
     ],
@@ -61,10 +60,10 @@ export const FRONT_DESK_TABS: TabItem[] = [
   //   label: 'Settings',
   //   path: '/settings',
   //   // children: [
-    //   { label: 'User Profile', path: '/front-desk/profile' },
-    //   { label: 'Change Password', path: '/front-desk/change-password' },
-    //   { label: 'Logout ', path: '/' },
-    // ],
+  //   { label: 'User Profile', path: '/front-desk/profile' },
+  //   { label: 'Change Password', path: '/front-desk/change-password' },
+  //   { label: 'Logout ', path: '/' },
+  // ],
   // },
 ];
 
@@ -146,7 +145,6 @@ export const TRIAGE_TABS_ONE: TabItem[] = [
       { label: 'Checkout patients ', path: '/triage-one/checkout-patients' },
       { label: 'Follow up', path: '/triage-one/follow-up' },
       { label: 'Emergency Patients', path: '/triage-one/emergency-patients' },
-      
     ],
   },
   {
@@ -205,7 +203,12 @@ export const TRIAGE_TABS_THREE: TabItem[] = [
 // ───────────────────────────────────────────
 // REFRACTION
 // ───────────────────────────────────────────
-
+export const MANAGMENT: TabItem[] = [
+  {
+    label: 'Management',
+    path: '/management/management',
+  },
+];
 export const REFRACTION_TABS: TabItem[] = [
   {
     label: 'Patients',
@@ -494,8 +497,54 @@ export const DIAGNOSIS_TABS: TabItem[] = [
   // { label: "Logout", path: "/logout" },
 ];
 
+export const MANAGMENT_TABS: TabItem[] = [
+  {
+    label: 'User Management',
+    path: '/managment',
+    children: [
+      { label: 'All Users', path: '/managment' },
+      { label: 'Create User', path: '/managment/Createusers' },
+    ],
+  },
+  {
+    label: 'Reports',
+    path: '/managment',
+    children: [
+      { label: 'Financial Report', path: '/managment/Financialreport' },
+      { label: 'User Report', path: '/managment/userreport' },
+    ],
+  },
+  {
+    label: 'Discussion',
+    path: '/managment/Disscussion',
+  },
+];
+
+//chiefadmin tabs
+export const CHIEFADMIN_TABS: TabItem[] = [
+  {
+    label: 'User Management',
+    path: '/managment',
+    children: [
+      { label: 'All Users', path: '/managment' },
+      { label: 'Create User', path: '/managment/Createusers' },
+    ],
+  },
+  {
+    label: 'Reports',
+    path: '/managment',
+    children: [
+      { label: 'Financial Report', path: '/managment/Financialreport' },
+      { label: 'User Report', path: '/managment/userreport' },
+    ],
+  },
+  {
+    label: 'Discussion',
+    path: '/managment/Discussion',
+  },
+];
 // Results
-// 
+//
 export const PHARMACY_TABS: TabItem[] = [
   {
     label: 'Cases',
@@ -506,7 +555,7 @@ export const PHARMACY_TABS: TabItem[] = [
     label: 'Results',
     path: '/pharmacy/results',
   },
-  
+
   // { label: "Logout", path: "/logout" },
 ];
 
@@ -532,7 +581,7 @@ export const IN_PATIENT_TABS: TabItem[] = [
     label: 'Ward Management',
     path: '/in-patient/ward-management',
   },
-   {
+  {
     label: 'Patient Beds',
     path: '/in-patient/patient-beds',
   },
@@ -553,7 +602,7 @@ export const COUNSELOR_TABS: TabItem[] = [
     path: '/counselor/patients',
     // children: [{ label: 'Today’s Case', path: '/counselor/today-cases' }],
   },
- 
+
   // {
   //   label: 'Notifications',
   //   path: '/counselor/notifications',

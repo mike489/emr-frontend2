@@ -19,6 +19,8 @@ import { serviceRoutes } from './service.routes';
 import { sharedRoutes } from './shared.routes';
 
 import type { RoutesStructure } from './types';
+import { managementRoutes } from './managment.routes';
+import { chiefadminRoutes } from './chiefadmin.routes';
 
 export const ROUTES: RoutesStructure = {
   public: {
@@ -54,7 +56,7 @@ export const ROUTES: RoutesStructure = {
         </PrivateRoute>
       ),
     },
-    
+
     // Spread all route groups
     ...triageRoutes,
     ...doctorRoutes,
@@ -62,6 +64,8 @@ export const ROUTES: RoutesStructure = {
     ...ophthalmologyRoutes,
     ...frontDeskRoutes,
     ...diagnosticRoutes,
+    ...managementRoutes,
+    ...chiefadminRoutes,
     ...serviceRoutes,
     ...sharedRoutes,
   },
@@ -76,8 +80,10 @@ export {
   ophthalmologyRoutes,
   frontDeskRoutes,
   diagnosticRoutes,
+  managementRoutes,
+  chiefadminRoutes,
   serviceRoutes,
-  sharedRoutes
+  sharedRoutes,
 };
 
 export type { RoutesStructure } from './types';

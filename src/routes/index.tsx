@@ -3,9 +3,23 @@ import { ROUTES } from './routes';
 import { Suspense } from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import AppLayout from '../layouts/AppLayout';
-import { FRONT_DESK_TABS, DOCTOR_TABS, REFRACTION_TABS, DIAGNOSIS_TABS, PHARMACY_TABS, OPTICAL_TABS, IN_PATIENT_TABS, TRIAGE_TABS_TWO, TRIAGE_TABS_THREE, TRIAGE_TABS_ONE } from '../data/data';
+import {
+  FRONT_DESK_TABS,
+  DOCTOR_TABS,
+  REFRACTION_TABS,
+  DIAGNOSIS_TABS,
+  PHARMACY_TABS,
+  OPTICAL_TABS,
+  IN_PATIENT_TABS,
+  TRIAGE_TABS_TWO,
+  TRIAGE_TABS_THREE,
+  TRIAGE_TABS_ONE,
+  MANAGMENT_TABS,
+  CHIEFADMIN_TABS,
+} from '../data/data';
 import { PublicLayout } from '../layouts/PublicLayout';
 import PrivateTopBar from '../layouts/PrivateTopBar';
+// import Doctor from './../pages/management/Doctor';
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
@@ -34,7 +48,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         },
         {
           path: '/administration',
-          element: <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>,
+          element: (
+            <Suspense fallback={<Loading />}>{ROUTES.public.administration.element}</Suspense>
+          ),
         },
       ],
     },
@@ -46,12 +62,8 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Front Desk Routes Group
     {
       element: (
-  <AppLayout 
-    darkMode={darkMode} 
-    onToggleTheme={onToggleTheme} 
-    tabsData={FRONT_DESK_TABS} 
-  />
-),
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS} />
+      ),
 
       children: [
         {
@@ -114,7 +126,91 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.patientDetails.path,
           element: ROUTES.protected.patientDetails.element,
         },
+
+        // Child routes that won't show in topbar
+        // {
+        //   path: '/front-desk/medical-certificates',
+        //   element: ROUTES.protected.medicalCertificates?.element || <div>Medical Certificates</div>,
+        // },
+      ],
+    },
+    // 🔹 managment Routes Group
+    {
+      element: (
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={MANAGMENT_TABS} />
+      ),
+      children: [
+        {
+          path: ROUTES.protected.Managment.path,
+          element: ROUTES.protected.Managment.element,
+        },
         
+        {
+           path: ROUTES.protected.Createuser.path,
+          element: ROUTES.protected.Createuser.element,
+        },
+        
+        {
+          path: ROUTES.protected.Financialreport.path,
+          element: ROUTES.protected.Financialreport.element,
+        },
+        {
+          path: ROUTES.protected.Userreport.path,
+          element: ROUTES.protected.Userreport.element,
+        },
+        {
+          path: ROUTES.protected.Disscussion.path,
+          element: ROUTES.protected.Disscussion.element,
+        },
+        // {
+        //   path: ROUTES.protected.rescheduleAppointment.path,
+        //   element: ROUTES.protected.rescheduleAppointment.element,
+        // },
+        // {
+        //   path: ROUTES.protected.appointmentsLists.path,
+        //   element: ROUTES.protected.appointmentsLists.element,
+        // },
+        // {
+        //   path: ROUTES.protected.createAppointment.path,
+        //   element: ROUTES.protected.createAppointment.element,
+        // },
+        // {
+        //   path: ROUTES.protected.doctorAvailability.path,
+        //   element: ROUTES.protected.doctorAvailability.element,
+        // },
+        // {
+        //   path: ROUTES.protected.patientPayments.path,
+        //   element: ROUTES.protected.patientPayments.element,
+        // },
+        // {
+        //   path: ROUTES.protected.requestedPayments.path,
+        //   element: ROUTES.protected.requestedPayments.element,
+        // },
+        // {
+        //   path: ROUTES.protected.pendingPayments.path,
+        //   element: ROUTES.protected.pendingPayments.element,
+        // },
+        // {
+        //   path: ROUTES.protected.appointmentsCalendars.path,
+        //   element: ROUTES.protected.appointmentsCalendars.element,
+        // },
+        // {
+        //   path: ROUTES.protected.emergencyPatients.path,
+        //   element: ROUTES.protected.emergencyPatients.element,
+        // },
+        // {
+        //   path: ROUTES.protected.createEmergencyPatients.path,
+        //   element: ROUTES.protected.createEmergencyPatients.element,
+        // },
+        // {
+        //   path: ROUTES.protected.newPatient.path,
+        //   element: ROUTES.protected.newPatient.element,
+        // },
+        // {
+        //   path: ROUTES.protected.patientDetails.path,
+        //   element: ROUTES.protected.patientDetails.element,
+        // },
+
         // Child routes that won't show in topbar
         // {
         //   path: '/front-desk/medical-certificates',
@@ -123,15 +219,29 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
       ],
     },
 
+     // 🔹 chiefadmin Routes Group
+    {
+      element: (
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={CHIEFADMIN_TABS} />
+      ),
+      children: [
+        {
+          path: ROUTES.protected.Generalmanager.path,
+          element: ROUTES.protected.Generalmanager.element,
+        },
+        
+        {
+           path: ROUTES.protected.Clinicaldirector.path,
+          element: ROUTES.protected.Clinicaldirector.element,
+        },
+      ],
+    },
+
     // 🔹 Doctor Routes Group
     {
-     element: (
-  <AppLayout 
-    darkMode={darkMode} 
-    onToggleTheme={onToggleTheme} 
-    tabsData={DOCTOR_TABS} 
-  />
-),
+      element: (
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS} />
+      ),
 
       children: [
         {
@@ -196,12 +306,8 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Triage Routes Group
     {
       element: (
-  <AppLayout 
-    darkMode={darkMode} 
-    onToggleTheme={onToggleTheme} 
-    tabsData={TRIAGE_TABS_ONE} 
-  />
-),
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_ONE} />
+      ),
 
       children: [
         {
@@ -242,12 +348,8 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Refraction Routes Group
     {
       element: (
-  <AppLayout 
-    darkMode={darkMode} 
-    onToggleTheme={onToggleTheme} 
-    tabsData={REFRACTION_TABS} 
-  />
-),
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={REFRACTION_TABS} />
+      ),
 
       children: [
         {
@@ -283,14 +385,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
 
     // 🔹 Diagnosis Routes Group
     {
-     
       element: (
-  <AppLayout 
-    darkMode={darkMode} 
-    onToggleTheme={onToggleTheme} 
-    tabsData={DIAGNOSIS_TABS} 
-  />
-),
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DIAGNOSIS_TABS} />
+      ),
 
       children: [
         {
@@ -327,8 +424,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Pharmacy Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={PHARMACY_TABS}/>
-         
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={PHARMACY_TABS} />
       ),
       children: [
         {
@@ -358,7 +454,6 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     {
       element: (
         <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={OPTICAL_TABS} />
-        
       ),
       children: [
         {
@@ -387,8 +482,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 In-Patient Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={IN_PATIENT_TABS}/>
-      
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={IN_PATIENT_TABS} />
       ),
       children: [
         {
@@ -423,9 +517,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
       path: ROUTES.protected.eyeSmart.path,
       element: (
         <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
-          <Suspense fallback={<Loading />}>
-            {ROUTES.protected.eyeSmart.element}
-          </Suspense>
+          <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>
         </PrivateTopBar>
       ),
     },
@@ -433,99 +525,105 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
       path: ROUTES.protected.triageLists.path,
       element: (
         <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
-          <Suspense fallback={<Loading />}>
-            {ROUTES.protected.triageLists.element}
-          </Suspense>
+          <Suspense fallback={<Loading />}>{ROUTES.protected.triageLists.element}</Suspense>
         </PrivateTopBar>
       ),
     },
     {
-  element: (
-    <AppLayout 
-      darkMode={darkMode} 
-      onToggleTheme={onToggleTheme}
-      tabsData={TRIAGE_TABS_TWO}
-    />
-  ),
-  children: [
-    {
-      path: ROUTES.protected.triageOnePatientList.path,
-      element: ROUTES.protected.triageOnePatientList.element,
+      path: ROUTES.protected.systemadminLists.path,
+      element: (
+        <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
+          <Suspense fallback={<Loading />}>{ROUTES.protected.systemadminLists.element}</Suspense>
+        </PrivateTopBar>
+      ),
     },
     {
-      path: ROUTES.protected.referralsTwo.path,
-      element: ROUTES.protected.referralsTwo.element,
+      path: ROUTES.protected.chiefadminLists.path,
+      element: (
+        <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
+          <Suspense fallback={<Loading />}>{ROUTES.protected.chiefadminLists.element}</Suspense>
+        </PrivateTopBar>
+      ),
     },
     {
-      path: ROUTES.protected.followUpTwo.path,
-      element: ROUTES.protected.followUpTwo.element,
+      element: (
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_TWO} />
+      ),
+      children: [
+        {
+          path: ROUTES.protected.triageOnePatientList.path,
+          element: ROUTES.protected.triageOnePatientList.element,
+        },
+        {
+          path: ROUTES.protected.referralsTwo.path,
+          element: ROUTES.protected.referralsTwo.element,
+        },
+        {
+          path: ROUTES.protected.followUpTwo.path,
+          element: ROUTES.protected.followUpTwo.element,
+        },
+        {
+          path: ROUTES.protected.triagePatientsTwo.path,
+          element: ROUTES.protected.triagePatientsTwo.element,
+        },
+        {
+          path: ROUTES.protected.emergencyPatientTriage2.path,
+          element: ROUTES.protected.emergencyPatientTriage2.element,
+        },
+        {
+          path: ROUTES.protected.checkoutPatientsTriage2.path,
+          element: ROUTES.protected.checkoutPatientsTriage2.element,
+        },
+        {
+          path: ROUTES.protected.discussionTriage2.path,
+          element: ROUTES.protected.discussionTriage2.element,
+        },
+        {
+          path: ROUTES.protected.emergencyPatientTriage3.path,
+          element: ROUTES.protected.emergencyPatientTriage3.element,
+        },
+        {
+          path: ROUTES.protected.examinationsTriage2.path,
+          element: ROUTES.protected.examinationsTriage2.element,
+        },
+      ],
     },
-    {
-      path: ROUTES.protected.triagePatientsTwo.path,
-      element: ROUTES.protected.triagePatientsTwo.element,
-    },
-    {
-      path: ROUTES.protected.emergencyPatientTriage2.path,
-      element: ROUTES.protected.emergencyPatientTriage2.element,
-    },
-    {
-      path: ROUTES.protected.checkoutPatientsTriage2.path,
-      element: ROUTES.protected.checkoutPatientsTriage2.element,
-    },
-    {
-      path: ROUTES.protected.discussionTriage2.path,
-      element: ROUTES.protected.discussionTriage2.element,
-    },
-    {
-      path: ROUTES.protected.emergencyPatientTriage3.path,
-      element: ROUTES.protected.emergencyPatientTriage3.element,
-    },
-    {
-      path: ROUTES.protected.examinationsTriage2.path,
-      element: ROUTES.protected.examinationsTriage2.element,
-    }
-  ]
-},
 
-{
-  element: (
-    <AppLayout 
-      darkMode={darkMode} 
-      onToggleTheme={onToggleTheme}
-      tabsData={TRIAGE_TABS_THREE}
-    />
-  ),
-  children: [
     {
-      path: ROUTES.protected.triageThree.path,
-      element: ROUTES.protected.triageThree.element,
+      element: (
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_THREE} />
+      ),
+      children: [
+        {
+          path: ROUTES.protected.triageThree.path,
+          element: ROUTES.protected.triageThree.element,
+        },
+        {
+          path: ROUTES.protected.emergencyPatientTriage3.path,
+          element: ROUTES.protected.emergencyPatientTriage3.element,
+        },
+        {
+          path: ROUTES.protected.checkoutPatientsTriage3.path,
+          element: ROUTES.protected.checkoutPatientsTriage3.element,
+        },
+        {
+          path: ROUTES.protected.discussionTriage3.path,
+          element: ROUTES.protected.discussionTriage3.element,
+        },
+        {
+          path: ROUTES.protected.referrals3.path,
+          element: ROUTES.protected.referrals3.element,
+        },
+        {
+          path: ROUTES.protected.followUp3.path,
+          element: ROUTES.protected.followUp3.element,
+        },
+        {
+          path: ROUTES.protected.examinationsTriage3.path,
+          element: ROUTES.protected.examinationsTriage3.element,
+        },
+      ],
     },
-    {
-      path: ROUTES.protected.emergencyPatientTriage3.path,
-      element: ROUTES.protected.emergencyPatientTriage3.element,
-    },
-    {
-      path: ROUTES.protected.checkoutPatientsTriage3.path,
-      element: ROUTES.protected.checkoutPatientsTriage3.element,
-    },
-    {
-      path: ROUTES.protected.discussionTriage3.path,
-      element: ROUTES.protected.discussionTriage3.element,
-    },
-    {
-      path: ROUTES.protected.referrals3.path,
-      element: ROUTES.protected.referrals3.element,
-    },
-    {
-      path: ROUTES.protected.followUp3.path,
-      element: ROUTES.protected.followUp3.element,
-    },
-    {
-      path: ROUTES.protected.examinationsTriage3.path,
-      element: ROUTES.protected.examinationsTriage3.element,
-    }
-  ]
-},
 
     {
       path: ROUTES.protected.dashboard.path,
