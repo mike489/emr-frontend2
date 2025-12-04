@@ -27,6 +27,7 @@ export const PatientService = {
   getVisits: () => patientApi.get('/get-visits'),
 
   checkout: (id: string, data: any) => patientApi.post(`/patients/${id}/checkout`, data),
+  checkIn: (id: string, data: any) => patientApi.post(`/patients/${id}/checkin`, data),
 
   createExamination: (payload: any) => patientApi.post('/patients/examination-data', payload),
   getExaminationData: (consultation_id: string) =>

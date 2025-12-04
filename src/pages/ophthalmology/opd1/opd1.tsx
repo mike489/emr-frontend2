@@ -15,15 +15,16 @@ import {
   Button,
   CircularProgress,
   TablePagination,
-  Chip,
   Tooltip,
   IconButton,
+  Chip,
 } from '@mui/material';
-
+import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
 import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../../shared/api/services/patient.service';
+// import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
+import { PatientService } from '../../../shared/api/services/patient.service';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
@@ -32,9 +33,15 @@ import {
   sendToDepartmentService,
   UploadService,
 } from '../../../shared/api/services/sendTo.service';
+import SendModal from '../../../features/triage/components/sendModal';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
-import SendCrossModal from '../../../features/triage/components/SendCrossModal';
-import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
+// import { DepartmentsService } from '../../shared/api/services/departments.service';
+// import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
+// import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
+// import { doctorsService } from '../../shared/api/services/Doctor.service';
+// import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
+// import SendModal from '../../features/triage/components/sendModal';
+// import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -51,6 +58,7 @@ interface Patient {
     kifle_ketema: string;
     wereda: string;
   };
+  visit_type: string;
   blood_type: string;
   height: string;
   weight: string;
@@ -112,8 +120,8 @@ const Opd1: React.FC = () => {
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
-    sort_by: 'full_name',
-    sort_order: 'asc',
+    sort_by: '',
+    sort_order: '',
     department: 'OPD1',
     search: '',
     gender: '',
@@ -125,7 +133,7 @@ const Opd1: React.FC = () => {
     age_max: '',
     created_from: '',
     created_to: '',
-    sort_dir: 'asc',
+    sort_dir: '',
   });
 
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -151,8 +159,8 @@ const Opd1: React.FC = () => {
     setFilters({
       page: 1,
       per_page: 25,
-      sort_by: 'full_name',
-      sort_order: 'asc',
+      sort_by: '',
+      sort_order: '',
       department: 'OPD1',
       search: '',
       gender: '',
@@ -164,7 +172,7 @@ const Opd1: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
-      sort_dir: 'asc',
+      sort_dir: '',
     });
     fetchPatients();
   };
@@ -187,7 +195,7 @@ const Opd1: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -203,7 +211,7 @@ const Opd1: React.FC = () => {
       setDepartments(departmentsData);
       setError(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch departments');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch departments');
       console.error('Error fetching departments:', err);
     }
   };
@@ -212,21 +220,19 @@ const Opd1: React.FC = () => {
     setLoading(true);
     try {
       const res = await PatientCategoryService.getAll();
-      // Based on your API response structure, the data is at res.data.data
       const categories = res.data?.data || [];
       setPatientCategories(categories);
       setTotal(categories.length || 0);
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patient categories');
       console.error('Error fetching patient categories:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Wrapper function with hardcoded department for this page
   const getFrontDeskSummary = () => PatientSummaryService.getAll('OPD1');
 
   // Then use it
@@ -237,12 +243,16 @@ const Opd1: React.FC = () => {
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     } finally {
       setSummaryLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -250,7 +260,7 @@ const Opd1: React.FC = () => {
       const doctorsData = res.data?.data || [];
       setDoctors(doctorsData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     }
   };
@@ -259,7 +269,7 @@ const Opd1: React.FC = () => {
     fetchPatients();
     fetchDepartments();
     fetchPatientCategories();
-    fetchSummary();
+
     fetchDoctors();
   }, [filters]);
 
@@ -291,8 +301,18 @@ const Opd1: React.FC = () => {
     }));
   };
 
+  const handleRowClick = (patient: Patient) => {
+    navigate('/opd-one/patients-detail', {
+      state: {
+        consultation_id: patient.constultation_id,
+        index: 0,
+        patient: patient,
+      },
+    });
+  };
+
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -10 }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
       {/* Search and Filter Section */}
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Header with Back Button and Summary Stats */}
@@ -304,6 +324,8 @@ const Opd1: React.FC = () => {
             mb: 3,
           }}
         >
+          {/* Back Button */}
+
           {/* Summary Stats */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -632,30 +654,13 @@ const Opd1: React.FC = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
-                    width: 120,
+                    width: 110,
                     fontSize: '0.8rem',
                     py: 1.5,
                     borderRight: '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
                   }}
                 >
                   Patient Name
-                  {filters.sort_by === 'full_name' &&
-                    (filters.sort_dir === 'asc' ? (
-                      <ArrowDropDown
-                        sx={{
-                          transform: 'rotate(180deg)',
-                          color: 'white',
-                          transition: '0.3s',
-                        }}
-                      />
-                    ) : (
-                      <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                    ))}
                 </TableCell>
 
                 <TableCell
@@ -789,9 +794,17 @@ const Opd1: React.FC = () => {
                 </TableRow>
               ) : patients.length > 0 ? (
                 patients.map((patient, index) => (
-                  <TableRow key={patient.id || index}>
+                  <TableRow
+                    key={patient.id || index}
+                    onClick={() => handleRowClick(patient)}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
+                  >
                     <TableCell>
-                      {' '}
                       <Box
                         sx={{
                           width: 16,
@@ -841,12 +854,16 @@ const Opd1: React.FC = () => {
                     </TableCell>
 
                     <TableCell sx={{ gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        {/* -------------------- SEND TO -------------------- */}
+                      <Box
+                        sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}
+                        onClick={e => e.stopPropagation()} // Stop row click when clicking in action area
+                      >
+                        {/* Action buttons remain the same */}
                         <Tooltip title="Send to doctor or department" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => {
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
                               setCurrentPatientId(patient.id);
                               setSendModalOpen(true);
                             }}
@@ -860,15 +877,13 @@ const Opd1: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- EXAMINATIONS -------------------- */}
-                        <Tooltip title="Open Examination Form" arrow>
+                        <Tooltip title="Open Patient Detail" arrow>
                           <IconButton
                             size="small"
-                            onClick={() =>
-                              navigate('/examinations', {
-                                state: { consultation_id: patient.constultation_id },
-                              })
-                            }
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              handleRowClick(patient);
+                            }}
                             sx={{
                               backgroundColor: '#1976d2',
                               color: 'white',
@@ -879,13 +894,13 @@ const Opd1: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
                             <IconButton
                               size="small"
                               disabled={uploadingId === patient.id}
-                              onClick={() => {
+                              onClick={e => {
+                                e.stopPropagation(); // Prevent row click
                                 if (fileInputRef.current) {
                                   fileInputRef.current.onchange = (e: any) =>
                                     handleFileChange(e, patient.id);
@@ -907,11 +922,13 @@ const Opd1: React.FC = () => {
                           </span>
                         </Tooltip>
 
-                        {/* -------------------- VIEW / DOWNLOAD -------------------- */}
                         <Tooltip title="View or download attachments" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => openAttachModal(patient.attachments)}
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              openAttachModal(patient.attachments);
+                            }}
                             sx={{
                               border: '1px solid #1976d2',
                               color: '#1976d2',
@@ -922,21 +939,13 @@ const Opd1: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
-
-                        {/* Hidden File Input */}
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          style={{ display: 'none' }}
-                          accept="*/*"
-                        />
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       No patients found.
                     </Typography>
@@ -946,8 +955,7 @@ const Opd1: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <SendCrossModal
+        <SendModal
           open={sendModalOpen}
           onClose={() => setSendModalOpen(false)}
           onSend={(department, doctor_id) => {

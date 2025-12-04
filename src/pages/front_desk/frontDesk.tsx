@@ -268,15 +268,20 @@ const FrontDesk: React.FC = () => {
   const handleCheckout = async (patient: Patient) => {
     try {
       setLoading(true);
-      // Example data payload for checkout, adjust as needed
-      const payload = { checkout_time: new Date().toISOString() };
-      await PatientService.checkout(patient.id, payload);
-      toast.success(`${patient.full_name} checked out successfully.`);
-      // Refresh patients list
+
+      const payload = { time: new Date().toISOString() };
+
+      if (patient.flags?.is_checked_out) {
+        await PatientService.checkIn(patient.id, payload);
+        toast.success(`${patient.full_name} checked in successfully.`);
+      } else {
+        await PatientService.checkout(patient.id, payload);
+        toast.success(`${patient.full_name} checked out successfully.`);
+      }
       fetchPatients();
     } catch (err: any) {
-      console.error('Checkout error:', err);
-      toast.error(err.response?.data?.data.message || 'Failed to checkout patient');
+      console.error('Checkout/Checkin error:', err);
+      toast.error(err.response?.data?.data?.message || 'Failed to update patient status');
     } finally {
       setLoading(false);
     }

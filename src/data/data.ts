@@ -95,6 +95,51 @@ export const PATIENTDETILES_TABS: TabItem[] = [
     // ],
   },
 ];
+export const PATIENTDETILES_TRIAGE_TABS_TWO: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/triage-two/patient-details',
+  },
+];
+export const PATIENTDETILES_TRIAGE_TABS_THREE: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/triage-three/patient-details',
+  },
+];
+
+export const PATIENTDETILES_REFRACTION_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/refraction/patient-details',
+  },
+];
+export const PATIENTDETILES_RETINA_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/retina/patients-detail',
+  },
+];
+export const PATIENTDETILES_GLAUCOMA_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/glaucoma/patients-detail',
+  },
+];
+
+export const PATIENTDETILES_PEDIATRIC_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/pediatric/patients-detail',
+  },
+];
+
+export const PATIENTDETILES_OPD1_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/opd-one/patients-detail',
+  },
+];
 
 export const PATIENTDETILES_TABS_TWO: TabItem[] = [
   // {

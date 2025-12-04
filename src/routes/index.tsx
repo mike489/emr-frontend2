@@ -16,6 +16,13 @@ import {
   TRIAGE_TABS_ONE,
   PATIENTDETILES_TABS,
   PATIENTDETILES_TABS_TWO,
+  PATIENTDETILES_TRIAGE_TABS_TWO,
+  PATIENTDETILES_TRIAGE_TABS_THREE,
+  PATIENTDETILES_REFRACTION_TABS,
+  PATIENTDETILES_RETINA_TABS,
+  PATIENTDETILES_GLAUCOMA_TABS,
+  PATIENTDETILES_PEDIATRIC_TABS,
+  PATIENTDETILES_OPD1_TABS,
 } from '../data/data';
 // import { PublicLayout } from '../layouts/PublicLayout';
 import PrivateTopBar from '../layouts/PrivateTopBar';
@@ -322,6 +329,127 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
       ],
     },
 
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_TRIAGE_TABS_TWO}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.patientDetailsTriageTwo.path,
+          element: ROUTES.protected.patientDetailsTriageTwo.element,
+        },
+      ],
+    },
+
+    // 🔹 Patient Details Routes Group Triage Three
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_TRIAGE_TABS_THREE}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.patientDetailsTriageThree.path,
+          element: ROUTES.protected.patientDetailsTriageThree.element,
+        },
+      ],
+    },
+
+    // 🔹 Patient Details Routes Group Refraction
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_REFRACTION_TABS}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.patientDetailRefraction.path,
+          element: ROUTES.protected.patientDetailRefraction.element,
+        },
+      ],
+    },
+    // 🔹 Patient Details Routes Group Refraction
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_RETINA_TABS}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.patientsDetailRetina.path,
+          element: ROUTES.protected.patientsDetailRetina.element,
+        },
+      ],
+    },
+    // 🔹 Patient Details Routes Group Glaucoma
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_GLAUCOMA_TABS}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.glaucomaPatientDetail.path,
+          element: ROUTES.protected.glaucomaPatientDetail.element,
+        },
+      ],
+    },
+    // 🔹 Patient Details Routes Group Pediatric
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_PEDIATRIC_TABS}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.pediatricPatientDetail.path,
+          element: ROUTES.protected.pediatricPatientDetail.element,
+        },
+      ],
+    },
+    // 🔹 Patient Details Routes Group OPD1
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_OPD1_TABS}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.opd1PatientDetail.path,
+          element: ROUTES.protected.opd1PatientDetail.element,
+        },
+      ],
+    },
+
     // 🔹 Patient Details Routes Group 2
     {
       element: (
@@ -329,6 +457,34 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           darkMode={darkMode}
           onToggleTheme={onToggleTheme}
           tabsData={PATIENTDETILES_TABS_TWO}
+        />
+      ),
+      children: [
+        {
+          path: ROUTES.protected.examinationTab.path,
+          element: ROUTES.protected.examinationTab.element,
+        },
+        {
+          path: ROUTES.protected.followUpTab.path,
+          element: ROUTES.protected.followUpTab.element,
+        },
+        {
+          path: ROUTES.protected.orderTab.path,
+          element: ROUTES.protected.orderTab.element,
+        },
+        {
+          path: ROUTES.protected.operationTab.path,
+          element: ROUTES.protected.operationTab.element,
+        },
+      ],
+    },
+    // 🔹 Patient Details Routes Group Triage Two
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_TRIAGE_TABS_TWO}
         />
       ),
       children: [

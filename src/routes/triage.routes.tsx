@@ -18,6 +18,8 @@ import FollowUpTab from '../features/follow_up/FollowUpTab';
 import PatientDetails from '../pages/patients/PatientDetail';
 import LabTab from '../features/case/LabTab';
 import OperationTab from '../features/case/OperationTab';
+import PatientDetailTriageTwo from '../pages/triage/triage2/PatientDetailTriageTwo';
+import PatientDetailTriageThree from '../pages/triage/triage3/PatientDetailTriageThree';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
@@ -65,6 +67,22 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <TriageTwo />
+      </PrivateRoute>
+    ),
+  },
+  patientDetailsTriageTwo: {
+    path: '/triage-two/patient-details',
+    element: (
+      <PrivateRoute>
+        <PatientDetailTriageTwo />
+      </PrivateRoute>
+    ),
+  },
+  patientDetailsTriageThree: {
+    path: '/triage-three/patient-details',
+    element: (
+      <PrivateRoute>
+        <PatientDetailTriageThree />
       </PrivateRoute>
     ),
   },

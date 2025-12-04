@@ -1,4 +1,3 @@
-// Updated PatientDetails.tsx
 import {
   Box,
   Typography,
@@ -16,14 +15,21 @@ import {
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { PatientService } from '../../shared/api/services/patient.service';
-import Patients from './Patients';
+// import { PatientService } from '../../shared/api/services/patient.service';
+// import Patients from './Patients';
 // import { Eye, FileText, ClipboardList, Stethoscope } from 'lucide-react';
-import ExaminationModal from '../../features/examination/ExaminationModal';
-import type { ExaminationData } from '../../shared/api/types/examination.types';
-import ExaminationDataModal from '../../features/examination/ExaminationDataModal';
-import CreateFollowUpModal from '../../features/follow_up/FollowUpFormModal';
-import type { Patient } from '../../shared/api/types/patient.types';
+import type { Patient } from '../../../shared/api/types/patient.types';
+import type { ExaminationData } from '../../../shared/api/types/examination.types';
+import { PatientService } from '../../../shared/api/services/patient.service';
+import Patients from '../../patients/Patients';
+import ExaminationModal from '../../../features/examination/ExaminationModal';
+import ExaminationDataModal from '../../../features/examination/ExaminationDataModal';
+import CreateFollowUpModal from '../../../features/follow_up/FollowUpFormModal';
+// import ExaminationModal from '../../features/examination/ExaminationModal';
+// import type { ExaminationData } from '../../shared/api/types/examination.types';
+// import ExaminationDataModal from '../../features/examination/ExaminationDataModal';
+// import CreateFollowUpModal from '../../features/follow_up/FollowUpFormModal';
+// import type { Patient } from '../../shared/api/types/patient.types';
 
 interface Visit {
   id: string;
@@ -70,7 +76,7 @@ interface VisitFlags {
   locked_since?: string | null;
 }
 
-const PatientDetails = () => {
+const PatientDetailTriageTwo = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const patient = location.state?.patient as Patient;
@@ -90,7 +96,7 @@ const PatientDetails = () => {
         try {
           setLoading(true);
 
-          const departmentName = 'Triage 1';
+          const departmentName = 'Triage 2';
           const response = await PatientService.getPatientVisits(patient.id, {
             department: departmentName,
           });
@@ -537,4 +543,4 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
   );
 };
 
-export default PatientDetails;
+export default PatientDetailTriageTwo;

@@ -209,7 +209,6 @@ const Triage: React.FC = () => {
     setLoading(true);
     try {
       const res = await PatientCategoryService.getAll();
-      // Based on your API response structure, the data is at res.data.data
       const categories = res.data?.data || [];
       setPatientCategories(categories);
       setTotal(categories.length || 0);

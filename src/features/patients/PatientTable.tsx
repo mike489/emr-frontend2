@@ -231,7 +231,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
                 borderRight: '1px solid rgba(255,255,255,0.1)',
               }}
             >
-              Status
+              Payment Status
             </TableCell>
             <TableCell
               sx={{
@@ -350,11 +350,10 @@ const PatientTable: React.FC<PatientTableProps> = ({
                 <Button
                   variant="contained"
                   size="small"
-                  color="success"
-                  disabled={patient.flags?.is_checked_out}
+                  color={patient.flags?.is_checked_out ? 'warning' : 'success'}
                   onClick={() => onCheckout(patient)}
                 >
-                  Checkout
+                  {patient.flags?.is_checked_out ? 'Checkin' : 'Checkout'}
                 </Button>
               </TableCell>
 
@@ -374,8 +373,8 @@ const PatientTable: React.FC<PatientTableProps> = ({
               {/* Status */}
               <TableCell>
                 <Chip
-                  label={patient.status === '1' ? 'Active' : 'Inactive'}
-                  color={patient.status === '1' ? 'success' : 'warning'}
+                  label={patient.flags?.bill_paid ? 'Paid' : 'Not Paid'}
+                  color={patient.flags?.bill_paid ? 'success' : 'warning'}
                   size="small"
                 />
               </TableCell>

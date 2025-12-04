@@ -1,4 +1,3 @@
-// Updated PatientDetails.tsx
 import {
   Box,
   Typography,
@@ -16,14 +15,13 @@ import {
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { PatientService } from '../../shared/api/services/patient.service';
-import Patients from './Patients';
-// import { Eye, FileText, ClipboardList, Stethoscope } from 'lucide-react';
-import ExaminationModal from '../../features/examination/ExaminationModal';
-import type { ExaminationData } from '../../shared/api/types/examination.types';
-import ExaminationDataModal from '../../features/examination/ExaminationDataModal';
-import CreateFollowUpModal from '../../features/follow_up/FollowUpFormModal';
-import type { Patient } from '../../shared/api/types/patient.types';
+import type { Patient } from '../../../shared/api/types/patient.types';
+import type { ExaminationData } from '../../../shared/api/types/examination.types';
+import { PatientService } from '../../../shared/api/services/patient.service';
+import Patients from '../../patients/Patients';
+import ExaminationModal from '../../../features/examination/ExaminationModal';
+import ExaminationDataModal from '../../../features/examination/ExaminationDataModal';
+import CreateFollowUpModal from '../../../features/follow_up/FollowUpFormModal';
 
 interface Visit {
   id: string;
@@ -70,7 +68,7 @@ interface VisitFlags {
   locked_since?: string | null;
 }
 
-const PatientDetails = () => {
+const PatientDetailGlaucoma = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const patient = location.state?.patient as Patient;
@@ -90,7 +88,7 @@ const PatientDetails = () => {
         try {
           setLoading(true);
 
-          const departmentName = 'Triage 1';
+          const departmentName = 'Glaucoma';
           const response = await PatientService.getPatientVisits(patient.id, {
             department: departmentName,
           });
@@ -256,23 +254,12 @@ interface VisitsTableProps {
 
 const VisitsTable: React.FC<VisitsTableProps> = ({
   visits,
-  // onOpenExamination,
-  // onOpenExaminationData,
-  // onOpenFollowUp,
+
   navigate,
   consultationId,
   patient,
   // flags,
 }) => {
-  // const handleNavigateWithState = (path: string) => {
-  //   navigate(path, {
-  //     state: {
-  //       patient: patient,
-  //       consultation_id: consultationId,
-  //     },
-  //   });
-  // };
-
   const handleRowClick = (visit: Visit) => {
     console.log('Row clicked:', {
       visitType: visit.visit_type,
@@ -454,81 +441,6 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
                   }
                 />
               </TableCell>
-
-              {/* <TableCell>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Create Examination">
-                    <IconButton
-                      size="small"
-                     
-                      onClick={() => handleNavigateWithState('/triage/examinations')}
-                      sx={{
-                        bgcolor: 'primary.main',
-                        color: '#fff',
-                        '&:hover': { backgroundColor: 'primary.dark' },
-                      }}
-                    >
-                      <FileText size={18} />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Follow-up ">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleNavigateWithState('/triage/follow-up')}
-                      sx={{
-                        bgcolor: 'primary.main',
-                        color: '#fff',
-                        '&:hover': { backgroundColor: 'primary.dark' },
-                      }}
-                    >
-                      <Stethoscope size={18} />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Create Follow-up">
-                    <IconButton
-                      size="small"
-                      onClick={() => onOpenFollowUp(visit)}
-                      sx={{
-                        bgcolor: 'info.main',
-                        color: '#fff',
-                        '&:hover': { backgroundColor: 'info.dark' },
-                      }}
-                    >
-                      <Stethoscope size={18} />
-                    </IconButton>
-                  </Tooltip>
-
-                
-                  <Tooltip title="View Examination">
-                    <IconButton
-                      size="small"
-                      onClick={() => onOpenExaminationData(visit)}
-                      sx={{
-                        bgcolor: 'secondary.main',
-                        color: '#fff',
-                        '&:hover': { backgroundColor: 'secondary.dark' },
-                      }}
-                    >
-                      <ClipboardList size={18} />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Visit Details">
-                    <IconButton
-                      size="small"
-                      sx={{
-                        bgcolor: '#4caf50',
-                        color: '#fff',
-                        '&:hover': { backgroundColor: '#388e3c' },
-                      }}
-                    >
-                      <Eye size={18} />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
@@ -537,4 +449,4 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
   );
 };
 
-export default PatientDetails;
+export default PatientDetailGlaucoma;
