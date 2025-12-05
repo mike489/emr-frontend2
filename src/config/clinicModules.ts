@@ -14,7 +14,7 @@ export const CLINIC_MODULES = [
   { title: 'Triage', Icon: Triag, entryRoute: '/triage-lists' },
   { title: 'Refraction', Icon: Ophthalmic, entryRoute: '/refraction' },
   { title: 'OPHTHALMOLOGY', Icon: Otham, entryRoute: '/clinic-lists' },
-  { title: 'Diagnosis', Icon: Diagnosis, entryRoute: '/diagnosis-list' },
+  { title: 'Diagnosis', Icon: Diagnosis, entryRoute: '/diagnosis/today-cases' },
   { title: 'OPTICALS', Icon: Optical, entryRoute: '/optical' },
   { title: 'PHARMACY', Icon: Pharmacy, entryRoute: '/pharmacy' },
 

@@ -305,6 +305,10 @@ const FrontDesk: React.FC = () => {
     }
   };
 
+  const handleClickRow = (patient: Patient) => {
+    handleViewDetails(patient);
+  };
+
   return (
     <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -10 }}>
       {/* Search and Filter Section */}
@@ -648,6 +652,7 @@ const FrontDesk: React.FC = () => {
           // onAttachFiles={handleFileChange}
           onViewAttachments={openAttachModal}
           onAttachFiles={handleFileChange}
+          handleClickRow={handleClickRow}
         />
 
         <AttachmentsModal

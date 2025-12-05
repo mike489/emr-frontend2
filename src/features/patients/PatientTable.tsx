@@ -35,6 +35,7 @@ interface PatientTableProps {
   onSendToTriage: (patient: Patient) => void;
   onAttachFiles: (patientId: string, files: FileList | null) => void;
   onViewAttachments: (attachments: Attachment[]) => void;
+  handleClickRow: (patient: Patient) => void;
 }
 
 const PatientTable: React.FC<PatientTableProps> = ({
@@ -44,6 +45,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
   onViewDetails,
   onCheckout,
   onSendToTriage,
+  handleClickRow,
   //   onAttachFiles,
   //   onViewAttachments,
 }) => {
@@ -249,7 +251,12 @@ const PatientTable: React.FC<PatientTableProps> = ({
         </TableHead>
         <TableBody>
           {patients.map(patient => (
-            <TableRow key={patient.id} hover>
+            <TableRow
+              key={patient.id}
+              hover
+              onClick={() => handleClickRow(patient)}
+              sx={{ cursor: 'pointer' }}
+            >
               {/* Category Color */}
               <TableCell>
                 <Box
