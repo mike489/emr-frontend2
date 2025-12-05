@@ -13,6 +13,13 @@ import type { RouteCollection } from './types';
 import EmergencyTriage from '../pages/triage/emergency/EmergencyTriage';
 import EmergencyTriage3 from '../pages/triage/emergency/EmergencyTriage3';
 import EmergencyTriage2 from '../pages/triage/emergency/EmergencyTriage2';
+import ExaminationTab from '../features/examination/ExaminationTab';
+import FollowUpTab from '../features/follow_up/FollowUpTab';
+import PatientDetails from '../pages/patients/PatientDetail';
+import LabTab from '../features/case/LabTab';
+import OperationTab from '../features/case/OperationTab';
+import PatientDetailTriageTwo from '../pages/triage/triage2/PatientDetailTriageTwo';
+import PatientDetailTriageThree from '../pages/triage/triage3/PatientDetailTriageThree';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
@@ -60,6 +67,22 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <TriageTwo />
+      </PrivateRoute>
+    ),
+  },
+  patientDetailsTriageTwo: {
+    path: '/triage-two/patient-details',
+    element: (
+      <PrivateRoute>
+        <PatientDetailTriageTwo />
+      </PrivateRoute>
+    ),
+  },
+  patientDetailsTriageThree: {
+    path: '/triage-three/patient-details',
+    element: (
+      <PrivateRoute>
+        <PatientDetailTriageThree />
       </PrivateRoute>
     ),
   },
@@ -204,6 +227,46 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <Discussion />
+      </PrivateRoute>
+    ),
+  },
+  patientDetails: {
+    path: '/triage/patient-details',
+    element: (
+      <PrivateRoute>
+        <PatientDetails />
+      </PrivateRoute>
+    ),
+  },
+  examinationTab: {
+    path: '/triage/examinations',
+    element: (
+      <PrivateRoute>
+        <ExaminationTab />
+      </PrivateRoute>
+    ),
+  },
+  followUpTab: {
+    path: '/triage/follow-up',
+    element: (
+      <PrivateRoute>
+        <FollowUpTab />
+      </PrivateRoute>
+    ),
+  },
+  orderTab: {
+    path: '/triage/orders',
+    element: (
+      <PrivateRoute>
+        <LabTab />
+      </PrivateRoute>
+    ),
+  },
+  operationTab: {
+    path: 'triage/operations',
+    element: (
+      <PrivateRoute>
+        <OperationTab />
       </PrivateRoute>
     ),
   },

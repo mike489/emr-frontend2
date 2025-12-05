@@ -6,6 +6,7 @@ import Checkout from '../pages/front_desk/checkout/checkout';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
 import EmergencyTriage from '../pages/triage/emergency/EmergencyTriage';
+import PatientDetailRetina from '../pages/ophthalmology/retina/PatientDetailRetina';
 
 export const doctorRoutes: RouteCollection = {
   examinationsDoctor: {
@@ -21,6 +22,14 @@ export const doctorRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <Retina />
+      </PrivateRoute>
+    ),
+  },
+  patientsDetailRetina: {
+    path: '/retina/patients-detail',
+    element: (
+      <PrivateRoute>
+        <PatientDetailRetina />
       </PrivateRoute>
     ),
   },

@@ -14,8 +14,6 @@ import {
   Button,
   CircularProgress,
   Paper,
-  MenuItem,
-  Select,
 } from '@mui/material';
 import { Eye, FileUp, Send } from 'lucide-react';
 import type { Patient } from '../../shared/api/types/patient.types';
@@ -26,8 +24,6 @@ interface Attachment {
   size: string;
   url: string;
 }
-
-
 
 interface PatientTableProps {
   patients: Patient[];
@@ -44,12 +40,12 @@ interface PatientTableProps {
 const PatientTable: React.FC<PatientTableProps> = ({
   patients,
   loading = false,
-  uploadingId =  "",
+  uploadingId = '',
   onViewDetails,
   onCheckout,
   onSendToTriage,
-//   onAttachFiles,
-//   onViewAttachments,
+  //   onAttachFiles,
+  //   onViewAttachments,
 }) => {
   if (loading) {
     return (
@@ -69,7 +65,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{px:4}}>
+      <Table sx={{ px: 4 }}>
         <TableHead>
           <TableRow
             sx={{
@@ -189,7 +185,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
             >
               Visit Type
             </TableCell>
-            <TableCell
+            {/* <TableCell
               sx={{
                 fontWeight: 'bold',
                 color: 'white',
@@ -200,7 +196,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
               }}
             >
               Payment
-            </TableCell>
+            </TableCell> */}
             <TableCell
               sx={{
                 fontWeight: 'bold',
@@ -235,7 +231,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
                 borderRight: '1px solid rgba(255,255,255,0.1)',
               }}
             >
-              Status
+              Payment Status
             </TableCell>
             <TableCell
               sx={{
@@ -312,44 +308,52 @@ const PatientTable: React.FC<PatientTableProps> = ({
               </TableCell>
               <TableCell>{patient.visit_type || 'N/A'}</TableCell>
 
-             
-
-<TableCell>
-  <Select
-    value={patient.flags.bill_paid ? "Paid" : "Unpaid"}
-    size="small"
-    sx={{ minWidth: 100 }}
-    // onChange={(e) => onChangePaymentStatus(patient, e.target.value)}
-    renderValue={(selected) => (
-      <Chip
-        label={selected}
-        color={selected === "Paid" ? "success" : "error"}
-        variant="filled"
-        size="small"
-        sx={{ fontWeight: 'bold', p: 1 }}
-      />
-    )}
-  >
-    <MenuItem value="Paid">
-      <Chip label="Paid" color="success" variant="filled" size="small" sx={{ fontWeight: 'bold', p:1 }} />
-    </MenuItem>
-    <MenuItem value="Unpaid">
-      <Chip label="Unpaid" color="error" variant="filled" size="small" sx={{ fontWeight: 'bold', p:1 }} />
-    </MenuItem>
-  </Select>
-</TableCell>
-
+              {/* <TableCell>
+                <Select
+                  value={patient.flags?.bill_paid ? 'Paid' : 'Unpaid'}
+                  size="small"
+                  sx={{ minWidth: 100 }}
+                  // onChange={(e) => onChangePaymentStatus(patient, e.target.value)}
+                  renderValue={selected => (
+                    <Chip
+                      label={selected}
+                      color={selected === 'Paid' ? 'success' : 'error'}
+                      variant="filled"
+                      size="small"
+                      sx={{ fontWeight: 'bold', p: 1 }}
+                    />
+                  )}
+                >
+                  <MenuItem value="Paid">
+                    <Chip
+                      label="Paid"
+                      color="success"
+                      variant="filled"
+                      size="small"
+                      sx={{ fontWeight: 'bold', p: 1 }}
+                    />
+                  </MenuItem>
+                  <MenuItem value="Unpaid">
+                    <Chip
+                      label="Unpaid"
+                      color="error"
+                      variant="filled"
+                      size="small"
+                      sx={{ fontWeight: 'bold', p: 1 }}
+                    />
+                  </MenuItem>
+                </Select>
+              </TableCell> */}
 
               {/* Checkout Button */}
               <TableCell>
                 <Button
                   variant="contained"
                   size="small"
-                  color="success"
-                  disabled={patient.flags.is_checked_out}
+                  color={patient.flags?.is_checked_out ? 'warning' : 'success'}
                   onClick={() => onCheckout(patient)}
                 >
-                  Checkout
+                  {patient.flags?.is_checked_out ? 'Checkin' : 'Checkout'}
                 </Button>
               </TableCell>
 
@@ -369,103 +373,92 @@ const PatientTable: React.FC<PatientTableProps> = ({
               {/* Status */}
               <TableCell>
                 <Chip
-                  label={patient.status === '1' ? 'Active' : 'Inactive'}
-                  color={patient.status === '1' ? 'success' : 'warning'}
+                  label={patient.flags?.bill_paid ? 'Paid' : 'Not Paid'}
+                  color={patient.flags?.bill_paid ? 'success' : 'warning'}
                   size="small"
                 />
               </TableCell>
 
               {/* Actions */}
-             {/* Actions */}
-<TableCell>
-  <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-    {/* Send to Triage */}
- <Tooltip
-  title={
-  patient.flags.can_be_send_to_triage
-      ? "Send to Triage"
-      : "Cannot send to triage"
-  }
->
-  <span>
-    <IconButton
-      size="small"
-      onClick={() => onSendToTriage(patient)}
-      disabled={!patient.flags.can_be_send_to_triage }
-      sx={{
-        bgcolor:patient.flags.can_be_send_to_triage
-            ? '#1976d2'
-            : '#9e9e9e',
-        color: patient.flags.can_be_send_to_triage
-            ? '#fff'
-            : '#000',
-        '&:hover': {
-          backgroundColor:
-            patient.flags.can_be_send_to_triage 
-              ? 'rgba(25, 118, 210, 0.1)'
-              : 'transparent',
-        },
-      }}
-    >
-      <Send size={20} />
-    </IconButton>
-  </span>
-</Tooltip>
+              <TableCell>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                  {/* Send to Triage */}
+                  <Tooltip
+                    title={
+                      patient.flags?.can_be_send_to_triage
+                        ? 'Send to Triage'
+                        : 'Cannot send to triage'
+                    }
+                  >
+                    <span>
+                      <IconButton
+                        size="small"
+                        onClick={() => onSendToTriage(patient)}
+                        disabled={!patient.flags?.can_be_send_to_triage}
+                        sx={{
+                          bgcolor: patient.flags?.can_be_send_to_triage ? '#1976d2' : '#9e9e9e',
+                          color: patient.flags?.can_be_send_to_triage ? '#fff' : '#000',
+                          '&:hover': {
+                            backgroundColor: patient.flags?.can_be_send_to_triage
+                              ? 'rgba(25, 118, 210, 0.1)'
+                              : 'transparent',
+                          },
+                        }}
+                      >
+                        <Send size={20} />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
 
+                  {/* View Details */}
+                  <Tooltip title="View Details">
+                    <IconButton
+                      size="small"
+                      onClick={() => onViewDetails(patient)}
+                      sx={{
+                        bgcolor: '#4caf50',
+                        color: '#fff',
+                        '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
+                      }}
+                    >
+                      <Eye size={20} />
+                    </IconButton>
+                  </Tooltip>
 
-    {/* View Details */}
-    <Tooltip title="View Details">
-      <IconButton
-        size="small"
-        onClick={() => onViewDetails(patient)}
-        sx={{
-            bgcolor:'#4caf50',
-          color: '#fff',
-          '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
-        }}
-      >
-        <Eye size={20} />
-      </IconButton>
-    </Tooltip>
+                  {/* Attach Files */}
 
-    {/* Attach Files */}
-  
+                  <Tooltip title="Attach files for this patient" arrow>
+                    <span>
+                      <IconButton
+                        size="small"
+                        disabled={uploadingId === patient.id}
+                        onClick={() => {
+                          const fileInput = document.querySelector(
+                            'input[type="file"]'
+                          ) as HTMLInputElement | null;
+                          fileInput?.click();
 
+                          if (fileInput) {
+                            fileInput.dataset.patientId = patient.id;
+                          }
+                        }}
+                        sx={{
+                          backgroundColor: '#626568',
+                          color: 'white',
+                          '&:hover': { backgroundColor: '#000000' },
+                        }}
+                      >
+                        {uploadingId === patient.id ? (
+                          <CircularProgress size={16} color="inherit" />
+                        ) : (
+                          <FileUp size={18} />
+                        )}
+                      </IconButton>
+                    </span>
+                  </Tooltip>
 
-<Tooltip title="Attach files for this patient" arrow>
-  <span>
-    <IconButton
-      size="small"
-      disabled={uploadingId === patient.id}
-      onClick={() => {
-      
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
-        fileInput?.click();
-        
-     
-        if (fileInput) {
-          fileInput.dataset.patientId = patient.id;
-        }
-      }}
-      sx={{
-        backgroundColor: '#626568',
-        color: 'white',
-        '&:hover': { backgroundColor: '#000000' },
-      }}
-    >
-      {uploadingId === patient.id ? (
-        <CircularProgress size={16} color="inherit" />
-      ) : (
-        <FileUp size={18} />
-      )}
-    </IconButton>
-  </span>
-</Tooltip>
-
-
-
-    {/* View Attachments */}
-    {/* {patient?.attachments?.length > 0 && (
+                  {/* View Attachments */}
+                  {/* {patient?.attachments?.length > 0 && (
       <Tooltip title="View Attachments">
         <IconButton
           size="small"
@@ -479,9 +472,8 @@ const PatientTable: React.FC<PatientTableProps> = ({
         </IconButton>
       </Tooltip>
     )} */}
-  </Box>
-</TableCell>
-
+                </Box>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

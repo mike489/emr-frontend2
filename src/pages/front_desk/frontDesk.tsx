@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -25,7 +24,7 @@ import PatientDetailsModal from '../../features/patients/PatientDetailsModal';
 import TriageSelectModal from '../../features/patients/TriageSelectModal';
 import PatientTable from '../../features/patients/PatientTable';
 import { BillsService } from '../../shared/api/services/bills.service';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import type { Patient } from '../../shared/api/types/patient.types';
 
 // Updated Type definitions to match your API response
@@ -65,8 +64,8 @@ const FrontDesk: React.FC = () => {
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
-    sort_by: 'full_name',
-    sort_order: 'asc',
+    sort_by: '',
+    sort_order: '',
     department: 'Reception',
     search: '',
     gender: '',
@@ -79,7 +78,7 @@ const FrontDesk: React.FC = () => {
     visit_type: '',
     created_from: '',
     created_to: '',
-    sort_dir: 'asc',
+    sort_dir: '',
   });
 
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -90,12 +89,15 @@ const FrontDesk: React.FC = () => {
   });
   const [selectedPatient, _setSelectedPatient] = useState<any>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const navigate = useNavigate();
-const handleViewDetails = (patient: Patient) => {
-  navigate("/front-desk/patient-details", { state: { patient } });
-};
+  // const navigate = useNavigate();
 
-
+  // const handleViewDetails = (patient: Patient) => {
+  //   navigate('/front-desk/patient-details', { state: { patient } });
+  // };
+  const handleViewDetails = (patient: Patient) => {
+    _setSelectedPatient(patient);
+    setDetailsOpen(true);
+  };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
@@ -242,15 +244,12 @@ const handleViewDetails = (patient: Patient) => {
     fetchPatientCategories();
     fetchDoctors();
   }, [filters]);
-const handleOpenTriageModal = (patient: Patient) => {
-  setSelectedPatientId(patient.id); // store patient ID
-  setOpenTriageModal(true);        // open the modal
-};
+  const handleOpenTriageModal = (patient: Patient) => {
+    setSelectedPatientId(patient.id); // store patient ID
+    setOpenTriageModal(true); // open the modal
+  };
 
-  const handleFileChange = async (
-    patientId: string,
-    files: FileList | null
-  ) => {
+  const handleFileChange = async (patientId: string, files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     try {
@@ -266,43 +265,45 @@ const handleOpenTriageModal = (patient: Patient) => {
     }
   };
 
-  
+  const handleCheckout = async (patient: Patient) => {
+    try {
+      setLoading(true);
 
-  
- const handleCheckout = async (patient: Patient) => {
-  try {
-    setLoading(true);
-    // Example data payload for checkout, adjust as needed
-    const payload = { checkout_time: new Date().toISOString() };
-    await PatientService.checkout(patient.id, payload);
-    toast.success(`${patient.full_name} checked out successfully.`);
-    // Refresh patients list
-    fetchPatients();
-  } catch (err: any) {
-    console.error('Checkout error:', err);
-    toast.error(err.response?.data?.data.message || 'Failed to checkout patient');
-  } finally {
-    setLoading(false);
-  }
-};
+      const payload = { time: new Date().toISOString() };
 
-// Pay for a patient bill
-const handlePay = async (patient: Patient) => {
-  try {
-    setLoading(true);
-    // Example payload, adjust if your API requires more
-    const payload = { paid_at: new Date().toISOString(), method: 'cash' };
-    await BillsService.pay(patient.id, payload);
-    toast.success(`${patient.full_name} payment successful.`);
-    // Refresh patients list
-    fetchPatients();
-  } catch (err: any) {
-    console.error('Payment error:', err);
-    toast.error(err.response?.data?.data.message || 'Failed to process payment');
-  } finally {
-    setLoading(false);
-  }
-};
+      if (patient.flags?.is_checked_out) {
+        await PatientService.checkIn(patient.id, payload);
+        toast.success(`${patient.full_name} checked in successfully.`);
+      } else {
+        await PatientService.checkout(patient.id, payload);
+        toast.success(`${patient.full_name} checked out successfully.`);
+      }
+      fetchPatients();
+    } catch (err: any) {
+      console.error('Checkout/Checkin error:', err);
+      toast.error(err.response?.data?.data?.message || 'Failed to update patient status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Pay for a patient bill
+  const handlePay = async (patient: Patient) => {
+    try {
+      setLoading(true);
+      // Example payload, adjust if your API requires more
+      const payload = { paid_at: new Date().toISOString(), method: 'cash' };
+      await BillsService.pay(patient.id, payload);
+      toast.success(`${patient.full_name} payment successful.`);
+      // Refresh patients list
+      fetchPatients();
+    } catch (err: any) {
+      console.error('Payment error:', err);
+      toast.error(err.response?.data?.data.message || 'Failed to process payment');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -10 }}>
@@ -565,7 +566,6 @@ const handlePay = async (patient: Patient) => {
           </Box>
 
           {/* Visit Type */}
-          {/* Visit Type */}
           <TextField
             size="small"
             select
@@ -583,28 +583,27 @@ const handlePay = async (patient: Patient) => {
             sx={{ minWidth: 150 }}
           >
             <MenuItem value="">All Visit Types</MenuItem>
-            <MenuItem value="Follow Up">Follow Up</MenuItem>
-            {/* <MenuItem value="Emergency">Emergency</MenuItem> */}
             <MenuItem value="New">New</MenuItem>
+            <MenuItem value="Follow Up">Follow Up</MenuItem>
+            <MenuItem value="Follow up (after 15 days)">Follow up (after 15 days)</MenuItem>
           </TextField>
-{/* Department */}
+          {/* Department */}
           <TextField
-                      size="small"
-                      select
-                      value={filters.department}
-                      onChange={e => setFilters({ ...filters, department: e.target.value })}
-                      placeholder="Department"
-                      sx={{ minWidth: 150 }}
-                    >
-                      <MenuItem value="">All Departments</MenuItem>
-                      {departments.map((dept, index) => (
-                        <MenuItem key={index} value={dept}>
-                          {dept}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        
           {/* Patient Category */}
           <TextField
             size="small"
@@ -638,7 +637,7 @@ const handlePay = async (patient: Patient) => {
       <Paper sx={{ p: 0, borderRadius: '8px', overflow: 'hidden' }}>
         <input type="file" ref={fileInputRef} style={{ display: 'none' }} multiple />
 
-     <PatientTable
+        <PatientTable
           patients={patients}
           loading={loading}
           uploadingId={uploadingId}
@@ -646,10 +645,10 @@ const handlePay = async (patient: Patient) => {
           onCheckout={handleCheckout}
           onPay={handlePay}
           onSendToTriage={handleOpenTriageModal}
-          // onAttachFiles={handleFileChange}   
-          onViewAttachments={openAttachModal} 
-          onAttachFiles={handleFileChange}/>
-
+          // onAttachFiles={handleFileChange}
+          onViewAttachments={openAttachModal}
+          onAttachFiles={handleFileChange}
+        />
 
         <AttachmentsModal
           open={attachModalOpen}

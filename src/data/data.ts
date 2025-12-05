@@ -40,9 +40,9 @@ export const FRONT_DESK_TABS: TabItem[] = [
     label: 'Bills',
     path: '/front-desk/bills',
     children: [
+      { label: 'Laboratory Requested Payments ', path: '/front-desk/requested-payments' },
       { label: 'Patient Payments ', path: '/front-desk/patient-payments' },
       { label: 'Pending Payments ', path: '/front-desk/pending-payments' },
-      { label: 'Requested Payments ', path: '/front-desk/requested-payments' },
     ],
   },
   // {
@@ -70,6 +70,99 @@ export const FRONT_DESK_TABS: TabItem[] = [
 // ───────────────────────────────────────────
 // TRIAGE
 // ───────────────────────────────────────────
+
+export const PATIENTDETILES_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/triage/patient-details',
+    // children: [
+    //   {
+    //     label: 'Examination',
+    //     path: '/triage/examinations',
+    //   },
+    //   {
+    //     label: 'Follow Up',
+    //     path: '/triage/follow-up',
+    //   },
+    //   {
+    //     label: 'Orders',
+    //     path: '/triage/orders',
+    //   },
+    //   {
+    //     label: 'Laboratory',
+    //     path: '/triage/laboratory',
+    //   },
+    // ],
+  },
+];
+export const PATIENTDETILES_TRIAGE_TABS_TWO: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/triage-two/patient-details',
+  },
+];
+export const PATIENTDETILES_TRIAGE_TABS_THREE: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/triage-three/patient-details',
+  },
+];
+
+export const PATIENTDETILES_REFRACTION_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/refraction/patient-details',
+  },
+];
+export const PATIENTDETILES_RETINA_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/retina/patients-detail',
+  },
+];
+export const PATIENTDETILES_GLAUCOMA_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/glaucoma/patients-detail',
+  },
+];
+
+export const PATIENTDETILES_PEDIATRIC_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/pediatric/patients-detail',
+  },
+];
+
+export const PATIENTDETILES_OPD1_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/opd-one/patients-detail',
+  },
+];
+
+export const PATIENTDETILES_TABS_TWO: TabItem[] = [
+  // {
+  //   label: 'Visit Patient',
+  //   path: '/triage/patient-details',
+  // },
+  {
+    label: 'Examination',
+    path: '/triage/examinations',
+  },
+  {
+    label: 'Follow Up',
+    path: '/triage/follow-up',
+  },
+  {
+    label: 'Orders',
+    path: '/triage/orders',
+  },
+  {
+    label: 'Operations',
+    path: '/triage/operations',
+  },
+];
 
 export const TRIAGE_TABS: TabItem[] = [
   {
@@ -103,6 +196,7 @@ export const TRIAGE_TABS: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+
 export const TRIAGE_TABS_TWO: TabItem[] = [
   {
     label: 'Patients',
@@ -135,6 +229,7 @@ export const TRIAGE_TABS_TWO: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+
 export const TRIAGE_TABS_ONE: TabItem[] = [
   {
     label: 'Patients',
@@ -339,6 +434,7 @@ export const RETINA_TABS: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+
 export const GLAUCOMA_TABS: TabItem[] = [
   {
     label: 'Patients',
@@ -473,14 +569,14 @@ export const DIAGNOSIS_TABS: TabItem[] = [
     path: '/diagnosis/cases',
     children: [{ label: 'Today’s Case', path: '/diagnosis/today-cases' }],
   },
-  {
-    label: 'Laboratory',
-    path: '/diagnosis/Laboratory',
-  },
-  {
-    label: 'Radiology',
-    path: '/diagnosis/radiology',
-  },
+  // {
+  //   label: 'Laboratory',
+  //   path: '/diagnosis/Laboratory',
+  // },
+  // {
+  //   label: 'Radiology',
+  //   path: '/diagnosis/radiology',
+  // },
   {
     label: 'Case History',
     path: '/diagnosis/case-history',

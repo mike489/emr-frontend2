@@ -6,7 +6,7 @@ import Footer from '../features/shared/components/Footer';
 export const PublicLayout = () => (
   <>
     <Header />
-    <Container maxWidth="lg" sx={{ mt: 3, mb: 6 }}>
+    <Container maxWidth="xl" sx={{ mt: 3, mb: 6 }}>
       <Paper
         elevation={0}
         sx={{
@@ -14,8 +14,6 @@ export const PublicLayout = () => (
           overflow: 'hidden',
           bgcolor: '#fff',
           minHeight: '70vh',
-          // border: '1px solid #ddd',
-          p: { xs: 2, sm: 1 },
         }}
       >
         <Outlet />

@@ -24,7 +24,7 @@ import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
-// import { DepartmentsService } from '../../shared/api/services/departments.service';
+import { DepartmentsService } from '../../shared/api/services/departments.service';
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
 import { doctorsService } from '../../shared/api/services/Doctor.service';
@@ -92,7 +92,7 @@ const TriageThree: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [error, setError] = React.useState<boolean>(false);
-  // const [departments, setDepartments] = React.useState<string[]>([]);
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [summary, setSummary] = React.useState<any[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -109,8 +109,8 @@ const TriageThree: React.FC = () => {
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
-    sort_by: 'full_name',
-    sort_order: 'asc',
+    sort_by: '',
+    sort_order: '',
     department: 'Triage 3',
     search: '',
     gender: '',
@@ -122,7 +122,7 @@ const TriageThree: React.FC = () => {
     age_max: '',
     created_from: '',
     created_to: '',
-    sort_dir: 'asc',
+    sort_dir: '',
   });
 
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -148,8 +148,8 @@ const TriageThree: React.FC = () => {
     setFilters({
       page: 1,
       per_page: 25,
-      sort_by: 'full_name',
-      sort_order: 'asc',
+      sort_by: '',
+      sort_order: '',
       department: 'Triage 3',
       search: '',
       gender: '',
@@ -161,7 +161,7 @@ const TriageThree: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
-      sort_dir: 'asc',
+      sort_dir: '',
     });
     fetchPatients();
   };
@@ -191,7 +191,19 @@ const TriageThree: React.FC = () => {
     }
   };
 
- 
+  const fetchDepartments = async () => {
+    try {
+      const res = await DepartmentsService.getAll();
+
+      const departmentsData = res.data?.data || [];
+
+      setDepartments(departmentsData);
+      setError(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch departments');
+      console.error('Error fetching departments:', err);
+    }
+  };
 
   const fetchPatientCategories = async () => {
     setLoading(true);
@@ -245,7 +257,7 @@ const TriageThree: React.FC = () => {
 
   useEffect(() => {
     fetchPatients();
-    // fetchDepartments();
+    fetchDepartments();
     fetchPatientCategories();
 
     fetchDoctors();
@@ -277,6 +289,16 @@ const TriageThree: React.FC = () => {
       sort_by: 'full_name',
       sort_dir: prev.sort_dir === 'asc' ? 'desc' : 'asc',
     }));
+  };
+
+  const handleRowClick = (patient: Patient) => {
+    navigate('/triage-three/patient-details', {
+      state: {
+        consultation_id: patient.constultation_id,
+        index: 0,
+        patient: patient,
+      },
+    });
   };
 
   return (
@@ -544,7 +566,22 @@ const TriageThree: React.FC = () => {
           </Box>
 
           {/* Department */}
-   
+          <TextField
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
+
           {/* Patient Category */}
           <TextField
             size="small"
@@ -739,7 +776,7 @@ const TriageThree: React.FC = () => {
                 </TableRow>
               ) : error ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="error">
                       Error loading patients. Please try again.
                     </Typography>
@@ -747,9 +784,17 @@ const TriageThree: React.FC = () => {
                 </TableRow>
               ) : patients.length > 0 ? (
                 patients.map((patient, index) => (
-                  <TableRow key={patient.id || index}>
+                  <TableRow
+                    key={patient.id || index}
+                    onClick={() => handleRowClick(patient)}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
+                  >
                     <TableCell>
-                      {' '}
                       <Box
                         sx={{
                           width: 16,
@@ -799,12 +844,16 @@ const TriageThree: React.FC = () => {
                     </TableCell>
 
                     <TableCell sx={{ gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        {/* -------------------- SEND TO -------------------- */}
+                      <Box
+                        sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}
+                        onClick={e => e.stopPropagation()} // Stop row click when clicking in action area
+                      >
+                        {/* Action buttons remain the same */}
                         <Tooltip title="Send to doctor or department" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => {
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
                               setCurrentPatientId(patient.id);
                               setSendModalOpen(true);
                             }}
@@ -818,50 +867,30 @@ const TriageThree: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- EXAMINATIONS  and FOLLOW-UP -------------------- */}
+                        <Tooltip title="Open Patient Detail" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              handleRowClick(patient);
+                            }}
+                            sx={{
+                              backgroundColor: '#1976d2',
+                              color: 'white',
+                              '&:hover': { backgroundColor: '#1565c0' },
+                            }}
+                          >
+                            <Eye size={18} />
+                          </IconButton>
+                        </Tooltip>
 
-                        {patient.visit_type === 'Follow Up' ? (
-                          // Follow-Up patient → go to hidden Follow-Up page
-                          <Tooltip title="Open Follow-Up Form" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() => navigate('/triage-three/follow-up')}
-                              sx={{
-                                backgroundColor: '#1b5e20', // dark green
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#2e7d32' },
-                              }}
-                            >
-                              <Eye size={18} />
-                            </IconButton>
-                          </Tooltip>
-                        ) : (
-                          // New patient → go to normal examinations
-                          <Tooltip title="Open Examination Form" arrow>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                navigate('/triage-three/examinations', {
-                                  state: { consultation_id: patient.constultation_id },
-                                })
-                              }
-                              sx={{
-                                backgroundColor: '#1976d2',
-                                color: 'white',
-                                '&:hover': { backgroundColor: '#1565c0' },
-                              }}
-                            >
-                              <Eye size={18} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
                             <IconButton
                               size="small"
                               disabled={uploadingId === patient.id}
-                              onClick={() => {
+                              onClick={e => {
+                                e.stopPropagation(); // Prevent row click
                                 if (fileInputRef.current) {
                                   fileInputRef.current.onchange = (e: any) =>
                                     handleFileChange(e, patient.id);
@@ -883,11 +912,13 @@ const TriageThree: React.FC = () => {
                           </span>
                         </Tooltip>
 
-                        {/* -------------------- VIEW / DOWNLOAD -------------------- */}
                         <Tooltip title="View or download attachments" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => openAttachModal(patient.attachments)}
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              openAttachModal(patient.attachments);
+                            }}
                             sx={{
                               border: '1px solid #1976d2',
                               color: '#1976d2',
@@ -898,21 +929,13 @@ const TriageThree: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
-
-                        {/* Hidden File Input */}
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          style={{ display: 'none' }}
-                          accept="*/*"
-                        />
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       No patients found.
                     </Typography>

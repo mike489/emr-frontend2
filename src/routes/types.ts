@@ -12,6 +12,6 @@ export interface RouteCollection {
 export interface RoutesStructure {
   public: RouteCollection;
   auth: RouteCollection;
-  protected: RouteCollection; 
+  protected: RouteCollection;
   notFound: RouteConfig;
 }

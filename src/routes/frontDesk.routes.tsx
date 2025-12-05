@@ -4,7 +4,6 @@ import Checkout from '../pages/front_desk/checkout/checkout';
 import ArchivedPatients from '../pages/front_desk/archived-patients/PrchivedPatients';
 import EmergencyLists from '../pages/front_desk/emergency/EmergencyList';
 import EmergencyPatientForm from '../pages/front_desk/emergency/EmergencyPatientForm';
-import PatientTabs from '../pages/patients/PatientTabs';
 import AppointmentsLists from '../pages/front_desk/appointments-lists/AppointmentsLists';
 import AppointmentsCalendars from '../pages/front_desk/appointments-lists/AppointmentsCalendars';
 import CreateAppointment from '../pages/front_desk/appointments-lists/CreateAppointment';
@@ -33,14 +32,15 @@ export const frontDeskRoutes: RouteCollection = {
       </PrivateRoute>
     ),
   },
-  patientDetails: {
-    path: '/front-desk/patient-details',
-    element: (
-      <PrivateRoute>
-        <PatientTabs />
-      </PrivateRoute>
-    ),
-  },
+  // patientDetails: {
+  //   path: '/front-desk/patient-details',
+  //   element: (
+  //     <PrivateRoute>
+  //       <PatientDetails />
+  //     </PrivateRoute>
+  //   ),
+  // },
+
   checkout: {
     path: '/front-desk/checkout',
     element: (
@@ -137,4 +137,21 @@ export const frontDeskRoutes: RouteCollection = {
       </PrivateRoute>
     ),
   },
+
+  // examinationTab: {
+  //   path: '/front-desk/examinations',
+  //   element: (
+  //     <PrivateRoute>
+  //       <ExaminationTab />
+  //     </PrivateRoute>
+  //   ),
+  // },
+  // followUpTab: {
+  //   path: '/front-desk/follow-up',
+  //   element: (
+  //     <PrivateRoute>
+  //       <FollowUpTab />
+  //     </PrivateRoute>
+  //   ),
+  // },
 };

@@ -15,15 +15,16 @@ import {
   Button,
   CircularProgress,
   TablePagination,
-  Chip,
   Tooltip,
   IconButton,
+  Chip,
 } from '@mui/material';
-
+import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
 import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../../shared/api/services/patient.service';
+// import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
+import { PatientService } from '../../../shared/api/services/patient.service';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
@@ -32,11 +33,15 @@ import {
   sendToDepartmentService,
   UploadService,
 } from '../../../shared/api/services/sendTo.service';
+import SendModal from '../../../features/triage/components/sendModal';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
-import SendCrossModal from '../../../features/triage/components/SendCrossModal';
-import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
-import ErrorPrompt from '../../../features/shared/components/ErrorPrompt';
-import Fallbacks from '../../../features/shared/components/Fallbacks';
+// import { DepartmentsService } from '../../shared/api/services/departments.service';
+// import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
+// import { PatientSummaryService } from '../../shared/api/services/patientsSummary.service';
+// import { doctorsService } from '../../shared/api/services/Doctor.service';
+// import { sendToDepartmentService, UploadService } from '../../shared/api/services/sendTo.service';
+// import SendModal from '../../features/triage/components/sendModal';
+// import AttachmentsModal from '../../features/triage/components/AttachmentsModal';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -53,6 +58,7 @@ interface Patient {
     kifle_ketema: string;
     wereda: string;
   };
+  visit_type: string;
   blood_type: string;
   height: string;
   weight: string;
@@ -105,7 +111,7 @@ const Retina: React.FC = () => {
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
   const [currentPatientId, setCurrentPatientId] = React.useState<string | null>(null);
   const [attachModalOpen, setAttachModalOpen] = React.useState(false);
-  const [_summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
+  const [summaryLoading, setSummaryLoading] = React.useState<boolean>(false);
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
 
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
@@ -114,8 +120,8 @@ const Retina: React.FC = () => {
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
-    sort_by: 'full_name',
-    sort_order: 'asc',
+    sort_by: '',
+    sort_order: '',
     department: 'Retina',
     search: '',
     gender: '',
@@ -127,7 +133,7 @@ const Retina: React.FC = () => {
     age_max: '',
     created_from: '',
     created_to: '',
-    sort_dir: 'asc',
+    sort_dir: '',
   });
 
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -144,7 +150,6 @@ const Retina: React.FC = () => {
     setCurrentAttachments(attachments);
     setAttachModalOpen(true);
   };
-
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newPerPage = parseInt(event.target.value, 10);
     setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
@@ -154,8 +159,8 @@ const Retina: React.FC = () => {
     setFilters({
       page: 1,
       per_page: 25,
-      sort_by: 'full_name',
-      sort_order: 'asc',
+      sort_by: '',
+      sort_order: '',
       department: 'Retina',
       search: '',
       gender: '',
@@ -167,7 +172,7 @@ const Retina: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
-      sort_dir: 'asc',
+      sort_dir: '',
     });
     fetchPatients();
   };
@@ -190,7 +195,7 @@ const Retina: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -206,7 +211,7 @@ const Retina: React.FC = () => {
       setDepartments(departmentsData);
       setError(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch departments');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch departments');
       console.error('Error fetching departments:', err);
     }
   };
@@ -215,21 +220,19 @@ const Retina: React.FC = () => {
     setLoading(true);
     try {
       const res = await PatientCategoryService.getAll();
-      // Based on your API response structure, the data is at res.data.data
       const categories = res.data?.data || [];
       setPatientCategories(categories);
       setTotal(categories.length || 0);
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patient categories');
       console.error('Error fetching patient categories:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Wrapper function with hardcoded department for this page
   const getFrontDeskSummary = () => PatientSummaryService.getAll('Retina');
 
   // Then use it
@@ -240,12 +243,16 @@ const Retina: React.FC = () => {
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     } finally {
       setSummaryLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -253,7 +260,7 @@ const Retina: React.FC = () => {
       const doctorsData = res.data?.data || [];
       setDoctors(doctorsData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     }
   };
@@ -262,7 +269,7 @@ const Retina: React.FC = () => {
     fetchPatients();
     fetchDepartments();
     fetchPatientCategories();
-    fetchSummary();
+
     fetchDoctors();
   }, [filters]);
 
@@ -293,7 +300,16 @@ const Retina: React.FC = () => {
       sort_dir: prev.sort_dir === 'asc' ? 'desc' : 'asc',
     }));
   };
-  
+
+  const handleRowClick = (patient: Patient) => {
+    navigate('/retina/patients-detail', {
+      state: {
+        consultation_id: patient.constultation_id,
+        index: 0,
+        patient: patient,
+      },
+    });
+  };
 
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
@@ -305,10 +321,11 @@ const Retina: React.FC = () => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            // mb: 3,
+            mb: 3,
           }}
         >
-          
+          {/* Back Button */}
+
           {/* Summary Stats */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -336,8 +353,21 @@ const Retina: React.FC = () => {
 
         {/* Patient Category Cards */}
         <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
-        
-            {summary.map((category: any) => (
+          {summaryLoading ? (
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                py: 4,
+              }}
+            >
+              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
+              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
+            </Box>
+          ) : (
+            summary.map((category: any) => (
               <Box
                 key={category.category_id}
                 sx={{
@@ -402,7 +432,8 @@ const Retina: React.FC = () => {
                   {category.percentage_text}
                 </Typography>
               </Box>
-          ))}
+            ))
+          )}
         </Box>
       </Paper>
 
@@ -546,20 +577,20 @@ const Retina: React.FC = () => {
 
           {/* Department */}
           <TextField
-                      size="small"
-                      select
-                      value={filters.department}
-                      onChange={e => setFilters({ ...filters, department: e.target.value })}
-                      placeholder="Department"
-                      sx={{ minWidth: 150 }}
-                    >
-                      <MenuItem value="">All Departments</MenuItem>
-                      {departments.map((dept, index) => (
-                        <MenuItem key={index} value={dept}>
-                          {dept}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
 
           {/* Patient Category */}
           <TextField
@@ -623,30 +654,13 @@ const Retina: React.FC = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
-                    width: 120,
+                    width: 110,
                     fontSize: '0.8rem',
                     py: 1.5,
                     borderRight: '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
                   }}
                 >
                   Patient Name
-                  {filters.sort_by === 'full_name' &&
-                    (filters.sort_dir === 'asc' ? (
-                      <ArrowDropDown
-                        sx={{
-                          transform: 'rotate(180deg)',
-                          color: 'white',
-                          transition: '0.3s',
-                        }}
-                      />
-                    ) : (
-                      <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                    ))}
                 </TableCell>
 
                 <TableCell
@@ -765,20 +779,32 @@ const Retina: React.FC = () => {
                 <TableRow>
                   <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+                    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+                      Loading patients...
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : error ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                   
-                    <ErrorPrompt title='Error loading patients. Please try again.' />
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="error">
+                      Error loading patients. Please try again.
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : patients.length > 0 ? (
                 patients.map((patient, index) => (
-                  <TableRow key={patient.id || index}>
+                  <TableRow
+                    key={patient.id || index}
+                    onClick={() => handleRowClick(patient)}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
+                  >
                     <TableCell>
-                      {' '}
                       <Box
                         sx={{
                           width: 16,
@@ -828,12 +854,16 @@ const Retina: React.FC = () => {
                     </TableCell>
 
                     <TableCell sx={{ gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        {/* -------------------- SEND TO -------------------- */}
+                      <Box
+                        sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}
+                        onClick={e => e.stopPropagation()} // Stop row click when clicking in action area
+                      >
+                        {/* Action buttons remain the same */}
                         <Tooltip title="Send to doctor or department" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => {
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
                               setCurrentPatientId(patient.id);
                               setSendModalOpen(true);
                             }}
@@ -847,15 +877,13 @@ const Retina: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- EXAMINATIONS -------------------- */}
-                        <Tooltip title="Open Examination Form" arrow>
+                        <Tooltip title="Open Patient Detail" arrow>
                           <IconButton
                             size="small"
-                            onClick={() =>
-                              navigate('/doctor/examinations', {
-                                state: { consultation_id: patient.constultation_id },
-                              })
-                            }
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              handleRowClick(patient);
+                            }}
                             sx={{
                               backgroundColor: '#1976d2',
                               color: 'white',
@@ -866,13 +894,13 @@ const Retina: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
                             <IconButton
                               size="small"
                               disabled={uploadingId === patient.id}
-                              onClick={() => {
+                              onClick={e => {
+                                e.stopPropagation(); // Prevent row click
                                 if (fileInputRef.current) {
                                   fileInputRef.current.onchange = (e: any) =>
                                     handleFileChange(e, patient.id);
@@ -894,11 +922,13 @@ const Retina: React.FC = () => {
                           </span>
                         </Tooltip>
 
-                        {/* -------------------- VIEW / DOWNLOAD -------------------- */}
                         <Tooltip title="View or download attachments" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => openAttachModal(patient.attachments)}
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              openAttachModal(patient.attachments);
+                            }}
                             sx={{
                               border: '1px solid #1976d2',
                               color: '#1976d2',
@@ -909,29 +939,23 @@ const Retina: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
-
-                        {/* Hidden File Input */}
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          style={{ display: 'none' }}
-                          accept="*/*"
-                        />
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Fallbacks title="No patients found" description="No patients found matching the criteria." />
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      No patients found.
+                    </Typography>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        <SendCrossModal
+        <SendModal
           open={sendModalOpen}
           onClose={() => setSendModalOpen(false)}
           onSend={(department, doctor_id) => {

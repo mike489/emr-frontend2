@@ -1,5 +1,3 @@
-
-
 export interface PatientAddress {
   city?: string;
   kifle_ketema?: string;
@@ -10,7 +8,7 @@ export interface PatientCategory {
   id: string;
   name: string;
   description?: string;
-  color: string;          
+  color: string;
   created_at: string;
   updated_at: string;
 }
@@ -54,8 +52,8 @@ export interface Patient {
   title?: string | null;
   full_name: string;
   emr_number: string;
-  date_of_birth?: string | null;     
-  gender: "Male" | "Female" | "Other";
+  date_of_birth?: string | null;
+  gender: 'Male' | 'Female' | 'Other';
   phone: string;
   email?: string | null;
   address?: PatientAddress | null;
@@ -69,21 +67,20 @@ export interface Patient {
   medical_conditions?: string | null;
   created_by: string;
   patient_category_id: string;
-  status: string;                      
+  status: string;
   visit_id: string;
-  constultation_id: string;            
+  constultation_id: string;
   age: number;
   is_card_expired: boolean;
   current_doctor?: CurrentDoctor | null;
-  attachments: any[];                   
-  flags: PatientFlags;
-  visit_type: "New" | "Follow Up" | string;  
+  attachments: any[];
+  flags?: PatientFlags;
+  visit_type: 'New' | 'Follow Up' | string;
   patient_category: PatientCategory;
-  media: any[];                         
+  media: any[];
   created_at?: string;
   updated_at?: string;
 }
-
 
 export interface PatientListResponse {
   success: boolean;
@@ -94,6 +91,5 @@ export interface PatientListResponse {
     data: Patient[];
     total: number;
     per_page: number;
- 
   };
 }

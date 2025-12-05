@@ -1,195 +1,269 @@
-import { Box, Typography, Paper, Grid, Chip, Divider, Stack, Avatar } from "@mui/material";
-import type { Patient } from "../../shared/api/types/patient.types";
-
+import { Box, Typography, Paper, Grid, Chip, Stack, Avatar, Button } from '@mui/material';
+import { Send } from '@mui/icons-material';
+import type { Patient } from '../../shared/api/types/patient.types';
+import SendCrossModal from '../../features/triage/components/SendCrossModal';
+import { useState } from 'react';
+import { sendToDepartmentService } from '../../shared/api/services/sendTo.service';
+import { toast } from 'react-toastify';
+import AllergyModal from './AllergyModal';
 
 type PatientsProps = {
-  patient: Patient;
+  patient?: Patient;
+  onSendClick?: () => void;
+  onAllergyAdded?: (allergies: string[]) => void;
 };
 
-const Patients = ({ patient }: PatientsProps) => {
-  const formatAddress = () => {
-    if (!patient.address) return "—";
-    const parts = [
-      patient.address.kifle_ketema,
-      patient.address.wereda && `Wereda ${patient.address.wereda}`,
-      patient.address.city,
-    ].filter(Boolean);
-    return parts.length ? parts.join(", ") : "—";
+const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
+  const [sendModalOpen, setSendModalOpen] = useState(false);
+  const [allergyModalOpen, setAllergyModalOpen] = useState(false);
+  const [allergies, setAllergies] = useState<string[]>(
+    patient?.allergies
+      ? Array.isArray(patient.allergies)
+        ? patient.allergies
+        : patient.allergies.split(',').map(a => a.trim())
+      : []
+  );
+
+  const address = !patient?.address
+    ? '—'
+    : [
+        patient.address.kifle_ketema,
+        patient.address.wereda && `Wereda ${patient.address.wereda}`,
+        patient.address.city,
+      ]
+        .filter(Boolean)
+        .join(', ') || '—';
+
+  const handleSend = () => {
+    onSendClick ? onSendClick() : setSendModalOpen(true);
+  };
+
+  const sendToDepartment = (department: string, doctor_id: string) => {
+    if (!patient?.id) {
+      toast.error('Patient ID not found');
+      return;
+    }
+
+    const fromId = patient.constultation_id || patient.id;
+
+    sendToDepartmentService
+      .sendToDepartment(patient.id, { department, doctor_id, from: fromId })
+      .then(() => {
+        toast.success('Patient sent successfully');
+        setSendModalOpen(false);
+      })
+      .catch((err: any) => {
+        toast.error(err.response?.data?.message || 'Failed to send patient');
+      });
+  };
+
+  const addAllergy = (allergy: string) => {
+    const updated = [...allergies, allergy];
+    setAllergies(updated);
+    onAllergyAdded?.(updated);
+    toast.success('Allergy added');
+  };
+
+  const removeAllergy = (index: number) => {
+    const updated = allergies.filter((_, i) => i !== index);
+    setAllergies(updated);
+    onAllergyAdded?.(updated);
+    toast.success('Allergy removed');
   };
 
   return (
-    <Box sx={{ px: {  }, pt: 3 }}>
-      <Paper elevation={6} sx={{ borderRadius: 2, overflow: "hidden", bgcolor: "background.paper" }}>
-        {/* Top Header - Name + Key Info */}
-        <Box
-          sx={{
-            bgcolor: "#f5f5f5f5",
-            color: "primary.main",
-            px: { xs: 3, sm: 4 },
-            py: 2,
-            position: "relative",
-          }}
-        >
-          <Grid container alignItems="center" spacing={3}>
-            {/* Left: Name + Badges */}
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
-                <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: 0.5 }}>
-                  {patient.full_name }
-                </Typography>
-
-                {/* Visit Type Badge */}
-                {patient.visit_type && (
+    <>
+      <Box sx={{ p: 2, mt: 2 }}>
+        <Paper elevation={0} sx={{ borderRadius: 2, border: '1px solid #ddd', overflow: 'hidden' }}>
+          <Box sx={{ bgcolor: '#1976d2', color: 'white', p: 2 }}>
+            <Grid container alignItems="center" spacing={1}>
+              <Grid size={{ xs: 12, md: 8 }}>
+                <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                  <Typography variant="h6" fontWeight={600}>
+                    {patient?.full_name}
+                  </Typography>
+                  {patient?.visit_type && (
+                    <Chip
+                      label={patient.visit_type}
+                      size="small"
+                      sx={{ bgcolor: 'white', color: '#1976d2' }}
+                    />
+                  )}
+                </Stack>
+                <Stack direction="row" spacing={2} mt={0.5} flexWrap="wrap">
+                  <Typography variant="body2">EMR: {patient?.emr_number}</Typography>
+                  <Typography variant="body2">Age: {patient?.age ?? '—'}</Typography>
+                  <Typography variant="body2">Gender: {patient?.gender}</Typography>
+                </Stack>
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Stack direction="row" spacing={1} justifyContent="flex-end">
                   <Chip
-                    label={patient.visit_type}
-                    color="secondary"
+                    label={patient?.flags?.is_checked_in ? 'Checked In' : 'Checked Out'}
                     size="small"
                     sx={{
-                      fontWeight: 700,
-                      bgcolor: patient.visit_type === "Follow Up" ? "#FFD700" : "#4CAF50",
-                      color: "white",
+                      bgcolor: patient?.flags?.is_checked_in ? '#4caf50' : '#757575',
+                      color: 'white',
                     }}
                   />
-                )}
-
-                {/* Patient Category */}
-                {patient.patient_category && (
-                  <Chip
-                    label={patient.patient_category.name}
+                  <Button
                     size="small"
+                    title="Send to Department"
+                    onClick={handleSend}
+                    sx={{ bgcolor: 'white', color: '#1976d2', minWidth: 'auto', p: 0.5 }}
+                  >
+                    <Typography sx={{ mr: 1 }}>Send</Typography>
+                    <Send fontSize="small" />
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+          </Box>
+
+          <Box sx={{ p: 2 }}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 6, md: 3 }}>
+                <Typography variant="subtitle2" fontWeight={600} color="#1976d2" gutterBottom>
+                  Contact
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {patient?.phone || '—'}
+                </Typography>
+                {patient?.email && (
+                  <Typography variant="body2" color="text.secondary">
+                    {patient?.email}
+                  </Typography>
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 6, md: 3 }}>
+                <Typography variant="subtitle2" fontWeight={600} color="#1976d2" gutterBottom>
+                  Address
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {address}
+                </Typography>
+              </Grid>
+
+              <Grid size={{ xs: 6, md: 2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 1,
+                    gap: 1,
+                  }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={600}
                     sx={{
-                      fontWeight: 700,
-                      bgcolor: patient.patient_category.color || "#999",
-                      color: "white",
+                      color: '#ff4444',
+                      fontSize: '0.875rem',
+                      whiteSpace: 'nowrap',
                     }}
-                  />
-                )}
-              </Stack>
-
-              <Stack direction="row" spacing={3} mt={1.5} flexWrap="wrap" color="#242424ff" useFlexGap>
-                <Typography variant="h6" sx={{ opacity: 0.95 }}>
-                  EMR: <strong>{patient.emr_number}</strong>
-                </Typography>
-                <Typography variant="h6" sx={{ opacity: 0.95 }}>
-                  Age: <strong>{patient.age ?? "—"}</strong>
-                </Typography>
-                <Typography variant="h6" sx={{ opacity: 0.95 }}>
-                  Gender: <strong>{patient.gender}</strong>
-                </Typography>
-                {patient.national_id && (
-                  <Typography variant="h6" sx={{ opacity: 0.9 }}>
-                    NID: <strong>{patient.national_id}</strong>
+                  >
+                    Allergies
                   </Typography>
-                )}
-              </Stack>
-            </Grid>
+                  <Button
+                    size="small"
+                    onClick={() => setAllergyModalOpen(true)}
+                    sx={{
+                      fontSize: '0.7rem',
+                      minWidth: 'auto',
+                      p: '3px 12px',
+                      height: '26px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    + Add
+                  </Button>
+                </Box>
+                <Box sx={{ maxHeight: '80px', overflowY: 'auto', pr: 0.5 }}>
+                  <Stack spacing={0.5}>
+                    {allergies.length > 0 ? (
+                      allergies.map((allergy, i) => (
+                        <Chip
+                          key={i}
+                          label={allergy}
+                          size="small"
+                          onDelete={() => removeAllergy(i)}
+                          sx={{
+                            fontSize: '0.7rem',
+                            height: '24px',
+                            '& .MuiChip-label': { px: 1 },
+                            bgcolor: '#ff4444',
+                            color: 'white',
+                            animation: 'glow 2s ease-in-out infinite alternate',
+                            '&:hover': {
+                              bgcolor: '#ff3333',
+                              boxShadow: '0 0 8px rgba(255, 68, 68, 0.8)',
+                            },
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <Typography variant="body2" color="text.disabled" sx={{ fontSize: '0.8rem' }}>
+                        None
+                      </Typography>
+                    )}
+                  </Stack>
+                </Box>
+              </Grid>
 
-            {/* Right: Status Flags */}
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={2}>
-                <Stack direction="row" spacing={2} justifyContent={{ xs: "flex-start", md: "flex-end" }}>
-                  <Chip
-                    label={patient.flags?.is_checked_in ? "Checked In" : "Checked Out"}
-                    color={patient.flags?.is_checked_in ? "success" : "default"}
-                    variant="filled"
-                    size="medium"
-                    sx={{ minWidth: 120, fontWeight: 600 }}
-                  />
-                  {/* <Chip
-                    label={patient.flags?.bill_paid ? "Paid" : "Unpaid"}
-                    color={patient.flags?.bill_paid ? "success" : "warning"}
-                    variant="filled"
-                    size="medium"
-                    sx={{ minWidth: 110, fontWeight: 600 }}
-                  /> */}
-                </Stack>
-              </Stack>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* Bottom Section - Details */}
-        <Box sx={{ p: { xs: 3, sm: 2 } }}>
-          <Grid container spacing={4}>
-            {/* Contact */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Typography variant="subtitle1" fontWeight={700} color="primary" gutterBottom>
-                Contact
-              </Typography>
-              <Stack spacing={1.5}>
-                <Typography color="text.secondary">
-                  Phone: <strong>{patient.phone || "—"}</strong>
+              <Grid size={{ xs: 6, md: 4 }}>
+                <Typography variant="subtitle2" fontWeight={600} color="#1976d2" gutterBottom>
+                  Doctor
                 </Typography>
-                {patient.email && (
-                  <Typography color="text.secondary">
-                    Email: <strong>{patient.email}</strong>
-                  </Typography>
-                )}
-              </Stack>
-            </Grid>
-
-            {/* Address */}
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <Typography variant="subtitle1" fontWeight={700} color="primary" gutterBottom>
-                Address
-              </Typography>
-              <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {formatAddress()}
-              </Typography>
-            </Grid>
-
-            {/* Assigned Doctor */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Typography variant="subtitle1" fontWeight={700} color="primary" gutterBottom>
-                Assigned Doctor
-              </Typography>
-              {patient.current_doctor ? (
-                <Stack direction="row" alignItems="center" spacing={2} mt={1}>
-                  <Avatar
-                    src={patient.current_doctor.user?.profile_photo_url}
-                    alt={patient.current_doctor.name}
-                    sx={{ width: 40, height: 40 }}
-                  />
-                  <Box>
-                    <Typography fontWeight={600}>{patient.current_doctor.name}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {patient.current_doctor.user?.email}
-                    </Typography>
-                  </Box>
-                </Stack>
-              ) : (
-                <Typography color="text.disabled" fontStyle="italic">
-                  Not assigned
-                </Typography>
-              )}
-            </Grid>
-
-            {/* Clinical Info */}
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Typography variant="subtitle1" fontWeight={700} color="primary" gutterBottom>
-                Clinical
-              </Typography>
-              <Stack spacing={1.5} mt={1}>
-                {patient.blood_type ? (
-                  <Chip label={patient.blood_type} color="error" size="small" sx={{ fontWeight: 700 }} />
+                {patient?.current_doctor ? (
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Avatar
+                      src={patient?.current_doctor.user?.profile_photo_url}
+                      sx={{ width: 32, height: 32 }}
+                    />
+                    <Box>
+                      <Typography variant="body2" fontWeight={600}>
+                        {patient?.current_doctor.name}
+                      </Typography>
+                    </Box>
+                  </Stack>
                 ) : (
-                  <Typography color="text.disabled" fontStyle="italic" variant="body2">
-                    No blood type
+                  <Typography variant="body2" color="text.disabled">
+                    Not assigned
                   </Typography>
                 )}
-                {patient.weight && (
-                  <Typography color="text.secondary">
-                    Weight: <strong>{patient.weight} kg</strong>
-                  </Typography>
-                )}
-              </Stack>
+              </Grid>
             </Grid>
-          </Grid>
+          </Box>
+        </Paper>
+      </Box>
 
-          <Divider sx={{ my: 4, borderColor: "grey.300" }} />
-        </Box>
-      </Paper>
-    </Box>
+      <SendCrossModal
+        open={sendModalOpen}
+        onClose={() => setSendModalOpen(false)}
+        onSend={sendToDepartment}
+      />
+      <AllergyModal
+        open={allergyModalOpen}
+        onClose={() => setAllergyModalOpen(false)}
+        onSubmit={addAllergy}
+        patientName={patient?.full_name}
+      />
+
+      <style>
+        {`
+          @keyframes glow {
+            from {
+              box-shadow: 0 0 5px rgba(255, 68, 68, 0.7);
+            }
+            to {
+              box-shadow: 0 0 10px rgba(255, 68, 68, 0.9), 0 0 15px rgba(255, 68, 68, 0.7);
+            }
+          }
+        `}
+      </style>
+    </>
   );
 };
 

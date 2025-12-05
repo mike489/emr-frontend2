@@ -1,4 +1,3 @@
-
 import { Box, Typography } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import FollowUpPatients from '../../features/follow_up/FollowUpPatients';
@@ -8,8 +7,7 @@ import CreateFollowUpForm from '../../features/follow_up/CreateFollowUpForm';
 
 export default function FollowUp() {
   const location = useLocation();
-  const { patient } =
-    (location.state as { patient: Patient }) || {};
+  const { patient } = (location.state as { patient: Patient }) || {};
 
   const patientId = patient?.id;
   const consultantId = patient?.constultation_id;
@@ -22,8 +20,8 @@ export default function FollowUp() {
         display: 'flex',
         flexDirection: 'column',
         // height: '100vh',
-        justifyContent:'center',
-        justifyItems:'center',
+        justifyContent: 'center',
+        justifyItems: 'center',
         bgcolor: 'background.paper',
         mt: -16,
       }}
@@ -38,24 +36,19 @@ export default function FollowUp() {
                 color: 'white',
                 width: '100%',
                 p: 3,
-                justifyItems:'center',
-                justifySelf:'center',
+                justifyItems: 'center',
+                justifySelf: 'center',
                 borderRadius: 2,
               }}
             >
               <Typography variant="h5" fontWeight="bold">
                 New Follow Up Note
               </Typography>
-              <Typography variant="body1">
-                Patient: {patient?.full_name}
-              </Typography>
+              <Typography variant="body1">Patient: {patient?.full_name}</Typography>
             </Box>
 
             {/* PASS patientId & visitId HERE */}
-            <CreateFollowUpForm
-              patientId={patientId}
-              visitId={consultantId}
-            />
+            <CreateFollowUpForm patientId={patientId} visitId={consultantId} />
           </>
         ) : (
           <Box>
