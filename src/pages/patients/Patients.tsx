@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { sendToDepartmentService } from '../../shared/api/services/sendTo.service';
 import { toast } from 'react-toastify';
 import AllergyModal from './AllergyModal';
+import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 type PatientsProps = {
   patient?: Patient;
@@ -14,6 +16,7 @@ type PatientsProps = {
 };
 
 const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
+  const navigate = useNavigate();
   const [sendModalOpen, setSendModalOpen] = useState(false);
   const [allergyModalOpen, setAllergyModalOpen] = useState(false);
   const [allergies, setAllergies] = useState<string[]>(
@@ -79,6 +82,31 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
             <Grid container alignItems="center" spacing={1}>
               <Grid size={{ xs: 12, md: 8 }}>
                 <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                  <Button
+                    onClick={() => navigate(-1)}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                      textTransform: 'none',
+                      color: 'white',
+                      fontWeight: 500,
+                      fontSize: '0.875rem',
+                      px: 1.5,
+                      py: 0.75,
+                      borderRadius: '8px',
+                      minWidth: 'auto',
+                      bgcolor: 'rgba(255, 255, 255, 0.12)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)' },
+                    }}
+                  >
+                    <ArrowBackIcon sx={{ fontSize: 18 }} />
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      Back
+                    </Typography>
+                  </Button>
                   <Typography variant="h6" fontWeight={600}>
                     {patient?.full_name}
                   </Typography>

@@ -12,7 +12,7 @@ import {
 import { ArrowDropDown } from '@mui/icons-material';
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface SendModalProps {
   open: boolean;
@@ -51,13 +51,18 @@ const SendModal: React.FC<SendModalProps> = ({ open, onClose, onSend }) => {
   }, [open]);
 
   const handleSend = () => {
-    if (!selectedDepartment || !selectedDoctor) {
+    if (
+      !selectedDepartment ||
+      (SHOW_DOCTOR_DEPTS.includes(selectedDepartment) && !selectedDoctor)
+    ) {
       toast.error('Please select both department and doctor');
       return;
     }
     onSend(selectedDepartment, selectedDoctor);
     onClose();
   };
+
+  const SHOW_DOCTOR_DEPTS = ['Retina', 'Pediatric', 'Glaucoma', 'OPD1', 'OPD2', 'OPD3'];
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -73,9 +78,6 @@ const SendModal: React.FC<SendModalProps> = ({ open, onClose, onSend }) => {
               value={selectedDepartment}
               onChange={e => setSelectedDepartment(e.target.value)}
               SelectProps={{ IconComponent: ArrowDropDown }}
-              sx={{
-                mt: 1,
-              }}
               fullWidth
             >
               {departments.map((dept, idx) => (
@@ -85,20 +87,22 @@ const SendModal: React.FC<SendModalProps> = ({ open, onClose, onSend }) => {
               ))}
             </TextField>
 
-            <TextField
-              select
-              label="Doctor"
-              value={selectedDoctor}
-              onChange={e => setSelectedDoctor(e.target.value)}
-              SelectProps={{ IconComponent: ArrowDropDown }}
-              fullWidth
-            >
-              {doctors.map(doctor => (
-                <MenuItem key={doctor.id} value={doctor.id}>
-                  {doctor.name}
-                </MenuItem>
-              ))}
-            </TextField>
+            {SHOW_DOCTOR_DEPTS.includes(selectedDepartment) && (
+              <TextField
+                select
+                label="Doctor"
+                value={selectedDoctor}
+                onChange={e => setSelectedDoctor(e.target.value)}
+                SelectProps={{ IconComponent: ArrowDropDown }}
+                fullWidth
+              >
+                {doctors.map(doctor => (
+                  <MenuItem key={doctor.id} value={doctor.id}>
+                    {doctor.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
           </>
         )}
       </DialogContent>
@@ -110,6 +114,7 @@ const SendModal: React.FC<SendModalProps> = ({ open, onClose, onSend }) => {
           Send
         </Button>
       </DialogActions>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Dialog>
   );
 };

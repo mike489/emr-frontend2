@@ -92,31 +92,31 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
         }}
       >
         {showBackButton && (
-          <Button
-            onClick={() => navigate(-1)}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 0.5,
-              textTransform: 'none',
-              color: 'white',
-              fontWeight: 500,
-              fontSize: '0.875rem',
-              px: 1.5,
-              py: 0.75,
-              borderRadius: '8px',
-              minWidth: 'auto',
-              bgcolor: 'rgba(255, 255, 255, 0.12)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)' },
-            }}
+          <Box
+          // onClick={() => navigate(-1)}
+          // sx={{
+          //   display: 'flex',
+          //   alignItems: 'center',
+          //   gap: 0.5,
+          //   textTransform: 'none',
+          //   color: 'white',
+          //   fontWeight: 500,
+          //   fontSize: '0.875rem',
+          //   px: 1.5,
+          //   py: 0.75,
+          //   borderRadius: '8px',
+          //   minWidth: 'auto',
+          //   bgcolor: 'rgba(255, 255, 255, 0.12)',
+          //   border: '1px solid rgba(255, 255, 255, 0.3)',
+          //   transition: 'all 0.2s ease-in-out',
+          //   '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)' },
+          // }}
           >
-            <ArrowBackIcon sx={{ fontSize: 18 }} />
+            {/* <ArrowBackIcon sx={{ fontSize: 18 }} />
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
               Back to Home
-            </Typography>
-          </Button>
+            </Typography> */}
+          </Box>
         )}
 
         {/* PARENT TABS */}

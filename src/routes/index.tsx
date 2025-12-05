@@ -25,12 +25,10 @@ import {
   PATIENTDETILES_PEDIATRIC_TABS,
   PATIENTDETILES_OPD1_TABS,
   PATIENTDETILES_TABS_TWO,
+  type TabItem,
 } from '../data/data';
-// import { PublicLayout } from '../layouts/PublicLayout';
 import PrivateTopBar from '../layouts/PrivateTopBar';
-// import Doctor from './../pages/management/Doctor';
 
-// import { PublicLayout } from '../layouts/PublicLayout';
 import Home from '../pages/public/Home';
 import Clinics from '../pages/Clinics';
 import Administration from '../pages/Administration';
@@ -44,7 +42,15 @@ const Loading = () => (
 interface AppRouterProps {
   darkMode: boolean;
   onToggleTheme: () => void;
+  currentPath?: string;
 }
+
+const getFilteredTabs = (pathname: string, tabs: TabItem[]): TabItem[] => {
+  if (pathname.includes('/triage/examinations')) {
+    return tabs.filter(tab => tab.label !== 'Follow Up');
+  }
+  return tabs;
+};
 
 export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
   const router = createBrowserRouter([
@@ -507,7 +513,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         <AppLayout
           darkMode={darkMode}
           onToggleTheme={onToggleTheme}
-          tabsData={PATIENTDETILES_TABS_TWO}
+          tabsData={getFilteredTabs(window.location.pathname, PATIENTDETILES_TABS_TWO)}
         />
       ),
       children: [

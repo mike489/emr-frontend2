@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -22,8 +22,25 @@ import {
   TableRow,
   Paper,
   Alert,
+  Grid,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  Tooltip,
 } from '@mui/material';
-import { Close, ExpandMore, Science, CheckCircle } from '@mui/icons-material';
+import {
+  Close,
+  ExpandMore,
+  Science,
+  CheckCircle,
+  AttachFile,
+  Delete,
+  PictureAsPdf,
+  Description,
+  InsertDriveFile,
+} from '@mui/icons-material';
 import { LaboratoryService } from '../../shared/api/services/laboratory.service';
 
 interface LabTestResult {
@@ -42,8 +59,15 @@ interface LabTestGroup {
 }
 
 interface TestResultInput {
-  id: string; // Changed from testId to id to match API requirement
+  id: string;
   result: string;
+}
+
+interface UploadedFile {
+  id: string;
+  file: File;
+  testId?: string; // Optional - to associate with specific test
+  testName?: string; // Optional - for display
 }
 
 interface SubmitLaboratoriesResultModalProps {
@@ -63,10 +87,12 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
 }) => {
   const [labTests, setLabTests] = useState<LabTestGroup[]>([]);
   const [testResults, setTestResults] = useState<TestResultInput[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch laboratory tests when modal opens
   useEffect(() => {
@@ -77,6 +103,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
         setLoading(true);
         setError(null);
         setTestResults([]);
+        setUploadedFiles([]);
         setSuccess(false);
 
         const response = await LaboratoryService.getLabRequest(patientId);
@@ -136,8 +163,83 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
   };
 
   const canSubmitResults = () => {
-    // Allow submission if there are any results entered
-    return testResults.length > 0 && testResults.every(tr => tr.result.trim() !== '');
+    // Allow submission if there are any results entered OR files uploaded
+    return testResults.length > 0 || uploadedFiles.length > 0;
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, testId?: string) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newFiles: UploadedFile[] = [];
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      // Validate file type
+      if (!allowedTypes.includes(file.type)) {
+        setError(`Invalid file type: ${file.name}. Only PDF and DOC files are allowed.`);
+        continue;
+      }
+
+      // Validate file size
+      if (file.size > maxSize) {
+        setError(`File too large: ${file.name}. Maximum size is 10MB.`);
+        continue;
+      }
+
+      // Find test name for display
+      let testName = '';
+      if (testId) {
+        labTests.forEach(group => {
+          const test = group.tests.find(t => t.id === testId);
+          if (test) testName = test.test;
+        });
+      }
+
+      newFiles.push({
+        id: `${Date.now()}-${i}`,
+        file,
+        testId,
+        testName,
+      });
+    }
+
+    if (newFiles.length > 0) {
+      setUploadedFiles(prev => [...prev, ...newFiles]);
+      if (error?.includes('Invalid file type') || error?.includes('File too large')) {
+        setError(null); // Clear error if we successfully added some files
+      }
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
+  };
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes('pdf')) return <PictureAsPdf />;
+    if (fileType.includes('word') || fileType.includes('document')) return <Description />;
+    return <InsertDriveFile />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const handleSubmitResults = async () => {
@@ -145,18 +247,42 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
       setSubmitting(true);
       setError(null);
 
-      // Corrected submission data structure based on API requirements
-      const submissionData = {
-        patient_tests: testResults.map(tr => ({
-          id: tr.id, // This should match the test ID from getLabRequest
+      // Prepare form data for file upload
+      const formData = new FormData();
+
+      // Add text results if any
+      if (testResults.length > 0) {
+        const textResults = testResults.map(tr => ({
+          id: tr.id,
           result: tr.result,
-        })),
-        technician: 'Lab Technician', // This could be dynamic based on logged-in user
-      };
+        }));
+        formData.append('patient_tests', JSON.stringify(textResults));
+      }
 
-      console.log('Submitting lab results:', submissionData);
+      // Add files if any
+      uploadedFiles.forEach(file => {
+        formData.append('files', file.file);
+        if (file.testId) {
+          // Add test association if file is linked to a specific test
+          formData.append(
+            'file_tests',
+            JSON.stringify({
+              testId: file.testId,
+              fileName: file.file.name,
+            })
+          );
+        }
+      });
 
-      await LaboratoryService.createLabResult(patientId, submissionData);
+      // Add technician info
+      formData.append('technician', 'Lab Technician');
+
+      console.log('Submitting lab results with files:', {
+        textResults: testResults.length,
+        files: uploadedFiles.length,
+      });
+
+      await LaboratoryService.createLabResult(patientId, formData);
 
       setSuccess(true);
 
@@ -169,6 +295,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
       setTimeout(() => {
         onClose();
         setTestResults([]);
+        setUploadedFiles([]);
         setSuccess(false);
       }, 2000);
     } catch (err: any) {
@@ -217,6 +344,14 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
     }
   };
 
+  const handleUploadForTest = (testId: string) => {
+    if (fileInputRef.current) {
+      // Store the test ID in a data attribute
+      fileInputRef.current.setAttribute('data-test-id', testId);
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>
@@ -247,6 +382,19 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
             </Alert>
           )}
 
+          {/* Hidden file input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            multiple
+            onChange={e => {
+              const testId = fileInputRef.current?.getAttribute('data-test-id');
+              handleFileUpload(e, testId || undefined);
+            }}
+          />
+
           {/* Action Buttons */}
           {hasPendingTests() && (
             <Box
@@ -264,20 +412,16 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                     Ready to Submit
                   </Typography>
                   <Typography variant="h6" color="primary" fontWeight="bold">
-                    {testResults.length}
+                    {testResults.length + uploadedFiles.length}
                   </Typography>
                 </Paper>
 
                 <Paper sx={{ p: 1.5, minWidth: 100, textAlign: 'center' }}>
                   <Typography variant="body2" color="textSecondary">
-                    Total Amount
+                    Files Uploaded
                   </Typography>
                   <Typography variant="h6" color="secondary" fontWeight="bold">
-                    $
-                    {testResults.reduce((total, tr) => {
-                      const test = labTests.flatMap(group => group.tests).find(t => t.id === tr.id);
-                      return total + (test ? parseFloat(test.amount) : 0);
-                    }, 0)}
+                    {uploadedFiles.length}
                   </Typography>
                 </Paper>
               </Box>
@@ -318,6 +462,91 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                 </Typography>
               </Paper>
             </Box>
+          )}
+
+          {/* Uploaded Files Section */}
+          {uploadedFiles.length > 0 && (
+            <Paper sx={{ p: 2, mb: 3 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" color="primary">
+                  Uploaded Files ({uploadedFiles.length})
+                </Typography>
+                <Button
+                  variant="outlined"
+                  startIcon={<AttachFile />}
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={submitting}
+                >
+                  Add More Files
+                </Button>
+              </Box>
+              <List>
+                {uploadedFiles.map(file => (
+                  <ListItem
+                    key={file.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleRemoveFile(file.id)}
+                        disabled={submitting}
+                      >
+                        <Delete />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemIcon>
+                      <Avatar sx={{ bgcolor: 'primary.light' }}>
+                        {getFileIcon(file.file.type)}
+                      </Avatar>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" fontWeight="medium">
+                          {file.file.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Box>
+                          <Typography variant="body2" color="textSecondary">
+                            {formatFileSize(file.file.size)}
+                            {file.testName && ` • For: ${file.testName}`}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {file.file.type}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          )}
+
+          {/* Upload Button when no files uploaded yet */}
+          {uploadedFiles.length === 0 && hasPendingTests() && (
+            <Paper sx={{ p: 3, mb: 3, textAlign: 'center' }}>
+              <AttachFile sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+              <Typography variant="h6" gutterBottom>
+                Upload Result Files (Optional)
+              </Typography>
+              <Typography variant="body2" color="textSecondary" paragraph>
+                You can upload PDF or DOC files containing test results. Files can be uploaded for
+                specific tests or as general reports.
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<AttachFile />}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={submitting}
+              >
+                Upload Files
+              </Button>
+              <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
+                Maximum file size: 10MB • Supported formats: PDF, DOC, DOCX
+              </Typography>
+            </Paper>
           )}
 
           {/* Loading State */}
@@ -399,6 +628,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                             <TableRow>
                               <TableCell>Test Name</TableCell>
                               <TableCell width="300px">Result</TableCell>
+                              <TableCell>File Upload</TableCell>
                               <TableCell>Status</TableCell>
                               <TableCell>Amount</TableCell>
                               <TableCell>Requested Date</TableCell>
@@ -409,6 +639,9 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                               const status = getTestStatus(test);
                               const canEnterResult = !test.result && test.is_payment_completed;
                               const isSelected = testResults.some(tr => tr.id === test.id);
+                              const hasFileForTest = uploadedFiles.some(
+                                file => file.testId === test.id
+                              );
 
                               return (
                                 <TableRow
@@ -428,13 +661,18 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                                     >
                                       {test.test}
                                     </Typography>
+                                    {hasFileForTest && (
+                                      <Typography variant="caption" color="primary" display="block">
+                                        File uploaded
+                                      </Typography>
+                                    )}
                                   </TableCell>
                                   <TableCell>
                                     {canEnterResult ? (
                                       <TextField
                                         fullWidth
                                         size="small"
-                                        placeholder="Enter test result..."
+                                        placeholder="Enter test result (optional)..."
                                         value={getResultValue(test.id)}
                                         onChange={e => handleResultChange(test.id, e.target.value)}
                                         disabled={submitting}
@@ -462,6 +700,20 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                                       >
                                         {test.result || 'N/A'}
                                       </Typography>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    {canEnterResult && (
+                                      <Button
+                                        size="small"
+                                        startIcon={<AttachFile />}
+                                        onClick={() => handleUploadForTest(test.id)}
+                                        disabled={submitting}
+                                        variant={hasFileForTest ? 'contained' : 'outlined'}
+                                        color={hasFileForTest ? 'success' : 'primary'}
+                                      >
+                                        {hasFileForTest ? 'File Added' : 'Upload File'}
+                                      </Button>
                                     )}
                                   </TableCell>
                                   <TableCell>
@@ -496,7 +748,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
         <Button onClick={onClose} disabled={submitting}>
           Cancel
         </Button>
-        {hasPendingTests() && (
+        {(hasPendingTests() || uploadedFiles.length > 0) && (
           <Button
             onClick={handleSubmitResults}
             variant="contained"
@@ -504,7 +756,9 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
             disabled={!canSubmitResults() || submitting}
             startIcon={submitting ? <CircularProgress size={16} /> : <CheckCircle />}
           >
-            {submitting ? 'Submitting...' : `Submit ${testResults.length} Result(s)`}
+            {submitting
+              ? 'Submitting...'
+              : `Submit Results (${testResults.length + uploadedFiles.length})`}
           </Button>
         )}
       </DialogActions>

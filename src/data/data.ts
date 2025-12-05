@@ -142,10 +142,6 @@ export const PATIENTDETILES_OPD1_TABS: TabItem[] = [
 ];
 
 export const PATIENTDETILES_TABS_TWO: TabItem[] = [
-  // {
-  //   label: 'Visit Patient',
-  //   path: '/triage/patient-details',
-  // },
   {
     label: 'Examination',
     path: '/triage/examinations',
@@ -250,17 +246,6 @@ export const TRIAGE_TABS_ONE: TabItem[] = [
     label: 'Discussion',
     path: '/triage-one/discussion',
   },
-
-  // {
-  //   label: 'Notifications',
-  //   path: '/notifications',
-  // },
-
-  // {
-  //   label: 'Settings',
-  //   path: '/settings',
-  // },
-  // { label: "Logout", path: "/logout" },
 ];
 export const TRIAGE_TABS_THREE: TabItem[] = [
   {

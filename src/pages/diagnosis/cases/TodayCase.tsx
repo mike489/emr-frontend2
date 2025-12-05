@@ -21,23 +21,17 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Search, ArrowDropDown } from '@mui/icons-material';
-// import { PatientService } from '../../shared/api/services/patient.service';
-import { toast } from 'react-toastify';
-// import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 import type { Patient } from '../../../shared/api/types/patient.types';
-// import { PatientService } from '../../../shared/api/services/patient.service';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
-// import { UploadService } from '../../../shared/api/services/sendTo.service';
-// import { BillsService } from '../../../shared/api/services/bills.service';
-// import PatientTable from '../../../features/patients/PatientTable';
-// import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
-// import PatientDetailsModal from '../../../features/patients/PatientDetailsModal';
 import { CheckCircle, FileUp } from 'lucide-react';
 import LabModal from '../../../features/case/LabModal';
 import { LaboratoryService } from '../../../shared/api/services/laboratory.service';
 import SubmitLaboratoriesResultModal from '../../../features/case/submitLaboratoriesResultModal';
+import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 // Updated Type definitions to match your API response
 interface PaginationState {
@@ -55,6 +49,7 @@ interface PaginationState {
 // }
 
 const TodayCases: React.FC = () => {
+  const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [_loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
@@ -257,6 +252,58 @@ const TodayCases: React.FC = () => {
       <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         {/* Compact Filter Row */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end' }}>
+          <Button
+            onClick={() => navigate('/clinics')}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              textTransform: 'none',
+              color: 'white',
+              fontWeight: 500,
+              fontSize: '0.875rem',
+              px: 1.5,
+              py: 0.75,
+              borderRadius: '8px',
+              minWidth: 'auto',
+              bgcolor: '#1976d2',
+              border: '1px solid #1565c0',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother transition
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Initial subtle shadow
+              position: 'relative', // For 3D effect
+              transform: 'translateY(0)', // Initial position
+              '&:hover': {
+                bgcolor: '#1565c0',
+                transform: 'translateY(-4px)',
+                boxShadow: `
+                                0 8px 16px rgba(25, 118, 210, 0.3),
+                                0 4px 8px rgba(0,0,0,0.15)
+                              `,
+                borderColor: '#0d47a1',
+                '&::after': {
+                  opacity: 1,
+                },
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                borderRadius: '8px',
+                boxShadow: '0 0 20px rgba(25, 118, 210, 0.4)',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                zIndex: -1,
+              },
+            }}
+          >
+            <ArrowBackIcon sx={{ fontSize: 18 }} />
+            <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
+              Back to Home
+            </Typography>
+          </Button>
           {/* Search */}
           <TextField
             size="small"
@@ -824,6 +871,7 @@ const TodayCases: React.FC = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 };
