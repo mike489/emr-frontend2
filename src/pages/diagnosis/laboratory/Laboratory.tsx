@@ -478,6 +478,10 @@ const Laboratory: React.FC = () => {
           onSendToTriage={handleOpenTriageModal}
           onViewAttachments={openAttachModal}
           onAttachFiles={handleFileChange}
+          handleClickRow={function (patient: Patient): void {
+            throw new Error('Function not implemented.');
+            console.log('first', patient);
+          }}
         />
 
         <AttachmentsModal

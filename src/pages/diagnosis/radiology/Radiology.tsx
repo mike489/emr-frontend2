@@ -478,6 +478,9 @@ const Radiology: React.FC = () => {
           onSendToTriage={handleOpenTriageModal}
           onViewAttachments={openAttachModal}
           onAttachFiles={handleFileChange}
+          handleClickRow={function (_patient: Patient): void {
+            throw new Error('Function not implemented.');
+          }}
         />
 
         <AttachmentsModal

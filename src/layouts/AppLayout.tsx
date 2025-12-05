@@ -8,10 +8,9 @@ interface Props {
   tabsData?: TabItem[];
   darkMode: boolean;
   onToggleTheme: () => void;
-  currentPath?: string;
 }
 
-export default function AppLayout({ tabsData = [], darkMode, onToggleTheme, currentPath }: Props) {
+export default function AppLayout({ tabsData = [], darkMode, onToggleTheme }: Props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 

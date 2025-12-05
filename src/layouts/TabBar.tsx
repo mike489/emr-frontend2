@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Paper, Tabs, Tab, Typography } from '@mui/material';
+import { Box, Button, Paper, Tabs, Tab } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
+// import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import type { TabItem } from '../data/data';
 
 interface TabBarProps {
