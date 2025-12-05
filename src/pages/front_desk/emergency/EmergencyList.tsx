@@ -581,8 +581,10 @@ const handlePay = async (patient: Patient) => {
           onPay={handlePay}
           onSendToTriage={handleOpenTriageModal}
           // onAttachFiles={handleFileChange}   
-          onViewAttachments={openAttachModal} 
-          onAttachFiles={handleFileChange}/>
+          onViewAttachments={openAttachModal}
+          onAttachFiles={handleFileChange} handleClickRow={function (_patient: Patient): void {
+            throw new Error('Function not implemented.');
+          } }/>
 
 
         <AttachmentsModal
