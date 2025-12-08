@@ -18,7 +18,7 @@ export const doctorRoutes: RouteCollection = {
     ),
   },
   doctorPatients: {
-    path: '/doctor/patients-list',
+    path: '/retina/patients-list',
     element: (
       <PrivateRoute>
         <Retina />

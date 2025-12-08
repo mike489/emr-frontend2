@@ -33,7 +33,7 @@ export const DOCTOR_MODULES = [
     title: 'RETINA',
     icon: Retina,
     permission: 'read_adnexa_examination',
-    route: '/retina',
+    route: '/retina/patients-list',
   },
   {
     title: 'GLAUCOMA',

@@ -40,8 +40,9 @@ export const FRONT_DESK_TABS: TabItem[] = [
     label: 'Bills',
     path: '/front-desk/bills',
     children: [
-      { label: 'Laboratory Requested Payments ', path: '/front-desk/requested-payments' },
-      { label: 'Patient Payments ', path: '/front-desk/patient-payments' },
+      { label: 'Investigation Payments ', path: '/front-desk/requested-payments' },
+      { label: 'Card Payments ', path: '/front-desk/patient-payments' },
+      { label: 'Operational Payments ', path: '/front-desk/operational-payments' },
       { label: 'Pending Payments ', path: '/front-desk/pending-payments' },
     ],
   },
@@ -369,6 +370,7 @@ export const DOCTOR_TABS: TabItem[] = [
   // },
   // { label: "Logout", path: "/logout" },
 ];
+
 export const PEDIATRIC_TABS: TabItem[] = [
   {
     label: 'Patients',

@@ -15,15 +15,16 @@ import {
   Button,
   CircularProgress,
   TablePagination,
-  Chip,
   Tooltip,
   IconButton,
+  Chip,
 } from '@mui/material';
-
+import { Send, Eye, FileUp, FileSearch } from 'lucide-react';
 import { Search, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../../shared/api/services/patient.service';
+// import { PatientService } from '../../shared/api/services/patient.service';
 import { toast } from 'react-toastify';
+import { PatientService } from '../../../shared/api/services/patient.service';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
@@ -32,9 +33,9 @@ import {
   sendToDepartmentService,
   UploadService,
 } from '../../../shared/api/services/sendTo.service';
+import SendModal from '../../../features/triage/components/sendModal';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
-import SendCrossModal from '../../../features/triage/components/SendCrossModal';
-import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 
 // Updated Type definitions to match your API response
 interface Patient {
@@ -51,6 +52,7 @@ interface Patient {
     kifle_ketema: string;
     wereda: string;
   };
+  visit_type: string;
   blood_type: string;
   height: string;
   weight: string;
@@ -112,8 +114,8 @@ const Opd2: React.FC = () => {
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
-    sort_by: 'full_name',
-    sort_order: 'asc',
+    sort_by: '',
+    sort_order: '',
     department: 'OPD2',
     search: '',
     gender: '',
@@ -125,7 +127,7 @@ const Opd2: React.FC = () => {
     age_max: '',
     created_from: '',
     created_to: '',
-    sort_dir: 'asc',
+    sort_dir: '',
   });
 
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -151,8 +153,8 @@ const Opd2: React.FC = () => {
     setFilters({
       page: 1,
       per_page: 25,
-      sort_by: 'full_name',
-      sort_order: 'asc',
+      sort_by: '',
+      sort_order: '',
       department: 'OPD2',
       search: '',
       gender: '',
@@ -164,7 +166,7 @@ const Opd2: React.FC = () => {
       age_max: '',
       created_from: '',
       created_to: '',
-      sort_dir: 'asc',
+      sort_dir: '',
     });
     fetchPatients();
   };
@@ -187,7 +189,7 @@ const Opd2: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -203,7 +205,7 @@ const Opd2: React.FC = () => {
       setDepartments(departmentsData);
       setError(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch departments');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch departments');
       console.error('Error fetching departments:', err);
     }
   };
@@ -212,21 +214,19 @@ const Opd2: React.FC = () => {
     setLoading(true);
     try {
       const res = await PatientCategoryService.getAll();
-      // Based on your API response structure, the data is at res.data.data
       const categories = res.data?.data || [];
       setPatientCategories(categories);
       setTotal(categories.length || 0);
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.message || 'Failed to fetch patient categories');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch patient categories');
       console.error('Error fetching patient categories:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Wrapper function with hardcoded department for this page
   const getFrontDeskSummary = () => PatientSummaryService.getAll('OPD2');
 
   // Then use it
@@ -237,12 +237,16 @@ const Opd2: React.FC = () => {
       const summaryData = res.data?.data?.patient_categories || [];
       setSummary(summaryData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     } finally {
       setSummaryLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -250,7 +254,7 @@ const Opd2: React.FC = () => {
       const doctorsData = res.data?.data || [];
       setDoctors(doctorsData);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to fetch summary');
+      toast.error(err.response?.data?.data?.message || 'Failed to fetch summary');
       console.error('Error fetching summary:', err);
     }
   };
@@ -259,7 +263,7 @@ const Opd2: React.FC = () => {
     fetchPatients();
     fetchDepartments();
     fetchPatientCategories();
-    fetchSummary();
+
     fetchDoctors();
   }, [filters]);
 
@@ -291,40 +295,69 @@ const Opd2: React.FC = () => {
     }));
   };
 
+  const handleRowClick = (patient: Patient) => {
+    navigate('/opd-one/patients-detail', {
+      state: {
+        consultation_id: patient.constultation_id,
+        index: 0,
+        patient: patient,
+      },
+    });
+  };
+
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
-      
       {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+      <Paper sx={{ p: 1.5, mb: 1.5, borderRadius: 1.5 }}>
         {/* Header with Back Button and Summary Stats */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            mb: 3,
-          }}
-        >
-
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
           {/* Summary Stats */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                onClick={() => navigate('/clinic-lists')}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.25,
+                  textTransform: 'none',
+                  color: 'white',
+                  fontWeight: 500,
+                  fontSize: '0.75rem',
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: '6px',
+                  minWidth: 'auto',
+                  bgcolor: '#1976d2',
+                  border: '1px solid #1565c0',
+                  '&:hover': { bgcolor: '#1565c0' },
+                }}
+              >
+                <ArrowBackIcon sx={{ fontSize: 16 }} />
+                <Typography variant="caption" sx={{ fontWeight: 500, color: 'white' }}>
+                  Back
+                </Typography>
+              </Button>
               <Chip
-                label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
+                label={`Total: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
+                size="small"
                 sx={{
                   backgroundColor: '#1976d2',
                   color: 'white',
                   fontWeight: '600',
-                  fontSize: '0.875rem',
+                  fontSize: '0.75rem',
+                  height: '30px',
                 }}
               />
               <Chip
-                label="Total Checkouts: 0"
+                label="Checkouts: 0"
+                size="small"
                 sx={{
                   backgroundColor: '#757575',
                   color: 'white',
                   fontWeight: '600',
-                  fontSize: '0.875rem',
+                  fontSize: '0.75rem',
+                  height: '30px',
                 }}
               />
             </Box>
@@ -332,7 +365,7 @@ const Opd2: React.FC = () => {
         </Box>
 
         {/* Patient Category Cards */}
-        <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, px: 1, flexWrap: 'wrap' }}>
           {summaryLoading ? (
             <Box
               sx={{
@@ -340,31 +373,35 @@ const Opd2: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                py: 4,
+                py: 2,
               }}
             >
-              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
-              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
+              <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+              <Typography sx={{ ml: 1.5, color: '#555', fontSize: '0.875rem' }}>
+                Loading...
+              </Typography>
             </Box>
           ) : (
             summary.map((category: any) => (
               <Box
                 key={category.category_id}
                 sx={{
-                  flex: '1 1 220px',
-                  minWidth: 220,
+                  flex: '1 1 180px',
+                  minWidth: 180,
                   backgroundColor: '#fff',
-                  borderRadius: 3,
-                  p: 2,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                  border: '1px solid #ededed',
+                  borderRadius: 2,
+                  p: 1.5,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  border: '1px solid #f0f0f0',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  height: 120,
+                  height: 90,
                 }}
               >
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
+                <Typography
+                  sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', lineHeight: 1.2 }}
+                >
                   {category.category_name}
                 </Typography>
 
@@ -373,24 +410,18 @@ const Opd2: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mt: 1,
+                    mt: 0.5,
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1a1a1a',
-                    }}
-                  >
+                  <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a1a1a' }}>
                     {category.patient_count}
                   </Typography>
 
                   <Box
                     sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: '10%',
+                      width: 28,
+                      height: 28,
+                      borderRadius: '8%',
                       backgroundColor: `${category.color}20`,
                       display: 'flex',
                       alignItems: 'center',
@@ -399,16 +430,16 @@ const Opd2: React.FC = () => {
                   >
                     <Box
                       sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '10%',
+                        width: 16,
+                        height: 16,
+                        borderRadius: '8%',
                         backgroundColor: category.color,
                       }}
                     />
                   </Box>
                 </Box>
 
-                <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
+                <Typography sx={{ fontSize: '0.7rem', color: '#888', mt: 0.5 }}>
                   {category.percentage_text}
                 </Typography>
               </Box>
@@ -557,20 +588,20 @@ const Opd2: React.FC = () => {
 
           {/* Department */}
           <TextField
-                      size="small"
-                      select
-                      value={filters.department}
-                      onChange={e => setFilters({ ...filters, department: e.target.value })}
-                      placeholder="Department"
-                      sx={{ minWidth: 150 }}
-                    >
-                      <MenuItem value="">All Departments</MenuItem>
-                      {departments.map((dept, index) => (
-                        <MenuItem key={index} value={dept}>
-                          {dept}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
 
           {/* Patient Category */}
           <TextField
@@ -634,30 +665,13 @@ const Opd2: React.FC = () => {
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
-                    width: 120,
+                    width: 110,
                     fontSize: '0.8rem',
                     py: 1.5,
                     borderRight: '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
                   }}
                 >
                   Patient Name
-                  {filters.sort_by === 'full_name' &&
-                    (filters.sort_dir === 'asc' ? (
-                      <ArrowDropDown
-                        sx={{
-                          transform: 'rotate(180deg)',
-                          color: 'white',
-                          transition: '0.3s',
-                        }}
-                      />
-                    ) : (
-                      <ArrowDropDown sx={{ color: 'white', transition: '0.3s' }} />
-                    ))}
                 </TableCell>
 
                 <TableCell
@@ -791,9 +805,17 @@ const Opd2: React.FC = () => {
                 </TableRow>
               ) : patients.length > 0 ? (
                 patients.map((patient, index) => (
-                  <TableRow key={patient.id || index}>
+                  <TableRow
+                    key={patient.id || index}
+                    onClick={() => handleRowClick(patient)}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
+                  >
                     <TableCell>
-                      {' '}
                       <Box
                         sx={{
                           width: 16,
@@ -843,12 +865,16 @@ const Opd2: React.FC = () => {
                     </TableCell>
 
                     <TableCell sx={{ gap: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        {/* -------------------- SEND TO -------------------- */}
+                      <Box
+                        sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}
+                        onClick={e => e.stopPropagation()} // Stop row click when clicking in action area
+                      >
+                        {/* Action buttons remain the same */}
                         <Tooltip title="Send to doctor or department" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => {
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
                               setCurrentPatientId(patient.id);
                               setSendModalOpen(true);
                             }}
@@ -862,15 +888,13 @@ const Opd2: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- EXAMINATIONS -------------------- */}
-                        <Tooltip title="Open Examination Form" arrow>
+                        <Tooltip title="Open Patient Detail" arrow>
                           <IconButton
                             size="small"
-                            onClick={() =>
-                              navigate('/examinations', {
-                                state: { consultation_id: patient.constultation_id },
-                              })
-                            }
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              handleRowClick(patient);
+                            }}
                             sx={{
                               backgroundColor: '#1976d2',
                               color: 'white',
@@ -881,13 +905,13 @@ const Opd2: React.FC = () => {
                           </IconButton>
                         </Tooltip>
 
-                        {/* -------------------- ATTACH FILES -------------------- */}
                         <Tooltip title="Attach files for this patient" arrow>
                           <span>
                             <IconButton
                               size="small"
                               disabled={uploadingId === patient.id}
-                              onClick={() => {
+                              onClick={e => {
+                                e.stopPropagation(); // Prevent row click
                                 if (fileInputRef.current) {
                                   fileInputRef.current.onchange = (e: any) =>
                                     handleFileChange(e, patient.id);
@@ -909,11 +933,13 @@ const Opd2: React.FC = () => {
                           </span>
                         </Tooltip>
 
-                        {/* -------------------- VIEW / DOWNLOAD -------------------- */}
                         <Tooltip title="View or download attachments" arrow>
                           <IconButton
                             size="small"
-                            onClick={() => openAttachModal(patient.attachments)}
+                            onClick={e => {
+                              e.stopPropagation(); // Prevent row click
+                              openAttachModal(patient.attachments);
+                            }}
                             sx={{
                               border: '1px solid #1976d2',
                               color: '#1976d2',
@@ -924,21 +950,13 @@ const Opd2: React.FC = () => {
                             <FileSearch size={18} />
                           </IconButton>
                         </Tooltip>
-
-                        {/* Hidden File Input */}
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          style={{ display: 'none' }}
-                          accept="*/*"
-                        />
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       No patients found.
                     </Typography>
@@ -948,7 +966,7 @@ const Opd2: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <SendCrossModal
+        <SendModal
           open={sendModalOpen}
           onClose={() => setSendModalOpen(false)}
           onSend={(department, doctor_id) => {

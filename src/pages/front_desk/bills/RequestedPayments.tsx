@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import { Search, ArrowDropDown, Payment } from '@mui/icons-material';
 // import { PatientService } from '../../shared/api/services/patient.service';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 // import { useNavigate } from 'react-router-dom';
 import type { Patient } from '../../../shared/api/types/patient.types';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
@@ -816,6 +816,7 @@ const RequestedPayments: React.FC = () => {
         onClose={() => setDetailsOpen(false)}
         patient={selectedPatient}
       /> */}
+      <ToastContainer />
     </Box>
   );
 };
