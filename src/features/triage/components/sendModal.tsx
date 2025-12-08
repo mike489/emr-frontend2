@@ -12,7 +12,7 @@ import {
 import { ArrowDropDown } from '@mui/icons-material';
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 interface SendModalProps {
   open: boolean;
@@ -114,7 +114,6 @@ const SendModal: React.FC<SendModalProps> = ({ open, onClose, onSend }) => {
           Send
         </Button>
       </DialogActions>
-      <ToastContainer position="top-right" autoClose={3000} />
     </Dialog>
   );
 };

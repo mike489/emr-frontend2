@@ -21,6 +21,7 @@ import { sharedRoutes } from './shared.routes';
 import type { RoutesStructure } from './types';
 import { managementRoutes } from './managment.routes';
 import { chiefadminRoutes } from './chiefadmin.routes';
+import { orRoutes } from './or.routes';
 
 export const ROUTES: RoutesStructure = {
   public: {
@@ -64,6 +65,7 @@ export const ROUTES: RoutesStructure = {
     ...ophthalmologyRoutes,
     ...frontDeskRoutes,
     ...diagnosticRoutes,
+    ...orRoutes,
     ...managementRoutes,
     ...chiefadminRoutes,
     ...serviceRoutes,
@@ -80,6 +82,7 @@ export {
   ophthalmologyRoutes,
   frontDeskRoutes,
   diagnosticRoutes,
+  orRoutes,
   managementRoutes,
   chiefadminRoutes,
   serviceRoutes,

@@ -109,9 +109,19 @@ export const useAuthStore = create<AuthState>()(
         authApi.logout().catch(() => {});
       },
 
+      // isTokenValid: () => {
+      //   const { expiresAt } = get();
+      //   return expiresAt ? Date.now() < expiresAt - 60_000 : false;
+      // },
       isTokenValid: () => {
         const { expiresAt } = get();
-        return expiresAt ? Date.now() < expiresAt - 60_000 : false;
+        const valid = expiresAt ? Date.now() < expiresAt : false;
+
+        if (!valid) {
+          get().logout();
+        }
+
+        return valid;
       },
 
       hasRole: (roleName: string) => {

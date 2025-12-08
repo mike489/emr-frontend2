@@ -34,7 +34,8 @@ import { PatientService } from '../../../shared/api/services/patient.service';
 import { PatientSummaryService } from '../../../shared/api/services/patientsSummary.service';
 import { sendToTriageService, UploadService } from '../../../shared/api/services/sendTo.service';
 import { Eye, FileSearch, FileUp, Send } from 'lucide-react';
-
+import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 // Updated Type definitions to match your API response
 interface Patient {
   id: string;
@@ -89,6 +90,7 @@ interface Attachment {
 }
 
 const Checkout: React.FC = () => {
+  const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
@@ -303,73 +305,100 @@ const Checkout: React.FC = () => {
   return (
     <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -10 }}>
       {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+      <Paper sx={{ p: 1.5, mb: 1.5, borderRadius: 1.5 }}>
         {/* Header with Back Button and Summary Stats */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            mb: 3,
-          }}
-        >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
           {/* Summary Stats */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              alignItems: 'flex-end',
-              gap: 1,
-            }}
-          >
-            <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                onClick={() => navigate('/clinics')}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.25,
+                  textTransform: 'none',
+                  color: 'white',
+                  fontWeight: 500,
+                  fontSize: '0.75rem',
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: '6px',
+                  minWidth: 'auto',
+                  bgcolor: '#1976d2',
+                  border: '1px solid #1565c0',
+                  '&:hover': { bgcolor: '#1565c0' },
+                }}
+              >
+                <ArrowBackIcon sx={{ fontSize: 16 }} />
+                <Typography variant="caption" sx={{ fontWeight: 500, color: 'white' }}>
+                  Back
+                </Typography>
+              </Button>
               <Chip
-                label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
+                label={`Total: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
+                size="small"
                 sx={{
                   backgroundColor: '#1976d2',
                   color: 'white',
                   fontWeight: '600',
-                  fontSize: '0.875rem',
+                  fontSize: '0.75rem',
+                  height: '30px',
                 }}
               />
               <Chip
-                label="Total Checkouts: 0"
+                label="Checkouts: 0"
+                size="small"
                 sx={{
                   backgroundColor: '#757575',
                   color: 'white',
                   fontWeight: '600',
-                  fontSize: '0.875rem',
+                  fontSize: '0.75rem',
+                  height: '30px',
                 }}
               />
             </Box>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
+        {/* Patient Category Cards */}
+        <Box sx={{ display: 'flex', gap: 1.5, px: 1, flexWrap: 'wrap' }}>
           {summaryLoading ? (
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <CircularProgress size={30} sx={{ color: 'primary.main' }} />
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                py: 2,
+              }}
+            >
+              <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+              <Typography sx={{ ml: 1.5, color: '#555', fontSize: '0.875rem' }}>
+                Loading...
+              </Typography>
             </Box>
           ) : (
             summary.map((category: any) => (
               <Box
                 key={category.category_id}
                 sx={{
-                  flex: '1 1 220px',
-                  minWidth: 220,
+                  flex: '1 1 180px',
+                  minWidth: 180,
                   backgroundColor: '#fff',
-                  borderRadius: 3,
-                  p: 2,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                  border: '1px solid #ededed',
+                  borderRadius: 2,
+                  p: 1.5,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  border: '1px solid #f0f0f0',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  height: 120,
+                  height: 90,
                 }}
               >
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
+                <Typography
+                  sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', lineHeight: 1.2 }}
+                >
                   {category.category_name}
                 </Typography>
 
@@ -378,24 +407,18 @@ const Checkout: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mt: 1,
+                    mt: 0.5,
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1a1a1a',
-                    }}
-                  >
+                  <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a1a1a' }}>
                     {category.patient_count}
                   </Typography>
 
                   <Box
                     sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: '10%',
+                      width: 28,
+                      height: 28,
+                      borderRadius: '8%',
                       backgroundColor: `${category.color}20`,
                       display: 'flex',
                       alignItems: 'center',
@@ -404,16 +427,16 @@ const Checkout: React.FC = () => {
                   >
                     <Box
                       sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '10%',
+                        width: 16,
+                        height: 16,
+                        borderRadius: '8%',
                         backgroundColor: category.color,
                       }}
                     />
                   </Box>
                 </Box>
 
-                <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
+                <Typography sx={{ fontSize: '0.7rem', color: '#888', mt: 0.5 }}>
                   {category.percentage_text}
                 </Typography>
               </Box>

@@ -29,7 +29,7 @@ const Clinics = () => {
 
   return (
     <Container
-      maxWidth="xl"
+      maxWidth={false}
       sx={{
         minHeight: '100vh',
         display: 'flex',

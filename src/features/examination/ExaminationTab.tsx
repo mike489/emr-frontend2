@@ -4,6 +4,7 @@ import ExaminationDataPrint from './ExaminationDataPrint';
 import { usePatientDetailsState } from '../../contexts/PatientContext';
 import Patients from '../../pages/patients/Patients';
 import { useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 const ExaminationTab = () => {
   const patientDetailsState = usePatientDetailsState();
@@ -61,6 +62,7 @@ const ExaminationTab = () => {
       >
         {renderExaminationComponent()}
       </Container>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 };

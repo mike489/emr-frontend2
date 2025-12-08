@@ -4,6 +4,7 @@ import CreateFollowUpForm from './CreateFollowUpForm';
 import FollowUpPrint from './FollowUpPrint'; // You'll need to create this component
 import Patients from '../../pages/patients/Patients';
 import { useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 const FollowUpTab = () => {
   const patientDetailsState = usePatientDetailsState();
@@ -62,6 +63,7 @@ const FollowUpTab = () => {
           <Box color="error.main">No patient data found</Box>
         )}
       </Box>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 };

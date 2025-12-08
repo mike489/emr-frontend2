@@ -65,7 +65,7 @@ export const refractionRoutes: RouteCollection = {
     ),
   },
   patientDetailRefraction: {
-    path: '/refraction/patient-detail',
+    path: '/refraction/patient-details',
     element: (
       <PrivateRoute>
         <PatientDetailRefraction />

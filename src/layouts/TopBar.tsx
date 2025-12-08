@@ -36,6 +36,7 @@ import {
   DOCTOR_TABS,
   DIAGNOSIS_TABS,
   DEFAULT_TABS,
+  OPERATIONAL_TABS,
 } from '../data/data';
 
 /* ----------------------- Notification Panel ----------------------- */
@@ -48,6 +49,7 @@ const DEPARTMENT_MAP: Record<string, string> = {
   '/refraction': 'Refraction',
   '/doctor': 'Doctor',
   '/diagnosis': 'Diagnosis',
+  '/or': 'OR',
   '/default': 'Default',
 };
 
@@ -112,6 +114,9 @@ export default function TopBar({
     } else if (path.startsWith('/diagnosis')) {
       activeTabs = DIAGNOSIS_TABS;
       dept = DEPARTMENT_MAP['/diagnosis'];
+    } else if (path.startsWith('/or')) {
+      activeTabs = OPERATIONAL_TABS;
+      dept = DEPARTMENT_MAP['/or'];
     } else if (path.startsWith('/default')) {
       activeTabs = DEFAULT_TABS;
       dept = DEPARTMENT_MAP['/default'];
@@ -151,7 +156,14 @@ export default function TopBar({
               component="img"
               src={Logo}
               alt="Logo"
-              sx={{ height: 50, width: 80, borderRadius: 1, objectFit: 'contain', bgcolor: 'background.paper', p: 0.5 }}
+              sx={{
+                height: 50,
+                width: 80,
+                borderRadius: 1,
+                objectFit: 'contain',
+                bgcolor: 'background.paper',
+                p: 0.5,
+              }}
             />
           </Stack>
 

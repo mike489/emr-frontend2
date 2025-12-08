@@ -145,21 +145,6 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
     );
   };
 
-  const getCompletedTestsCount = () => {
-    return labTests.reduce(
-      (count, group) => count + group.tests.filter(test => test.result).length,
-      0
-    );
-  };
-
-  const getPendingTestsCount = () => {
-    return labTests.reduce(
-      (count, group) =>
-        count + group.tests.filter(test => !test.result && test.is_payment_completed).length,
-      0
-    );
-  };
-
   const canSubmitResults = () => {
     // Allow submission if there are any results entered OR files uploaded
     return testResults.length > 0 || uploadedFiles.length > 0;
@@ -312,35 +297,6 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
   };
 
   // Get all pending tests for selection
-  const getAllPendingTests = () => {
-    const pendingTests: LabTestResult[] = [];
-    labTests.forEach(group => {
-      group.tests.forEach(test => {
-        if (!test.result && test.is_payment_completed) {
-          pendingTests.push(test);
-        }
-      });
-    });
-    return pendingTests;
-  };
-
-  // Select all pending tests
-  const handleSelectAll = () => {
-    const pendingTests = getAllPendingTests();
-    const allSelected = pendingTests.every(test => testResults.some(tr => tr.id === test.id));
-
-    if (allSelected) {
-      // Deselect all
-      setTestResults([]);
-    } else {
-      // Select all pending tests with empty results
-      const newTestResults = pendingTests.map(test => ({
-        id: test.id,
-        result: getResultValue(test.id) || '', // Keep existing result if any
-      }));
-      setTestResults(newTestResults);
-    }
-  };
 
   const handleUploadForTest = (testId: string) => {
     if (fileInputRef.current) {
@@ -360,7 +316,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
           </IconButton>
         </Box>
         <Typography variant="subtitle2" color="textSecondary">
-          Patient: {patientName} (MRN: {patientId})
+          Patient: {patientName}
         </Typography>
       </DialogTitle>
 
@@ -392,160 +348,6 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
               handleFileUpload(e, testId || undefined);
             }}
           />
-
-          {/* Action Buttons */}
-          {hasPendingTests() && (
-            <Box
-              sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-            >
-              <Button variant="outlined" onClick={handleSelectAll} disabled={submitting}>
-                {getAllPendingTests().length === testResults.length
-                  ? 'Deselect All'
-                  : 'Select All Pending'}
-              </Button>
-
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Paper sx={{ p: 1.5, minWidth: 100, textAlign: 'center' }}>
-                  <Typography variant="body2" color="textSecondary">
-                    Ready to Submit
-                  </Typography>
-                  <Typography variant="h6" color="primary" fontWeight="bold">
-                    {testResults.length + uploadedFiles.length}
-                  </Typography>
-                </Paper>
-
-                <Paper sx={{ p: 1.5, minWidth: 100, textAlign: 'center' }}>
-                  <Typography variant="body2" color="textSecondary">
-                    Files Uploaded
-                  </Typography>
-                  <Typography variant="h6" color="secondary" fontWeight="bold">
-                    {uploadedFiles.length}
-                  </Typography>
-                </Paper>
-              </Box>
-            </Box>
-          )}
-
-          {/* Summary Cards */}
-          {labTests.length > 0 && (
-            <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-              <Paper sx={{ p: 2, minWidth: 120, textAlign: 'center' }}>
-                <Typography variant="h6" color="primary" fontWeight="bold">
-                  {getPendingTestsCount()}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Pending Results
-                </Typography>
-              </Paper>
-
-              <Paper sx={{ p: 2, minWidth: 120, textAlign: 'center' }}>
-                <Typography variant="h6" color="success.main" fontWeight="bold">
-                  {getCompletedTestsCount()}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Completed
-                </Typography>
-              </Paper>
-
-              <Paper sx={{ p: 2, minWidth: 120, textAlign: 'center' }}>
-                <Typography variant="h6" color="warning.main" fontWeight="bold">
-                  {labTests.reduce(
-                    (count, group) =>
-                      count + group.tests.filter(test => !test.is_payment_completed).length,
-                    0
-                  )}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Payment Pending
-                </Typography>
-              </Paper>
-            </Box>
-          )}
-
-          {/* Uploaded Files Section */}
-          {uploadedFiles.length > 0 && (
-            <Paper sx={{ p: 2, mb: 3 }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6" color="primary">
-                  Uploaded Files ({uploadedFiles.length})
-                </Typography>
-                <Button
-                  variant="outlined"
-                  startIcon={<AttachFile />}
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={submitting}
-                >
-                  Add More Files
-                </Button>
-              </Box>
-              <List>
-                {uploadedFiles.map(file => (
-                  <ListItem
-                    key={file.id}
-                    secondaryAction={
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleRemoveFile(file.id)}
-                        disabled={submitting}
-                      >
-                        <Delete />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemIcon>
-                      <Avatar sx={{ bgcolor: 'primary.light' }}>
-                        {getFileIcon(file.file.type)}
-                      </Avatar>
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Typography variant="body1" fontWeight="medium">
-                          {file.file.name}
-                        </Typography>
-                      }
-                      secondary={
-                        <Box>
-                          <Typography variant="body2" color="textSecondary">
-                            {formatFileSize(file.file.size)}
-                            {file.testName && ` • For: ${file.testName}`}
-                          </Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            {file.file.type}
-                          </Typography>
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
-          )}
-
-          {/* Upload Button when no files uploaded yet */}
-          {uploadedFiles.length === 0 && hasPendingTests() && (
-            <Paper sx={{ p: 3, mb: 3, textAlign: 'center' }}>
-              <AttachFile sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-              <Typography variant="h6" gutterBottom>
-                Upload Result Files (Optional)
-              </Typography>
-              <Typography variant="body2" color="textSecondary" paragraph>
-                You can upload PDF or DOC files containing test results. Files can be uploaded for
-                specific tests or as general reports.
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AttachFile />}
-                onClick={() => fileInputRef.current?.click()}
-                disabled={submitting}
-              >
-                Upload Files
-              </Button>
-              <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
-                Maximum file size: 10MB • Supported formats: PDF, DOC, DOCX
-              </Typography>
-            </Paper>
-          )}
 
           {/* Loading State */}
           {loading && (
@@ -625,10 +427,10 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                           <TableHead>
                             <TableRow>
                               <TableCell>Test Name</TableCell>
-                              <TableCell width="300px">Result</TableCell>
                               <TableCell>File Upload</TableCell>
+                              <TableCell width="250px">Result</TableCell>
                               <TableCell>Status</TableCell>
-                              <TableCell>Amount</TableCell>
+                              {/* <TableCell>Amount</TableCell> */}
                               <TableCell>Requested Date</TableCell>
                             </TableRow>
                           </TableHead>
@@ -666,6 +468,20 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                                     )}
                                   </TableCell>
                                   <TableCell>
+                                    {canEnterResult && (
+                                      <Button
+                                        size="small"
+                                        startIcon={<AttachFile />}
+                                        onClick={() => handleUploadForTest(test.id)}
+                                        disabled={submitting}
+                                        variant={hasFileForTest ? 'contained' : 'outlined'}
+                                        color={hasFileForTest ? 'success' : 'primary'}
+                                      >
+                                        {hasFileForTest ? 'File Added' : 'Upload File'}
+                                      </Button>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
                                     {canEnterResult ? (
                                       <TextField
                                         fullWidth
@@ -700,30 +516,17 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                                       </Typography>
                                     )}
                                   </TableCell>
-                                  <TableCell>
-                                    {canEnterResult && (
-                                      <Button
-                                        size="small"
-                                        startIcon={<AttachFile />}
-                                        onClick={() => handleUploadForTest(test.id)}
-                                        disabled={submitting}
-                                        variant={hasFileForTest ? 'contained' : 'outlined'}
-                                        color={hasFileForTest ? 'success' : 'primary'}
-                                      >
-                                        {hasFileForTest ? 'File Added' : 'Upload File'}
-                                      </Button>
-                                    )}
-                                  </TableCell>
+
                                   <TableCell>
                                     <Chip label={status.status} color={status.color} size="small" />
                                   </TableCell>
-                                  <TableCell>
+                                  {/* <TableCell>
                                     <Chip
                                       label={`$${test.amount}`}
                                       size="small"
                                       variant="outlined"
                                     />
-                                  </TableCell>
+                                  </TableCell> */}
                                   <TableCell>
                                     <Typography variant="body2">{test.created_at}</Typography>
                                   </TableCell>
@@ -738,6 +541,58 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                 );
               })}
             </Box>
+          )}
+
+          {/* Uploaded Files Section */}
+          {uploadedFiles.length > 0 && (
+            <Paper sx={{ p: 2, mb: 3 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" color="primary">
+                  Uploaded Files ({uploadedFiles.length})
+                </Typography>
+              </Box>
+              <List>
+                {uploadedFiles.map(file => (
+                  <ListItem
+                    key={file.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleRemoveFile(file.id)}
+                        disabled={submitting}
+                      >
+                        <Delete />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemIcon>
+                      <Avatar sx={{ bgcolor: 'primary.light' }}>
+                        {getFileIcon(file.file.type)}
+                      </Avatar>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" fontWeight="medium">
+                          {file.file.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Box>
+                          <Typography variant="body2" color="textSecondary">
+                            {formatFileSize(file.file.size)}
+                            {file.testName && ` • For: ${file.testName}`}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {file.file.type}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
           )}
         </Box>
       </DialogContent>

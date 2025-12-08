@@ -304,89 +304,56 @@ const Refraction: React.FC = () => {
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
       {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+      <Paper sx={{ p: 1.5, mb: 1.5, borderRadius: 1.5 }}>
         {/* Header with Back Button and Summary Stats */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            mb: 3,
-          }}
-        >
-          {/* Back Button */}
-
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
           {/* Summary Stats */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <Button
                 onClick={() => navigate('/clinics')}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 0.5,
+                  gap: 0.25,
                   textTransform: 'none',
                   color: 'white',
                   fontWeight: 500,
-                  fontSize: '0.875rem',
-                  px: 1.5,
-                  py: 0.75,
-                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: '6px',
                   minWidth: 'auto',
                   bgcolor: '#1976d2',
                   border: '1px solid #1565c0',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother transition
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Initial subtle shadow
-                  position: 'relative', // For 3D effect
-                  transform: 'translateY(0)', // Initial position
-                  '&:hover': {
-                    bgcolor: '#1565c0',
-                    transform: 'translateY(-4px)',
-                    boxShadow: `
-        0 8px 16px rgba(25, 118, 210, 0.3),
-        0 4px 8px rgba(0,0,0,0.15)
-      `,
-                    borderColor: '#0d47a1',
-                    '&::after': {
-                      opacity: 1,
-                    },
-                  },
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    borderRadius: '8px',
-                    boxShadow: '0 0 20px rgba(25, 118, 210, 0.4)',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                    zIndex: -1,
-                  },
+                  '&:hover': { bgcolor: '#1565c0' },
                 }}
               >
-                <ArrowBackIcon sx={{ fontSize: 18 }} />
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
-                  Back to Home
+                <ArrowBackIcon sx={{ fontSize: 16 }} />
+                <Typography variant="caption" sx={{ fontWeight: 500, color: 'white' }}>
+                  Back
                 </Typography>
               </Button>
               <Chip
-                label={`Total Check-ins: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
+                label={`Total: ${summary.reduce((acc, cat: any) => acc + Number(cat.patient_count), 0)}`}
+                size="small"
                 sx={{
                   backgroundColor: '#1976d2',
                   color: 'white',
                   fontWeight: '600',
-                  fontSize: '0.875rem',
+                  fontSize: '0.75rem',
+                  height: '30px',
                 }}
               />
               <Chip
-                label="Total Checkouts: 0"
+                label="Checkouts: 0"
+                size="small"
                 sx={{
                   backgroundColor: '#757575',
                   color: 'white',
                   fontWeight: '600',
-                  fontSize: '0.875rem',
+                  fontSize: '0.75rem',
+                  height: '30px',
                 }}
               />
             </Box>
@@ -394,7 +361,7 @@ const Refraction: React.FC = () => {
         </Box>
 
         {/* Patient Category Cards */}
-        <Box sx={{ display: 'flex', gap: 2, p: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, px: 1, flexWrap: 'wrap' }}>
           {summaryLoading ? (
             <Box
               sx={{
@@ -402,31 +369,35 @@ const Refraction: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                py: 4,
+                py: 2,
               }}
             >
-              <CircularProgress size={28} sx={{ color: '#1e3c72' }} />
-              <Typography sx={{ ml: 2, color: '#555' }}>Loading summary...</Typography>
+              <CircularProgress size={24} sx={{ color: '#1e3c72' }} />
+              <Typography sx={{ ml: 1.5, color: '#555', fontSize: '0.875rem' }}>
+                Loading...
+              </Typography>
             </Box>
           ) : (
             summary.map((category: any) => (
               <Box
                 key={category.category_id}
                 sx={{
-                  flex: '1 1 220px',
-                  minWidth: 220,
+                  flex: '1 1 180px',
+                  minWidth: 180,
                   backgroundColor: '#fff',
-                  borderRadius: 3,
-                  p: 2,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                  border: '1px solid #ededed',
+                  borderRadius: 2,
+                  p: 1.5,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  border: '1px solid #f0f0f0',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  height: 120,
+                  height: 90,
                 }}
               >
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: '#555' }}>
+                <Typography
+                  sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', lineHeight: 1.2 }}
+                >
                   {category.category_name}
                 </Typography>
 
@@ -435,24 +406,18 @@ const Refraction: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mt: 1,
+                    mt: 0.5,
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1a1a1a',
-                    }}
-                  >
+                  <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a1a1a' }}>
                     {category.patient_count}
                   </Typography>
 
                   <Box
                     sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: '10%',
+                      width: 28,
+                      height: 28,
+                      borderRadius: '8%',
                       backgroundColor: `${category.color}20`,
                       display: 'flex',
                       alignItems: 'center',
@@ -461,16 +426,16 @@ const Refraction: React.FC = () => {
                   >
                     <Box
                       sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '10%',
+                        width: 16,
+                        height: 16,
+                        borderRadius: '8%',
                         backgroundColor: category.color,
                       }}
                     />
                   </Box>
                 </Box>
 
-                <Typography sx={{ fontSize: '0.8rem', mt: 1, color: '#888' }}>
+                <Typography sx={{ fontSize: '0.7rem', color: '#888', mt: 0.5 }}>
                   {category.percentage_text}
                 </Typography>
               </Box>

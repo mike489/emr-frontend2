@@ -25,7 +25,7 @@ import {
   PATIENTDETILES_PEDIATRIC_TABS,
   PATIENTDETILES_OPD1_TABS,
   PATIENTDETILES_TABS_TWO,
-  type TabItem,
+  OPERATIONAL_TABS,
 } from '../data/data';
 import PrivateTopBar from '../layouts/PrivateTopBar';
 
@@ -45,12 +45,12 @@ interface AppRouterProps {
   currentPath?: string;
 }
 
-const getFilteredTabs = (pathname: string, tabs: TabItem[]): TabItem[] => {
-  if (pathname.includes('/triage/examinations')) {
-    return tabs.filter(tab => tab.label !== 'Follow Up');
-  }
-  return tabs;
-};
+// const getFilteredTabs = (pathname: string, tabs: TabItem[]): TabItem[] => {
+//   if (pathname.includes('/triage/examinations')) {
+//     return tabs.filter(tab => tab.label !== 'Follow Up');
+//   }
+//   return tabs;
+// };
 
 export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
   const router = createBrowserRouter([
@@ -513,7 +513,8 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         <AppLayout
           darkMode={darkMode}
           onToggleTheme={onToggleTheme}
-          tabsData={getFilteredTabs(window.location.pathname, PATIENTDETILES_TABS_TWO)}
+          // tabsData={getFilteredTabs(window.location.pathname, PATIENTDETILES_TABS_TWO)}
+          tabsData={PATIENTDETILES_TABS_TWO}
         />
       ),
       children: [
@@ -578,6 +579,48 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.diagnosis.path,
           element: ROUTES.protected.diagnosis.element,
+        },
+        {
+          path: ROUTES.protected.todayCases.path,
+          element: ROUTES.protected.todayCases.element,
+        },
+        {
+          path: ROUTES.protected.laboratory.path,
+          element: ROUTES.protected.laboratory.element,
+        },
+        {
+          path: ROUTES.protected.radiology.path,
+          element: ROUTES.protected.radiology.element,
+        },
+        {
+          path: ROUTES.protected.caseHistories.path,
+          element: ROUTES.protected.caseHistories.element,
+        },
+        {
+          path: ROUTES.protected.diagnosisNotifications.path,
+          element: ROUTES.protected.diagnosisNotifications.element,
+        },
+        {
+          path: ROUTES.protected.diagnosisSettings.path,
+          element: ROUTES.protected.diagnosisSettings.element,
+        },
+      ],
+    },
+
+    // 🔹 Operational Routes Group
+    {
+      element: (
+        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={OPERATIONAL_TABS} />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.orList.path,
+          element: ROUTES.protected.orList.element,
+        },
+        {
+          path: ROUTES.protected.or.path,
+          element: ROUTES.protected.or.element,
         },
         {
           path: ROUTES.protected.todayCases.path,
@@ -736,6 +779,15 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
       element: (
         <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
           <Suspense fallback={<Loading />}>{ROUTES.protected.diagnosisList.element}</Suspense>
+        </PrivateTopBar>
+      ),
+    },
+
+    {
+      path: ROUTES.protected.orList.path,
+      element: (
+        <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
+          <Suspense fallback={<Loading />}>{ROUTES.protected.orList.element}</Suspense>
         </PrivateTopBar>
       ),
     },

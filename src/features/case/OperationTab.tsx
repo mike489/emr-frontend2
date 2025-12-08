@@ -1,7 +1,9 @@
 import { Box } from '@mui/material';
 import { usePatientDetailsState } from '../../contexts/PatientContext';
-import LabPage from './LabPage';
+
 import Patients from '../../pages/patients/Patients';
+import OperPage from './OperPage';
+import { ToastContainer } from 'react-toastify';
 // import { usePatientDetailsState } from './PatientDetailsWrapper';
 
 const OperationTab = () => {
@@ -47,12 +49,13 @@ const OperationTab = () => {
               </Box>
             </Box>
 
-            <LabPage patientId={patient?.id} patientName={patient?.full_name} />
+            <OperPage patientId={patient?.id} patientName={patient?.full_name} />
           </>
         ) : (
           <Box color="error.main">No FollowUp ID found</Box>
         )}
       </Box>
+      <ToastContainer />
     </Box>
   );
 };

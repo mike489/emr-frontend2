@@ -17,32 +17,28 @@ import {
   Stack,
   Card,
   CardContent,
+  TextField,
+  InputAdornment,
+  Grid,
 } from '@mui/material';
-import { ExpandMore, Science, CheckCircle, Delete } from '@mui/icons-material';
-import { LaboratoryService } from '../../shared/api/services/laboratory.service';
+import { ExpandMore, Science, CheckCircle, Delete, Search, Clear } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { OperationalService } from '../../shared/api/services/operations.service';
 
-interface LabTest {
+interface Operation {
   id: string;
   name: string;
-  price?: number;
+  price?: number | string;
   description?: string;
+  type?: string;
+  created_at?: string;
 }
 
-interface Laboratory {
+interface SelectedOperation {
   id: string;
   name: string;
-  description: string;
-  tests: LabTest[];
-}
-
-interface SelectedTest {
-  labId: string;
-  labName: string;
-  testId: string;
-  testName: string;
-  price?: number;
+  price?: number | string;
 }
 
 interface LabPageProps {
@@ -52,55 +48,81 @@ interface LabPageProps {
 
 const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
   const navigate = useNavigate();
-  const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
-  const [selectedTests, setSelectedTests] = useState<SelectedTest[]>([]);
+  const [operations, setOperations] = useState<Operation[]>([]);
+  const [filteredOperations, setFilteredOperations] = useState<Operation[]>([]);
+  const [selectedOperations, setSelectedOperations] = useState<SelectedOperation[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
 
+  // Fetch operations on component mount
   useEffect(() => {
-    const fetchLabs = async () => {
-      try {
-        setLoading(true);
-        const response = await LaboratoryService.getLabs();
-
-        if (response.data && response.data.success) {
-          if (Array.isArray(response.data.data)) {
-            // Filter to only show "Operational" laboratory
-            const operationalLab = response.data.data.filter(
-              (lab: Laboratory) => lab.name === 'Operational'
-            );
-
-            console.log('Setting Operational laboratories:', operationalLab);
-            setLaboratories(operationalLab);
-          } else {
-            console.log('Data is not an array:', response.data.data);
-            setLaboratories([]);
-          }
-        } else {
-          if (Array.isArray(response.data)) {
-            // Filter to only show "Operational" laboratory
-            const operationalLab = response.data.filter(
-              (lab: Laboratory) => lab.name === 'Operational'
-            );
-            setLaboratories(operationalLab);
-          } else {
-            setLaboratories([]);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching labs:', error);
-        toast.error('Failed to load laboratories');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLabs();
+    fetchOperations();
   }, []);
 
-  const handleTestToggle = (lab: Laboratory, test: LabTest) => {
-    setSelectedTests(prev => {
-      const existingIndex = prev.findIndex(selected => selected.testId === test.id);
+  // Filter operations based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredOperations(operations);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = operations.filter(
+        op =>
+          op.name.toLowerCase().includes(query) ||
+          (op.description && op.description.toLowerCase().includes(query)) ||
+          (op.type && op.type.toLowerCase().includes(query))
+      );
+      setFilteredOperations(filtered);
+    }
+  }, [searchQuery, operations]);
+
+  const fetchOperations = async (search?: string) => {
+    try {
+      setLoading(true);
+      const response = await OperationalService.getOR(search);
+
+      // Handle both response structures
+      let data = [];
+
+      if (response.data && typeof response.data === 'object') {
+        if (response.data.success && Array.isArray(response.data.data)) {
+          data = response.data.data;
+        } else if (Array.isArray(response.data.data)) {
+          data = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          data = response.data;
+        }
+      }
+
+      console.log('Fetched operations:', data);
+      setOperations(data);
+      setFilteredOperations(data);
+    } catch (error) {
+      console.error('Error fetching operations:', error);
+      toast.error('Failed to load operations');
+      setOperations([]);
+      setFilteredOperations([]);
+    } finally {
+      setLoading(false);
+      setSearchLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    setSearchLoading(true);
+    fetchOperations(searchQuery);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSearchLoading(true);
+    fetchOperations(); // Fetch without search query
+  };
+
+  const handleOperationToggle = (operation: Operation) => {
+    setSelectedOperations(prev => {
+      const existingIndex = prev.findIndex(op => op.id === operation.id);
 
       if (existingIndex >= 0) {
         return prev.filter((_, index) => index !== existingIndex);
@@ -108,210 +130,230 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
         return [
           ...prev,
           {
-            labId: lab.id,
-            labName: lab.name,
-            testId: test.id,
-            testName: test.name,
-            price: test.price || 0,
+            id: operation.id,
+            name: operation.name,
+            price: operation.price,
           },
         ];
       }
     });
   };
 
-  const isTestSelected = (testId: string) => {
-    return selectedTests.some(test => test.testId === testId);
+  const isOperationSelected = (operationId: string) => {
+    return selectedOperations.some(op => op.id === operationId);
   };
 
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
 
-      // Extract just the test IDs for the request
-      const testIds = selectedTests.map(test => test.testId);
-
-      // Prepare the request body according to the API requirements
+      // Prepare the request body
       const requestBody = {
-        test_ids: testIds,
-        // Include additional data if needed by your API
-        laboratory_data: selectedTests.map(test => ({
-          test_id: test.testId,
-          test_name: test.testName,
-          lab_id: test.labId,
-          lab_name: test.labName,
-          price: test.price || 0,
+        service_ids: selectedOperations.map(op => op.id),
+        operations_data: selectedOperations.map(op => ({
+          service_ids: op.id,
+          operation_name: op.name,
+          price: op.price || 0,
         })),
       };
 
-      console.log('Submitting lab request:', requestBody);
+      console.log('Submitting operation request:', requestBody);
 
-      // Submit the lab request
-      await LaboratoryService.createLabRequest(patientId, requestBody);
+      // Submit the operation request
+      await OperationalService.createOperationRequest(patientId, requestBody);
 
-      setSelectedTests([]);
-      toast.success('Lab requests submitted successfully!');
+      setSelectedOperations([]);
+      toast.success('Operation request submitted successfully!');
 
-      // Optionally navigate back or show success message
-      navigate(-1); // Go back to previous page
+      // Navigate back or refresh as needed
+      setTimeout(() => {
+        navigate(-1);
+      }, 1500);
     } catch (error: any) {
-      console.error('Error submitting lab requests:', error);
+      console.error('Error submitting operation request:', error);
 
-      // Show more detailed error message
       if (error.response?.data?.message) {
         toast.error(`Error: ${error.response.data.message}`);
       } else {
-        toast.error('Error submitting lab requests. Please try again.');
+        toast.error('Error submitting operation request. Please try again.');
       }
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleRemoveTest = (testId: string) => {
-    setSelectedTests(prev => prev.filter(test => test.testId !== testId));
+  const handleRemoveOperation = (operationId: string) => {
+    setSelectedOperations(prev => prev.filter(op => op.id !== operationId));
   };
 
   const handleClearAll = () => {
-    setSelectedTests([]);
+    setSelectedOperations([]);
   };
 
-  const totalPrice = selectedTests.reduce((total, test) => total + (test.price || 0), 0);
+  // Calculate total price
+  const totalPrice = selectedOperations.reduce((total, op) => {
+    const price = op.price ? Number(op.price) : 0;
+    return total + (isNaN(price) ? 0 : price);
+  }, 0);
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 3 }}>
-        {/* Left Column - Available Laboratories */}
+        {/* Left Column - Available Operations */}
         <Box sx={{ width: { xs: '100%', lg: '65%' } }}>
-          <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
-              Operational Tests
+          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 2 }}>
+              Available Operations
             </Typography>
+
+            {/* Search Bar */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid size={{ xs: 12, sm: 9 }}>
+                <TextField
+                  fullWidth
+                  placeholder="Search operations by name, description, or type..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onKeyPress={e => {
+                    if (e.key === 'Enter') {
+                      handleSearch();
+                    }
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search />
+                      </InputAdornment>
+                    ),
+                    endAdornment: searchQuery && (
+                      <InputAdornment position="end">
+                        <IconButton size="small" onClick={handleClearSearch} edge="end">
+                          <Clear />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  variant="outlined"
+                  size="small"
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 3 }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={handleSearch}
+                  disabled={searchLoading}
+                  startIcon={searchLoading ? <CircularProgress size={20} /> : <Search />}
+                >
+                  {searchLoading ? 'Searching...' : 'Search'}
+                </Button>
+              </Grid>
+            </Grid>
 
             {loading ? (
               <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 8 }}>
                 <CircularProgress />
-                <Typography sx={{ ml: 2 }}>Loading operational tests...</Typography>
+                <Typography sx={{ ml: 2 }}>Loading operations...</Typography>
               </Box>
             ) : (
               <Box>
-                {laboratories.length === 0 ? (
+                {filteredOperations.length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Science sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
                     <Typography variant="body1" color="textSecondary">
-                      No operational tests available.
+                      {searchQuery
+                        ? 'No operations match your search.'
+                        : 'No operations available.'}
                     </Typography>
-                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                      The Operational laboratory category could not be found.
-                    </Typography>
+                    {searchQuery && (
+                      <Button variant="text" onClick={handleClearSearch} sx={{ mt: 2 }}>
+                        Clear search
+                      </Button>
+                    )}
                   </Box>
                 ) : (
-                  laboratories.map(lab => (
-                    <Accordion
-                      key={lab.id}
-                      sx={{ mb: 2 }}
-                      defaultExpanded // Auto-expand since there's only one lab
-                    >
-                      <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Box sx={{ width: '100%' }}>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center">
-                            <Typography variant="subtitle1" fontWeight="bold">
-                              {lab.name}
-                            </Typography>
-                            <Chip
-                              label={`${lab.tests?.length || 0} tests`}
-                              size="small"
-                              color="primary"
-                              variant="outlined"
-                            />
-                          </Stack>
-                          {lab.description && (
-                            <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
-                              {lab.description}
-                            </Typography>
-                          )}
-                        </Box>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        {lab.tests && lab.tests.length > 0 ? (
-                          <FormGroup>
-                            {lab.tests.map(test => (
-                              <FormControlLabel
-                                key={test.id}
-                                control={
-                                  <Checkbox
-                                    checked={isTestSelected(test.id)}
-                                    onChange={() => handleTestToggle(lab, test)}
-                                    icon={<Science />}
-                                    checkedIcon={<Science color="primary" />}
-                                  />
-                                }
-                                label={
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      width: '100%',
-                                    }}
-                                  >
-                                    <Typography variant="body1">{test.name}</Typography>
-                                    {test.price && test.price > 0 ? (
-                                      <Typography variant="body2" color="primary" fontWeight="bold">
-                                        ${test.price}
-                                      </Typography>
-                                    ) : (
-                                      <Typography variant="caption" color="textSecondary">
-                                        No price
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                }
-                                sx={{
-                                  mb: 1,
-                                  px: 1,
-                                  py: 0.5,
-                                  '&:hover': {
-                                    backgroundColor: 'action.hover',
-                                    borderRadius: 1,
-                                  },
-                                  width: '100%',
-                                }}
-                              />
-                            ))}
-                          </FormGroup>
-                        ) : (
-                          <Typography variant="body2" color="textSecondary">
-                            No tests available for operational procedures.
+                  <Accordion defaultExpanded sx={{ mb: 2 }}>
+                    <AccordionSummary expandIcon={<ExpandMore />}>
+                      <Box sx={{ width: '100%' }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            All Operations
+                          </Typography>
+                          <Chip
+                            label={`${filteredOperations.length} operations`}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        </Stack>
+                        {searchQuery && (
+                          <Typography variant="caption" color="textSecondary">
+                            Showing results for "{searchQuery}"
                           </Typography>
                         )}
-                      </AccordionDetails>
-                    </Accordion>
-                  ))
+                      </Box>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <FormGroup>
+                        {filteredOperations.map(operation => (
+                          <FormControlLabel
+                            key={operation.id}
+                            control={
+                              <Checkbox
+                                checked={isOperationSelected(operation.id)}
+                                onChange={() => handleOperationToggle(operation)}
+                                icon={<Science />}
+                                checkedIcon={<Science color="primary" />}
+                              />
+                            }
+                            label={
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  width: '100%',
+                                }}
+                              >
+                                <Box>
+                                  <Typography variant="body1">{operation.name}</Typography>
+                                  {operation.description && (
+                                    <Typography variant="caption" color="textSecondary">
+                                      {operation.description}
+                                    </Typography>
+                                  )}
+                                </Box>
+                                {operation.price && (
+                                  <Typography variant="body2" color="primary" fontWeight="bold">
+                                    Birr
+                                    {typeof operation.price === 'string'
+                                      ? parseFloat(operation.price)
+                                      : operation.price}
+                                  </Typography>
+                                )}
+                              </Box>
+                            }
+                            sx={{
+                              mb: 1,
+                              px: 1,
+                              py: 0.5,
+                              '&:hover': {
+                                backgroundColor: 'action.hover',
+                                borderRadius: 1,
+                              },
+                              width: '100%',
+                            }}
+                          />
+                        ))}
+                      </FormGroup>
+                    </AccordionDetails>
+                  </Accordion>
                 )}
-              </Box>
-            )}
-
-            {!loading && selectedTests.length === 0 && laboratories.length > 0 && (
-              <Box
-                sx={{
-                  textAlign: 'center',
-                  mt: 4,
-                  py: 3,
-                  border: '1px dashed',
-                  borderColor: 'divider',
-                  borderRadius: 1,
-                }}
-              >
-                <Typography variant="body1" color="textSecondary">
-                  Select tests from the operational procedures above
-                </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                  Your selections will appear in the summary panel
-                </Typography>
               </Box>
             )}
           </Paper>
         </Box>
 
-        {/* Right Column - Selected Tests Summary */}
+        {/* Right Column - Selected Operations Summary */}
         <Box sx={{ width: { xs: '100%', lg: '35%' } }}>
           <Paper elevation={2} sx={{ p: 3, position: 'sticky', top: 20 }}>
             <Stack
@@ -321,33 +363,33 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
               sx={{ mb: 3 }}
             >
               <Typography variant="h6" fontWeight="bold">
-                Selected Operational Tests
+                Selected Operations
               </Typography>
-              {selectedTests.length > 0 && (
+              {selectedOperations.length > 0 && (
                 <Button size="small" color="error" startIcon={<Delete />} onClick={handleClearAll}>
                   Clear All
                 </Button>
               )}
             </Stack>
 
-            {selectedTests.length > 0 ? (
+            {selectedOperations.length > 0 ? (
               <>
                 <Box sx={{ mb: 3 }}>
                   <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" color="textSecondary">
-                      {selectedTests.length} operational test(s) selected
+                      {selectedOperations.length} operation(s) selected
                     </Typography>
                     {totalPrice > 0 && (
                       <Typography variant="h6" color="primary" fontWeight="bold">
-                        Total: ${totalPrice}
+                        Total: Birr{totalPrice.toFixed(2)}
                       </Typography>
                     )}
                   </Stack>
 
                   <Box sx={{ maxHeight: 400, overflowY: 'auto', pr: 1 }}>
-                    {selectedTests.map(test => (
+                    {selectedOperations.map(operation => (
                       <Card
-                        key={test.testId}
+                        key={operation.id}
                         variant="outlined"
                         sx={{
                           mb: 2,
@@ -360,23 +402,23 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                             justifyContent="space-between"
                             alignItems="flex-start"
                           >
-                            <Box>
+                            <Box sx={{ flex: 1 }}>
                               <Typography variant="subtitle2" fontWeight="bold">
-                                {test.testName}
+                                {operation.name}
                               </Typography>
-                              <Typography variant="caption" color="textSecondary">
-                                {test.labName}
-                              </Typography>
-                              {test.price && test.price > 0 && (
+                              {operation.price && (
                                 <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
-                                  ${test.price}
+                                  Birr
+                                  {typeof operation.price === 'string'
+                                    ? parseFloat(operation.price)
+                                    : operation.price}
                                 </Typography>
                               )}
                             </Box>
                             <IconButton
                               size="small"
                               color="error"
-                              onClick={() => handleRemoveTest(test.testId)}
+                              onClick={() => handleRemoveOperation(operation.id)}
                               sx={{ ml: 1 }}
                             >
                               <Delete fontSize="small" />
@@ -393,23 +435,23 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                   variant="contained"
                   size="large"
                   onClick={handleSubmit}
-                  disabled={submitting}
+                  disabled={submitting || selectedOperations.length === 0}
                   startIcon={submitting ? <CircularProgress size={20} /> : <CheckCircle />}
                   sx={{ py: 1.5 }}
                 >
                   {submitting
                     ? 'Submitting...'
-                    : `Submit ${selectedTests.length} Operational Test(s)`}
+                    : `Submit ${selectedOperations.length} Operation(s)`}
                 </Button>
               </>
             ) : (
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <Science sx={{ fontSize: 60, color: 'action.disabled', mb: 2 }} />
                 <Typography variant="body1" color="textSecondary" gutterBottom>
-                  No operational tests selected
+                  No operations selected
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Select tests from the operational procedures list
+                  Select operations from the list
                 </Typography>
               </Box>
             )}

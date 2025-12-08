@@ -19,7 +19,7 @@ export const FRONT_DESK_TABS: TabItem[] = [
       { label: 'Add new patients', path: '/new-patient' },
       { label: 'Emergency Patients', path: '/front-desk/emergency-patients' },
       { label: 'Add New Emergency Patients', path: '/front-desk/add-new-emergency-patients' },
-      // { label: 'Patient Details', path: '/front-desk/patient-details' },
+      // { label: 'Patient Details', path: '/front-desk/patient-detail' },
 
       { label: 'Checkout Patients', path: '/front-desk/checkout' },
       { label: 'Archived patients', path: '/front-desk/archived-patients' },
@@ -158,6 +158,18 @@ export const PATIENTDETILES_TABS_TWO: TabItem[] = [
     label: 'Operations',
     path: '/triage/operations',
   },
+  {
+    label: 'Results',
+    path: '/triage/results',
+  },
+  {
+    label: 'Medications',
+    path: '/triage/medications',
+  },
+  {
+    label: 'Optical',
+    path: '/triage/optical',
+  },
 ];
 
 export const TRIAGE_TABS: TabItem[] = [
@@ -172,10 +184,10 @@ export const TRIAGE_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/triage/emergency-patients' },
     ],
   },
-  {
-    label: 'Examinations',
-    path: '/triage/examinations',
-  },
+  // {
+  //   label: 'Examinations',
+  //   path: '/triage/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/triage/discussion',
@@ -205,10 +217,10 @@ export const TRIAGE_TABS_TWO: TabItem[] = [
       { label: 'Emergency Patients', path: '/triage-two/emergency-patients' },
     ],
   },
-  {
-    label: 'Examinations',
-    path: '/triage-two/examinations',
-  },
+  // {
+  //   label: 'Examinations',
+  //   path: '/triage-two/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/triage-two/discussion',
@@ -238,10 +250,10 @@ export const TRIAGE_TABS_ONE: TabItem[] = [
       { label: 'Emergency Patients', path: '/triage-one/emergency-patients' },
     ],
   },
-  {
-    label: 'Examinations',
-    path: '/triage-one/examinations',
-  },
+  // {
+  //   label: 'Examinations',
+  //   path: '/triage-one/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/triage-one/discussion',
@@ -301,10 +313,10 @@ export const REFRACTION_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/refraction/emergency-patients' },
     ],
   },
-  {
-    label: 'Examination',
-    path: '/refraction/examinations',
-  },
+  // {
+  //   label: 'Examination',
+  //   path: '/refraction/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/refraction/discussion',
@@ -337,10 +349,10 @@ export const DOCTOR_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/doctor/emergency-patients' },
     ],
   },
-  {
-    label: 'Examination',
-    path: '/doctor/examinations',
-  },
+  // {
+  //   label: 'Examination',
+  //   path: '/doctor/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/doctor/discussion',
@@ -368,10 +380,10 @@ export const PEDIATRIC_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/pediatric/emergency-patients' },
     ],
   },
-  {
-    label: 'Examination',
-    path: '/pediatric/examinations',
-  },
+  // {
+  //   label: 'Examination',
+  //   path: '/pediatric/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/pediatric/discussion',
@@ -399,10 +411,10 @@ export const RETINA_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/retina/emergency-patients' },
     ],
   },
-  {
-    label: 'Examination',
-    path: '/retina/examinations',
-  },
+  // {
+  //   label: 'Examination',
+  //   path: '/retina/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/retina/discussion',
@@ -431,10 +443,10 @@ export const GLAUCOMA_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/glaucoma/emergency-patients' },
     ],
   },
-  {
-    label: 'Examination',
-    path: '/glaucoma/examinations',
-  },
+  // {
+  //   label: 'Examination',
+  //   path: '/glaucoma/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/glaucoma/discussion',
@@ -462,10 +474,10 @@ export const OPD_ONE_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/opd-one/emergency-patients' },
     ],
   },
-  {
-    label: 'Examination',
-    path: '/opd-one/examinations',
-  },
+  // {
+  //   label: 'Examination',
+  //   path: '/opd-one/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/opd-one/discussion',
@@ -524,10 +536,10 @@ export const OPD_THREE_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/opd-three/emergency-patients' },
     ],
   },
-  {
-    label: 'Examination',
-    path: '/opd-three/examinations',
-  },
+  // {
+  //   label: 'Examination',
+  //   path: '/opd-three/examinations',
+  // },
   {
     label: 'Discussion',
     path: '/opd-three/discussion',
@@ -554,28 +566,24 @@ export const DIAGNOSIS_TABS: TabItem[] = [
     path: '/diagnosis/cases',
     children: [{ label: 'Today’s Case', path: '/diagnosis/today-cases' }],
   },
-  // {
-  //   label: 'Laboratory',
-  //   path: '/diagnosis/Laboratory',
-  // },
-  // {
-  //   label: 'Radiology',
-  //   path: '/diagnosis/radiology',
-  // },
+
   {
     label: 'Case History',
     path: '/diagnosis/case-history',
   },
+];
 
-  // {
-  //   label: 'Notifications',
-  //   path: '/diagnosis/notifications',
-  // },
-  // {
-  //   label: 'Settings',
-  //   path: '/diagnosis/settings',
-  // },
-  // { label: "Logout", path: "/logout" },
+export const OPERATIONAL_TABS: TabItem[] = [
+  {
+    label: 'Cases',
+    path: '/or-list/cases',
+    children: [{ label: 'Today’s Case', path: '/or-list/today-cases' }],
+  },
+
+  {
+    label: 'Case History',
+    path: '/or/case-history',
+  },
 ];
 
 export const MANAGMENT_TABS: TabItem[] = [
