@@ -60,10 +60,10 @@ const FrontDesk: React.FC = () => {
   const [currentAttachments, setCurrentAttachments] = React.useState<Attachment[]>([]);
   const [openTriageModal, setOpenTriageModal] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
-
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
     []
   );
+
   const [filters, setFilters] = React.useState({
     page: 1,
     per_page: 25,
@@ -385,7 +385,7 @@ const FrontDesk: React.FC = () => {
               >
                 <ArrowBackIcon sx={{ fontSize: 18 }} />
                 <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
-                  Back to Home
+                  Back
                 </Typography>
               </Button>
               <Chip

@@ -251,14 +251,9 @@ const PatientTable: React.FC<PatientTableProps> = ({
         </TableHead>
         <TableBody>
           {patients.map(patient => (
-            <TableRow
-              key={patient.id}
-              hover
-              onClick={() => handleClickRow(patient)}
-              sx={{ cursor: 'pointer' }}
-            >
+            <TableRow key={patient.id} hover sx={{ cursor: 'pointer' }}>
               {/* Category Color */}
-              <TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>
                 <Box
                   sx={{
                     width: 16,
@@ -270,7 +265,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
               </TableCell>
 
               {/* Patient Name */}
-              <TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>
                 <Typography variant="subtitle2" fontWeight={600}>
                   {patient.full_name}
                 </Typography>
@@ -281,9 +276,9 @@ const PatientTable: React.FC<PatientTableProps> = ({
                 )}
               </TableCell>
 
-              <TableCell>{patient.emr_number}</TableCell>
-              <TableCell>{patient.age} yrs</TableCell>
-              <TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>{patient.emr_number}</TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>{patient.age} yrs</TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>
                 <Chip
                   label={patient.gender}
                   size="small"
@@ -297,9 +292,9 @@ const PatientTable: React.FC<PatientTableProps> = ({
                   }}
                 />
               </TableCell>
-              <TableCell>{patient.phone}</TableCell>
-              <TableCell>{patient.address?.city}</TableCell>
-              <TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>{patient.phone}</TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>{patient.address?.city}</TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>
                 {' '}
                 <Chip
                   label={patient.blood_type || 'N/A'}
@@ -313,7 +308,9 @@ const PatientTable: React.FC<PatientTableProps> = ({
                   }}
                 />
               </TableCell>
-              <TableCell>{patient.visit_type || 'N/A'}</TableCell>
+              <TableCell onClick={() => handleClickRow(patient)}>
+                {patient.visit_type || 'N/A'}
+              </TableCell>
 
               {/* <TableCell>
                 <Select
