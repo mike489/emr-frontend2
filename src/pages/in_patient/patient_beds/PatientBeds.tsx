@@ -202,7 +202,7 @@ const PatientBeds: React.FC = () => {
   // Filter beds based on filters
   const filteredBeds = beds.filter(bed => {
     const bedStatus = getBedStatus(bed);
-    const hasPatient = bed.patient && !bed.released_at;
+    // const hasPatient = bed.patient && !bed.released_at;
 
     const matchesSearch =
       bed.bed_number.includes(filters.search) ||
