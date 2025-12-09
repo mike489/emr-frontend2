@@ -29,8 +29,6 @@ import { DepartmentsService } from '../../../shared/api/services/departments.ser
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
-// import PatientDetailsModal from '../../../features/patients/PatientDetailsModal';
-import { LaboratoryService } from '../../../shared/api/services/laboratory.service';
 import { Eye, FileUp } from 'lucide-react';
 import LaboratoriesPaymentModal from '../../../features/case/LaboratoriesPaymentModal';
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';

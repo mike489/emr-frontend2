@@ -83,7 +83,7 @@ const InPatients: React.FC = () => {
   const [inpatients, setInpatients] = useState<InPatient[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [summaryLoading, setSummaryLoading] = useState<boolean>(false);
+  const [_summaryLoading, setSummaryLoading] = useState<boolean>(false);
 
   const [filters, setFilters] = useState<Filters>({
     page: 1,
@@ -105,7 +105,7 @@ const InPatients: React.FC = () => {
   });
 
   // Summary statistics
-  const [summary, setSummary] = useState({
+  const [_summary, setSummary] = useState({
     total: 0,
     byGender: {
       male: 0,

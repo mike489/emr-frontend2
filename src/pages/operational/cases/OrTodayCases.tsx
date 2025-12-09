@@ -32,7 +32,6 @@ import LabModal from '../../../features/case/LabModal';
 import SubmitLaboratoriesResultModal from '../../../features/case/submitLaboratoriesResultModal';
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../../shared/api/services/patient.service';
 import { OperationalService } from '../../../shared/api/services/operations.service';
 
 // Updated Type definitions to match your API response
