@@ -26,6 +26,7 @@ import {
   PATIENTDETILES_OPD1_TABS,
   PATIENTDETILES_TABS_TWO,
   OPERATIONAL_TABS,
+  PATIENTDETILES_OPD3_TABS,
 } from '../data/data';
 import PrivateTopBar from '../layouts/PrivateTopBar';
 
@@ -129,6 +130,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.patientPayments.path,
           element: ROUTES.protected.patientPayments.element,
+        },
+        {
+          path: ROUTES.protected.operationalPayments.path,
+          element: ROUTES.protected.operationalPayments.element,
         },
         {
           path: ROUTES.protected.requestedPayments.path,
@@ -503,6 +508,23 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.opd1PatientDetail.path,
           element: ROUTES.protected.opd1PatientDetail.element,
+        },
+      ],
+    },
+    // 🔹 Patient Details Routes Group OPD1
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          tabsData={PATIENTDETILES_OPD3_TABS}
+        />
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.opd3PatientDetail.path,
+          element: ROUTES.protected.opd3PatientDetail.element,
         },
       ],
     },

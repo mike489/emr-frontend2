@@ -237,7 +237,7 @@ const LaboratoriesPaymentModal: React.FC<LaboratoriesPaymentModalProps> = ({
                 </Box>
                 <Box textAlign="right">
                   <Typography variant="h6" color="primary" fontWeight="bold">
-                    ${calculateTotalAmount().toFixed(2)}
+                    Birr{calculateTotalAmount().toFixed(2)}
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
                     Total Amount

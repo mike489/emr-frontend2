@@ -9,6 +9,7 @@ import type { RouteCollection } from './types';
 import PatientDetailGlaucoma from '../pages/ophthalmology/glaucoma/PatientDetailGlaucoma';
 import PatientDetailPediatric from '../pages/ophthalmology/pediatric/PatientDetailPediatric';
 import PatientDetailOPD1 from '../pages/ophthalmology/opd1/PatientDetailOPD1';
+import PatientDetailOPD3 from '../pages/ophthalmology/opd3/PatientDetailOPD3';
 
 export const ophthalmologyRoutes: RouteCollection = {
   retina: {
@@ -88,6 +89,14 @@ export const ophthalmologyRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <Opd3 />
+      </PrivateRoute>
+    ),
+  },
+  opd3PatientDetail: {
+    path: '/opd-three/patients-detail',
+    element: (
+      <PrivateRoute>
+        <PatientDetailOPD3 />
       </PrivateRoute>
     ),
   },

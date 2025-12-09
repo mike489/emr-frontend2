@@ -38,6 +38,7 @@ interface Visit {
   from: string;
   to: string;
   visit_date: string;
+  in_out_time_difference: string;
   visit_status: string;
   flags: VisitFlags;
   address?: {
@@ -372,10 +373,13 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
             </TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>Patient Name</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>EMR Number</TableCell>
+            <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>
+              Total Spend time{' '}
+            </TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>From</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>To</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>Visit Type</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>Status</TableCell>
+            {/* <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>Status</TableCell> */}
             {/* <TableCell sx={{ fontWeight: 'bold', color: 'white', py: 1.5 }}>Actions</TableCell> */}
           </TableRow>
         </TableHead>
@@ -422,6 +426,11 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
               </TableCell>
               <TableCell>
                 <Typography variant="body2" fontWeight={500}>
+                  {visit.in_out_time_difference || 'N/A'}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" fontWeight={500}>
                   {visit.from || 'N/A'}
                 </Typography>
               </TableCell>
@@ -441,7 +450,7 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
                   }}
                 />
               </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <Chip
                   label={visit.visit_status}
                   size="small"
@@ -453,7 +462,7 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
                         : 'default'
                   }
                 />
-              </TableCell>
+              </TableCell> */}
 
               {/* <TableCell>
                 <Box sx={{ display: 'flex', gap: 1 }}>

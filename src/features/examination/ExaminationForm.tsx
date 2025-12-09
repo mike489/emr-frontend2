@@ -170,12 +170,24 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
       try {
         const res = await PatientService.getExaminationData(consultationId);
         const data = res.data.data.examination_data;
-
+        if (!data?.time_of_measurement) {
+          const now = dayjs().format('HH:mm');
+          setInitialValues(prev => ({
+            ...prev,
+            time_of_measurement: now,
+          }));
+        }
         const normalized = Object.fromEntries(
           Object.entries(data).map(([key, value]) => [key, value === '' ? null : value])
         ) as unknown as ExaminationData;
 
-        setInitialValues({ ...defaultInitialValues, ...normalized });
+        let updated = { ...defaultInitialValues, ...normalized };
+
+        if (!normalized?.time_of_measurement) {
+          updated.time_of_measurement = dayjs().format('HH:mm');
+        }
+
+        setInitialValues(updated);
       } catch (err) {
         console.log('No existing data or error:', err);
         setInitialValues(defaultInitialValues);
@@ -729,10 +741,10 @@ const ExaminationForm: React.FC<ExaminationFormProps> = ({ consultationId }) => 
                         <TextField
                           {...field}
                           label="Time"
-                          placeholder="15:00"
                           size="small"
                           fullWidth
                           value={field.value ?? ''}
+                          InputProps={{ readOnly: true }}
                         />
                       )}
                     </Field>

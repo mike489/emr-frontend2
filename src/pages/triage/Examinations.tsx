@@ -287,8 +287,7 @@ const Examinations1: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16,  }}>
-
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -16 }}>
       <Paper sx={{ p: 2, mb: 2, mt: 12, borderRadius: 2 }}>
         {/* Compact Filter Row */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end' }}>
@@ -429,20 +428,20 @@ const Examinations1: React.FC = () => {
 
           {/* Department */}
           <TextField
-                      size="small"
-                      select
-                      value={filters.department}
-                      onChange={e => setFilters({ ...filters, department: e.target.value })}
-                      placeholder="Department"
-                      sx={{ minWidth: 150 }}
-                    >
-                      <MenuItem value="">All Departments</MenuItem>
-                      {departments.map((dept, index) => (
-                        <MenuItem key={index} value={dept}>
-                          {dept}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+            size="small"
+            select
+            value={filters.department}
+            onChange={e => setFilters({ ...filters, department: e.target.value })}
+            placeholder="Department"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dept, index) => (
+              <MenuItem key={index} value={dept}>
+                {dept}
+              </MenuItem>
+            ))}
+          </TextField>
 
           {/* Patient Category */}
           <TextField
@@ -808,7 +807,10 @@ const Examinations1: React.FC = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Fallbacks title=' No patients found.' description='There is no the patient list. Please add new patient first.' />
+                    <Fallbacks
+                      title=" No patients found."
+                      description="There is no the patient list. Please add new patient first."
+                    />
                   </TableCell>
                 </TableRow>
               )}

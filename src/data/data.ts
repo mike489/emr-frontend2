@@ -141,6 +141,12 @@ export const PATIENTDETILES_OPD1_TABS: TabItem[] = [
     path: '/opd-one/patients-detail',
   },
 ];
+export const PATIENTDETILES_OPD3_TABS: TabItem[] = [
+  {
+    label: 'Visit Patient',
+    path: '/opd-three/patients-detail',
+  },
+];
 
 export const PATIENTDETILES_TABS_TWO: TabItem[] = [
   {

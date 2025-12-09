@@ -150,6 +150,7 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
       // Prepare the request body
       const requestBody = {
         service_ids: selectedOperations.map(op => op.id),
+        department: 'OPD3',
         operations_data: selectedOperations.map(op => ({
           service_ids: op.id,
           operation_name: op.name,
@@ -191,10 +192,10 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
   };
 
   // Calculate total price
-  const totalPrice = selectedOperations.reduce((total, op) => {
-    const price = op.price ? Number(op.price) : 0;
-    return total + (isNaN(price) ? 0 : price);
-  }, 0);
+  // const totalPrice = selectedOperations.reduce((total, op) => {
+  //   const price = op.price ? Number(op.price) : 0;
+  //   return total + (isNaN(price) ? 0 : price);
+  // }, 0);
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -322,14 +323,14 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                                     </Typography>
                                   )}
                                 </Box>
-                                {operation.price && (
+                                {/* {operation.price && (
                                   <Typography variant="body2" color="primary" fontWeight="bold">
                                     Birr
                                     {typeof operation.price === 'string'
                                       ? parseFloat(operation.price)
                                       : operation.price}
                                   </Typography>
-                                )}
+                                )} */}
                               </Box>
                             }
                             sx={{
@@ -379,11 +380,11 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                     <Typography variant="subtitle2" color="textSecondary">
                       {selectedOperations.length} operation(s) selected
                     </Typography>
-                    {totalPrice > 0 && (
+                    {/* {totalPrice > 0 && (
                       <Typography variant="h6" color="primary" fontWeight="bold">
                         Total: Birr{totalPrice.toFixed(2)}
                       </Typography>
-                    )}
+                    )} */}
                   </Stack>
 
                   <Box sx={{ maxHeight: 400, overflowY: 'auto', pr: 1 }}>
@@ -406,14 +407,14 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                               <Typography variant="subtitle2" fontWeight="bold">
                                 {operation.name}
                               </Typography>
-                              {operation.price && (
+                              {/* {operation.price && (
                                 <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
                                   Birr
                                   {typeof operation.price === 'string'
                                     ? parseFloat(operation.price)
                                     : operation.price}
                                 </Typography>
-                              )}
+                              )} */}
                             </Box>
                             <IconButton
                               size="small"

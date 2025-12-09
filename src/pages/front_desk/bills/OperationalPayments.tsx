@@ -20,21 +20,22 @@ import {
   IconButton,
   CircularProgress,
 } from '@mui/material';
-import { Search, ArrowDropDown } from '@mui/icons-material';
+import { Search, ArrowDropDown, Payment } from '@mui/icons-material';
+// import { PatientService } from '../../shared/api/services/patient.service';
 import { toast, ToastContainer } from 'react-toastify';
+// import { useNavigate } from 'react-router-dom';
 import type { Patient } from '../../../shared/api/types/patient.types';
 import { DepartmentsService } from '../../../shared/api/services/departments.service';
 import { PatientCategoryService } from '../../../shared/api/services/patientCatagory.service';
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
-import { CheckCircle, FileUp } from 'lucide-react';
-import LabModal from '../../../features/case/LabModal';
-
-import SubmitLaboratoriesResultModal from '../../../features/case/submitLaboratoriesResultModal';
+import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
+// import PatientDetailsModal from '../../../features/patients/PatientDetailsModal';
+import { LaboratoryService } from '../../../shared/api/services/laboratory.service';
+import { Eye, FileUp } from 'lucide-react';
+import LaboratoriesPaymentModal from '../../../features/case/LaboratoriesPaymentModal';
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { PatientService } from '../../../shared/api/services/patient.service';
 import { OperationalService } from '../../../shared/api/services/operations.service';
-
 // Updated Type definitions to match your API response
 interface PaginationState {
   page: number;
@@ -43,24 +44,26 @@ interface PaginationState {
   total: number;
 }
 
-// interface Attachment {
-//   name: string;
-//   mime_type: string;
-//   size: string;
-//   url: string;
-// }
+interface Attachment {
+  name: string;
+  mime_type: string;
+  size: string;
+  url: string;
+}
 
-const OrTodayCases: React.FC = () => {
+const OperationalPayments: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = React.useState<Patient[]>([]);
   const [_loading, setLoading] = React.useState<boolean>(false);
   const [_total, setTotal] = React.useState<number>(0);
   const [_error, setError] = React.useState<boolean>(false);
-  const [departments, setDepartments] = React.useState<string[]>([]);
+  const [_departments, setDepartments] = React.useState<string[]>([]);
   const [doctors, setDoctors] = React.useState<any[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [uploadingId, _setUploadingId] = React.useState<string | null>(null);
-
+  const [attachModalOpen, setAttachModalOpen] = React.useState(false);
+  const [currentAttachments, _setCurrentAttachments] = React.useState<Attachment[]>([]);
+  // const [openTriageModal, _setOpenTriageModal] = useState(false);
   // const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
   const [patientCategories, setPatientCategories] = React.useState<{ id: string; name: string }[]>(
@@ -71,7 +74,7 @@ const OrTodayCases: React.FC = () => {
     per_page: 25,
     sort_by: 'full_name',
     sort_order: 'asc',
-    department: '',
+    department: 'Laboratory', // Changed to Laboratory
     search: '',
     gender: '',
     doctor_id: '',
@@ -92,55 +95,31 @@ const OrTodayCases: React.FC = () => {
     last_page: 0,
     total: 0,
   });
-  const [_selectedPatient, _setSelectedPatient] = useState<any>(null);
+
   // const [detailsOpen, setDetailsOpen] = useState(false);
-  const [labModalOpen, setLabModalOpen] = useState(false);
-  const [selectedPatientForLab, setSelectedPatientForLab] = useState<{
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<{
     id: string;
     name: string;
   } | null>(null);
+
+  const handleOpenPaymentModal = (patient: Patient) => {
+    setSelectedPatient({ id: patient.id, name: patient.full_name });
+    setPaymentModalOpen(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    setPaymentModalOpen(false);
+    setSelectedPatient(null);
+  };
   // const navigate = useNavigate();
-  const [submitResultModalOpen, setSubmitResultModalOpen] = useState(false);
-  const [selectedPatientForResults, setSelectedPatientForResults] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
 
-  // Add this handler function
-  const handleOpenSubmitResultModal = (patient: Patient) => {
-    setSelectedPatientForResults({
-      id: patient.id,
-      name: patient.full_name,
-    });
-    setSubmitResultModalOpen(true);
-  };
-
-  const handleCloseSubmitResultModal = () => {
-    setSubmitResultModalOpen(false);
-    setSelectedPatientForResults(null);
-  };
-
-  const handleResultSubmitSuccess = () => {
-    // Refresh data or show success message
-    console.log('Results submitted successfully');
-    // You can add data refresh logic here if needed
-  };
+  // const handleViewDetails = (patient: Patient) => {
+  //   navigate('/laboratory/patient-details', { state: { patient } });
+  // };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage + 1 }));
-  };
-
-  // const handleOpenLabModal = (patient: Patient) => {
-  //   setSelectedPatientForLab({
-  //     id: patient.id,
-  //     name: patient.full_name,
-  //   });
-  //   setLabModalOpen(true);
-  // };
-
-  const handleCloseLabModal = () => {
-    setLabModalOpen(false);
-    setSelectedPatientForLab(null);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,7 +134,7 @@ const OrTodayCases: React.FC = () => {
       sort_by: 'full_name',
       sort_order: 'asc',
       sort_dir: 'asc',
-      department: '',
+      department: 'Laboratory', // Reset to Laboratory
       search: '',
       gender: '',
       doctor_id: '',
@@ -174,7 +153,7 @@ const OrTodayCases: React.FC = () => {
   const fetchPatients = async () => {
     setLoading(true);
     try {
-      const res = await OperationalService.getORPatients(filters);
+      const res = await OperationalService.getORPatients();
 
       const patientsData = res.data?.data?.data || res.data?.data || [];
       const totalItems = res.data?.data?.total || patientsData.length || 0;
@@ -189,7 +168,7 @@ const OrTodayCases: React.FC = () => {
       setError(false);
     } catch (err: any) {
       setError(true);
-      toast.error(err.response?.data?.data?.message || 'Failed to fetch patients');
+      toast.error(err.response?.data?.message || 'Failed to fetch patients');
       console.error('Error fetching patients:', err);
     } finally {
       setLoading(false);
@@ -238,6 +217,12 @@ const OrTodayCases: React.FC = () => {
     }
   };
 
+  const handlePaymentSuccess = () => {
+    // Refresh the data or update UI after successful payment
+    console.log('Payment successful - refresh data');
+    // You can add your data refresh logic here
+  };
+
   useEffect(() => {
     fetchPatients();
     fetchDepartments();
@@ -255,7 +240,7 @@ const OrTodayCases: React.FC = () => {
         {/* Compact Filter Row */}
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'end' }}>
           <Button
-            onClick={() => navigate('/clinics')}
+            onClick={() => navigate(-1)}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -270,17 +255,17 @@ const OrTodayCases: React.FC = () => {
               minWidth: 'auto',
               bgcolor: '#1976d2',
               border: '1px solid #1565c0',
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              position: 'relative',
-              transform: 'translateY(0)',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother transition
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Initial subtle shadow
+              position: 'relative', // For 3D effect
+              transform: 'translateY(0)', // Initial position
               '&:hover': {
                 bgcolor: '#1565c0',
                 transform: 'translateY(-4px)',
                 boxShadow: `
-                                0 8px 16px rgba(25, 118, 210, 0.3),
-                                0 4px 8px rgba(0,0,0,0.15)
-                              `,
+                                          0 8px 16px rgba(25, 118, 210, 0.3),
+                                          0 4px 8px rgba(0,0,0,0.15)
+                                        `,
                 borderColor: '#0d47a1',
                 '&::after': {
                   opacity: 1,
@@ -464,7 +449,7 @@ const OrTodayCases: React.FC = () => {
           </TextField>
 
           {/* Department */}
-          <TextField
+          {/* <TextField
             size="small"
             select
             value={filters.department}
@@ -478,7 +463,7 @@ const OrTodayCases: React.FC = () => {
                 {dept}
               </MenuItem>
             ))}
-          </TextField>
+          </TextField> */}
 
           {/* Patient Category */}
           <TextField
@@ -512,6 +497,7 @@ const OrTodayCases: React.FC = () => {
       {/* Patient Table */}
       <Paper sx={{ p: 0, borderRadius: '8px', overflow: 'hidden' }}>
         <input type="file" ref={fileInputRef} style={{ display: 'none' }} multiple />
+
         <TableContainer component={Paper}>
           <Table sx={{ px: 4 }}>
             <TableHead>
@@ -633,20 +619,8 @@ const OrTodayCases: React.FC = () => {
                 >
                   Visit Type
                 </TableCell>
-                {/* <TableCell
-                  sx={{
-                    fontWeight: 'bold',
-                    color: 'white',
-                    width: 120,
-                    fontSize: '0.8rem',
-                    py: 1.5,
-                    borderRight: '1px solid rgba(255,255,255,0.1)',
-                  }}
-                >
-                  Payment
-                </TableCell> */}
 
-                {/* <TableCell
+                <TableCell
                   sx={{
                     fontWeight: 'bold',
                     color: 'white',
@@ -657,7 +631,7 @@ const OrTodayCases: React.FC = () => {
                   }}
                 >
                   Status
-                </TableCell> */}
+                </TableCell>
                 <TableCell
                   sx={{
                     fontWeight: 'bold',
@@ -733,83 +707,47 @@ const OrTodayCases: React.FC = () => {
                   </TableCell>
                   <TableCell>{patient.visit_type || 'N/A'}</TableCell>
 
-                  {/* <TableCell>
-                    <Select
-                      value={patient.flags?.bill_paid ? 'Paid' : 'Unpaid'}
-                      size="small"
-                      sx={{ minWidth: 100 }}
-                      // onChange={(e) => onChangePaymentStatus(patient, e.target.value)}
-                      renderValue={selected => (
-                        <Chip
-                          label={selected}
-                          color={selected === 'Paid' ? 'success' : 'error'}
-                          variant="filled"
-                          size="small"
-                          sx={{ fontWeight: 'bold', p: 1 }}
-                        />
-                      )}
-                    >
-                      <MenuItem value="Paid">
-                        <Chip
-                          label="Paid"
-                          color="success"
-                          variant="filled"
-                          size="small"
-                          sx={{ fontWeight: 'bold', p: 1 }}
-                        />
-                      </MenuItem>
-                      <MenuItem value="Unpaid">
-                        <Chip
-                          label="Unpaid"
-                          color="error"
-                          variant="filled"
-                          size="small"
-                          sx={{ fontWeight: 'bold', p: 1 }}
-                        />
-                      </MenuItem>
-                    </Select>
-                  </TableCell> */}
-
                   {/* Status */}
-                  {/* <TableCell>
+                  <TableCell>
                     <Chip
                       label={patient.status === '1' ? 'Active' : 'Inactive'}
                       color={patient.status === '1' ? 'success' : 'warning'}
                       size="small"
                     />
-                  </TableCell> */}
+                  </TableCell>
 
                   {/* Actions */}
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                      {/* Lab Button - Add this */}
-                      {/* <Tooltip title="Request Laboratory Tests" arrow>
+                      {/* View Details */}
+                      <Tooltip title="View Details">
                         <IconButton
                           size="small"
-                          onClick={() => handleOpenLabModal(patient)}
+                          onClick={() => patient}
                           sx={{
-                            backgroundColor: '#1976d2',
-                            color: 'white',
-                            '&:hover': { backgroundColor: '#1565c0' },
+                            bgcolor: '#4caf50',
+                            color: '#fff',
+                            '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
                           }}
                         >
-                          <Science fontSize="small" />
-                        </IconButton>
-                      </Tooltip> */}
-
-                      <Tooltip title="Submit Laboratory Results" arrow>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleOpenSubmitResultModal(patient)}
-                          sx={{
-                            backgroundColor: '#ff9800',
-                            color: 'white',
-                            '&:hover': { backgroundColor: '#f57c00' },
-                          }}
-                        >
-                          <CheckCircle fontSize="small" />
+                          <Eye size={20} />
                         </IconButton>
                       </Tooltip>
+
+                      <Tooltip title="Process Laboratory Payment" arrow>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleOpenPaymentModal(patient)}
+                          sx={{
+                            backgroundColor: '#4caf50',
+                            color: 'white',
+                            '&:hover': { backgroundColor: '#388e3c' },
+                          }}
+                        >
+                          <Payment fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+
                       {/* Attach Files */}
 
                       <Tooltip title="Attach files for this patient" arrow>
@@ -849,19 +787,18 @@ const OrTodayCases: React.FC = () => {
           </Table>
         </TableContainer>
 
-        <SubmitLaboratoriesResultModal
-          open={submitResultModalOpen}
-          onClose={handleCloseSubmitResultModal}
-          patientId={selectedPatientForResults?.id || ''}
-          patientName={selectedPatientForResults?.name || ''}
-          onResultSubmit={handleResultSubmitSuccess}
+        <LaboratoriesPaymentModal
+          open={paymentModalOpen}
+          onClose={handleClosePaymentModal}
+          patientId={selectedPatient?.id || ''}
+          patientName={selectedPatient?.name || ''}
+          onPaymentSuccess={handlePaymentSuccess}
         />
 
-        <LabModal
-          open={labModalOpen}
-          onClose={handleCloseLabModal}
-          patientId={selectedPatientForLab?.id || ''}
-          patientName={selectedPatientForLab?.name || ''}
+        <AttachmentsModal
+          open={attachModalOpen}
+          onClose={() => setAttachModalOpen(false)}
+          attachments={currentAttachments}
         />
 
         <TablePagination
@@ -873,9 +810,16 @@ const OrTodayCases: React.FC = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Modals */}
+      {/* <PatientDetailsModal
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        patient={selectedPatient}
+      /> */}
+      <ToastContainer />
     </Box>
   );
 };
 
-export default OrTodayCases;
+export default OperationalPayments;

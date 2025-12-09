@@ -1,3 +1,4 @@
+// import axios from 'axios';
 import { createApiClient } from '../interceptors';
 
 const LaboratoryApi = createApiClient(import.meta.env.VITE_EMS_URL);
@@ -18,6 +19,27 @@ export const LaboratoryService = {
   createLabPayment: (patientId: string, data: any) =>
     LaboratoryApi.post(`/laboratories-payment/${patientId}`, data),
 
-  createLabResult: (patientId: string, data: any) =>
-    LaboratoryApi.post(`/submit-laboratories-result/${patientId}`, data),
+  // createLabResult: (patientId: string, formData: FormData) => {
+  //   return LaboratoryApi.post(`/submit-laboratories-result/${patientId}`, formData, {
+  //     headers: {
+  //       'Content-Type': 'multipart/form-data',
+  //     },
+  //   });
+  // },
+
+  createLabResult: async (patientId: string, formData: FormData) => {
+    // For FormData uploads, override timeout
+    return await LaboratoryApi.post(`/submit-laboratories-result/${patientId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 60000, // 60 seconds for file uploads
+      onUploadProgress: progressEvent => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total || 1)
+        );
+        console.log(`Upload progress: ${percentCompleted}%`);
+      },
+    });
+  },
 };

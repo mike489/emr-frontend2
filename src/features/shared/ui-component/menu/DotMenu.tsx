@@ -4,14 +4,24 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 
 interface DotMenuProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onView?: () => void;
+  onAssign?: () => void; // New prop
+  onRelease?: () => void; // New prop
 }
 
-export const DotMenu: React.FC<DotMenuProps> = ({ onEdit, onDelete, onView }) => {
+export const DotMenu: React.FC<DotMenuProps> = ({
+  onEdit,
+  onDelete,
+  onView,
+  onAssign,
+  onRelease,
+}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -36,6 +46,16 @@ export const DotMenu: React.FC<DotMenuProps> = ({ onEdit, onDelete, onView }) =>
   const handleView = () => {
     handleClose();
     onView?.();
+  };
+
+  const handleAssign = () => {
+    handleClose();
+    onAssign?.();
+  };
+
+  const handleRelease = () => {
+    handleClose();
+    onRelease?.();
   };
 
   return (
@@ -71,6 +91,26 @@ export const DotMenu: React.FC<DotMenuProps> = ({ onEdit, onDelete, onView }) =>
               <EditIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        )}
+        {onAssign && (
+          <MenuItem onClick={handleAssign}>
+            <ListItemIcon>
+              <PersonAddIcon fontSize="small" color="primary" />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ color: 'primary.main' }}>
+              Assign Patient
+            </ListItemText>
+          </MenuItem>
+        )}
+        {onRelease && (
+          <MenuItem onClick={handleRelease}>
+            <ListItemIcon>
+              <PersonRemoveIcon fontSize="small" color="warning" />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ color: 'warning.main' }}>
+              Release Patient
+            </ListItemText>
           </MenuItem>
         )}
         {onDelete && (

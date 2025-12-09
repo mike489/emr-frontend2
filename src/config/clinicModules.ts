@@ -18,7 +18,7 @@ export const CLINIC_MODULES = [
   { title: 'OPTICALS', Icon: Optical, entryRoute: '/optical' },
   { title: 'PHARMACY', Icon: Pharmacy, entryRoute: '/pharmacy' },
 
-  { title: 'IN PATIENT', Icon: InPatient, entryRoute: '/in-patient' },
+  { title: 'IN PATIENT', Icon: InPatient, entryRoute: '/in-patient/in-patients' },
   { title: 'OR', Icon: InPatient, entryRoute: '/or-list/today-cases' },
 ] as const;
 

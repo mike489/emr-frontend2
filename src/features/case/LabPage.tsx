@@ -242,15 +242,6 @@ const LabPage: React.FC<LabPageProps> = ({ patientId }) => {
                                     }}
                                   >
                                     <Typography variant="body1">{test.name}</Typography>
-                                    {test.price && test.price > 0 ? (
-                                      <Typography variant="body2" color="primary" fontWeight="bold">
-                                        ${test.price}
-                                      </Typography>
-                                    ) : (
-                                      <Typography variant="caption" color="textSecondary">
-                                        No price
-                                      </Typography>
-                                    )}
                                   </Box>
                                 }
                                 sx={{
@@ -357,11 +348,11 @@ const LabPage: React.FC<LabPageProps> = ({ patientId }) => {
                               <Typography variant="caption" color="textSecondary">
                                 {test.labName}
                               </Typography>
-                              {test.price && test.price > 0 && (
+                              {/* {test.price && test.price > 0 && (
                                 <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
                                   ${test.price}
                                 </Typography>
-                              )}
+                              )} */}
                             </Box>
                             <IconButton
                               size="small"

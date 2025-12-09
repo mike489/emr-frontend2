@@ -296,7 +296,7 @@ const Opd3: React.FC = () => {
   };
 
   const handleRowClick = (patient: Patient) => {
-    navigate('/opd-one/patients-detail', {
+    navigate('/opd-three/patients-detail', {
       state: {
         consultation_id: patient.constultation_id,
         index: 0,

@@ -14,6 +14,7 @@ import PendingPayments from '../pages/front_desk/bills/PendingPayments';
 import RequestedPayments from '../pages/front_desk/bills/RequestedPayments';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
+import OperationalPayments from '../pages/front_desk/bills/OperationalPayments';
 
 export const frontDeskRoutes: RouteCollection = {
   frontDesk: {
@@ -105,6 +106,16 @@ export const frontDeskRoutes: RouteCollection = {
       </PrivateRoute>
     ),
   },
+
+  operationalPayments: {
+    path: '/front-desk/operational-payments',
+    element: (
+      <PrivateRoute>
+        <OperationalPayments />
+      </PrivateRoute>
+    ),
+  },
+
   pendingPayments: {
     path: '/front-desk/pending-payments',
     element: (

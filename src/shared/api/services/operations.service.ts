@@ -12,4 +12,7 @@ export const OperationalService = {
   },
   createOperationRequest: (patientId: string, data: any) =>
     OperationalApi.post(`/patient-operations/${patientId}`, data),
+
+  getORPatients: (filters?: Record<string, any>) =>
+    OperationalApi.get('/operation-requests', { params: filters }),
 };
