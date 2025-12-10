@@ -162,10 +162,10 @@ const PatientBeds: React.FC = () => {
   };
 
   // Handle view bed details
-  const handleViewBed = (bed: Bed) => {
-    toast.info(`View bed: ${bed.bed_number}`);
-    console.log('View bed:', bed);
-  };
+  // const handleViewBed = (bed: Bed) => {
+  //   toast.info(`View bed: ${bed.bed_number}`);
+  //   console.log('View bed:', bed);
+  // };
 
   // Handle assign patient to bed
   const handleAssignPatient = (bed: Bed) => {

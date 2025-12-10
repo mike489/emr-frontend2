@@ -127,11 +127,11 @@ const WardManagement: React.FC = () => {
   };
 
   // Handle view ward details
-  const handleViewWard = (ward: Ward) => {
-    // Navigate to view page or open view modal
-    toast.info(`View ward: ${ward.name}`);
-    console.log('View ward:', ward);
-  };
+  // const handleViewWard = (ward: Ward) => {
+  //   // Navigate to view page or open view modal
+  //   toast.info(`View ward: ${ward.name}`);
+  //   console.log('View ward:', ward);
+  // };
 
   // Open delete confirmation dialog
   const openDeleteDialog = (ward: Ward) => {
