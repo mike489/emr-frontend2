@@ -1,7 +1,9 @@
 import { Box } from '@mui/material';
 import { usePatientDetailsState } from '../../contexts/PatientContext';
 import Patients from '../../pages/patients/Patients';
-import PharmacyMedicinesOrder from './pharmacyMedicinesOrder';
+import PharmacyMedicinesOrder from './PharmacyMedicinesOrders';
+
+// import PharmacyMedicinesOrder from './pharmacyMedicinesOrder';
 
 const MedTab = () => {
   const patientDetailsState = usePatientDetailsState();
