@@ -49,7 +49,6 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Fetch medicines on component mount
   useEffect(() => {
     fetchMedicines();
   }, []);
