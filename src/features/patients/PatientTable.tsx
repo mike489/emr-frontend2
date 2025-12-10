@@ -378,7 +378,7 @@ const PatientTable: React.FC<PatientTableProps> = ({
               <TableCell>
                 <Chip
                   label={patient.flags?.bill_paid ? 'Paid' : 'Not Paid'}
-                  color={patient.flags?.bill_paid ? 'success' : 'warning'}
+                  color={patient.flags?.bill_paid ? 'success' : 'error'}
                   size="small"
                 />
               </TableCell>

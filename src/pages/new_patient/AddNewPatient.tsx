@@ -18,10 +18,8 @@ import {
 } from '@mui/material';
 import { CalendarToday } from '@mui/icons-material';
 import { PatientService } from '../../shared/api/services/patient.service';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
-
-
 
 const PatientRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -641,6 +639,7 @@ const PatientRegistration: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Container>
   );
 };
