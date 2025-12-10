@@ -480,7 +480,7 @@ const PatientBeds: React.FC = () => {
                         <DotMenu
                           onEdit={() => handleEditBed(bed)}
                           onDelete={() => openDeleteDialog(bed)}
-                          onView={() => handleViewBed(bed)}
+                          // onView={() => handleViewBed(bed)}
                           onAssign={!isOccupied ? () => handleAssignPatient(bed) : undefined}
                           onRelease={isOccupied ? () => handleReleasePatient(bed) : undefined}
                         />

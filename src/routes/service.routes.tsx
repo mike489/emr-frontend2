@@ -12,7 +12,7 @@ import type { RouteCollection } from './types';
 
 export const serviceRoutes: RouteCollection = {
   pharmacy: {
-    path: '/pharmacy/',
+    path: '/pharmacy/patients',
     element: (
       <PrivateRoute>
         <PharmacyTodayCases />

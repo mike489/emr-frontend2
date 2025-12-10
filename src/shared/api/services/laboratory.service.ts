@@ -42,4 +42,14 @@ export const LaboratoryService = {
       },
     });
   },
+
+  getMedications: () => LaboratoryApi.get(`/pharmacy-medicines`),
+
+  createPharmacyMedicinesOrder: (patientId: string, data: any) =>
+    LaboratoryApi.post(`/pharmacy-medicines/order/${patientId}`, data),
+
+  getPharmacyMedicinesOrder: (patientId: string) =>
+    LaboratoryApi.get(`/pharmacy-medicines/order/${patientId}`),
+
+  getPharmacyMedicinesPatientOrders: () => LaboratoryApi.get(`pharmacy-medicines/patient-orders`),
 };

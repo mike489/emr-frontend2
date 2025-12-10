@@ -646,7 +646,7 @@ export const PHARMACY_TABS: TabItem[] = [
   {
     label: 'Cases',
     path: '/pharmacy/cases',
-    children: [{ label: 'Today’s Case', path: '/pharmacy/today-cases' }],
+    children: [{ label: 'Today’s Case', path: '/pharmacy/patients' }],
   },
   {
     label: 'Results',

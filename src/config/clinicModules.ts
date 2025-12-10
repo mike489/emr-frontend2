@@ -16,7 +16,7 @@ export const CLINIC_MODULES = [
   { title: 'OPHTHALMOLOGY', Icon: Otham, entryRoute: '/clinic-lists' },
   { title: 'Diagnosis', Icon: Diagnosis, entryRoute: '/diagnosis/today-cases' },
   { title: 'OPTICALS', Icon: Optical, entryRoute: '/optical' },
-  { title: 'PHARMACY', Icon: Pharmacy, entryRoute: '/pharmacy' },
+  { title: 'PHARMACY', Icon: Pharmacy, entryRoute: '/pharmacy/patients' },
 
   { title: 'IN PATIENT', Icon: InPatient, entryRoute: '/in-patient/in-patients' },
   { title: 'OR', Icon: InPatient, entryRoute: '/or-list/today-cases' },

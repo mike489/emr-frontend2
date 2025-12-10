@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { ExpandMore, Science, CheckCircle, Delete } from '@mui/icons-material';
 import { LaboratoryService } from '../../shared/api/services/laboratory.service';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
 interface LabTest {
@@ -395,6 +395,7 @@ const LabPage: React.FC<LabPageProps> = ({ patientId }) => {
           </Paper>
         </Box>
       </Box>
+      <ToastContainer />
     </Container>
   );
 };

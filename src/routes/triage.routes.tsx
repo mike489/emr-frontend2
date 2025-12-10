@@ -20,6 +20,7 @@ import LabTab from '../features/case/LabTab';
 import OperationTab from '../features/case/OperationTab';
 import PatientDetailTriageTwo from '../pages/triage/triage2/PatientDetailTriageTwo';
 import PatientDetailTriageThree from '../pages/triage/triage3/PatientDetailTriageThree';
+import MedTab from '../pages/pharmacy_medicines_order/MedTab';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
@@ -267,6 +268,15 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <OperationTab />
+      </PrivateRoute>
+    ),
+  },
+
+  medicationsOrder: {
+    path: '/triage/medications',
+    element: (
+      <PrivateRoute>
+        <MedTab />
       </PrivateRoute>
     ),
   },

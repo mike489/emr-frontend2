@@ -556,6 +556,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.operationTab.path,
           element: ROUTES.protected.operationTab.element,
         },
+        {
+          path: ROUTES.protected.medicationsOrder.path,
+          element: ROUTES.protected.medicationsOrder.element,
+        },
       ],
     },
     // 🔹 Patient Details Routes Group Triage Two

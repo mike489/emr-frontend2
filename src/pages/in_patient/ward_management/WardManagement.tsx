@@ -376,7 +376,7 @@ const WardManagement: React.FC = () => {
                         <DotMenu
                           onEdit={() => handleEditWard(ward)}
                           onDelete={() => openDeleteDialog(ward)}
-                          onView={() => handleViewWard(ward)}
+                          // onView={() => handleViewWard(ward)}
                         />
                       </TableCell>
                     </TableRow>
