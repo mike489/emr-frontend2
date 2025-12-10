@@ -52,4 +52,12 @@ export const LaboratoryService = {
     LaboratoryApi.get(`/pharmacy-medicines/order/${patientId}`),
 
   getPharmacyMedicinesPatientOrders: () => LaboratoryApi.get(`pharmacy-medicines/patient-orders`),
+
+  createGlassPrescriptions: (patientId: string, data: any) =>
+    LaboratoryApi.post(`/glass-prescriptions/${patientId}`, data),
+
+  getGlassPrescriptions: () => LaboratoryApi.get(`/glass-prescriptions`),
+
+  getGlassPrescriptionDetails: (patientId: string) =>
+    LaboratoryApi.get(`/glass-prescriptions/${patientId}`),
 };

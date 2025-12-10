@@ -217,7 +217,7 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
                     <TableCell>
                       <Chip label={medicine.default_code} size="small" variant="outlined" />
                     </TableCell>
-                    <TableCell align="right">${parseFloat(medicine.price).toFixed(2)}</TableCell>
+                    {/* <TableCell align="right">${parseFloat(medicine.price).toFixed(2)}</TableCell> */}
                     <TableCell>{medicine.description}</TableCell>
                   </TableRow>
                 ))}

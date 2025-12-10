@@ -21,6 +21,7 @@ import OperationTab from '../features/case/OperationTab';
 import PatientDetailTriageTwo from '../pages/triage/triage2/PatientDetailTriageTwo';
 import PatientDetailTriageThree from '../pages/triage/triage3/PatientDetailTriageThree';
 import MedTab from '../pages/pharmacy_medicines_order/MedTab';
+import OpticalTab from '../pages/opticals/OpticalTab';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
@@ -277,6 +278,14 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <MedTab />
+      </PrivateRoute>
+    ),
+  },
+  opticalOrder: {
+    path: '/triage/optical',
+    element: (
+      <PrivateRoute>
+        <OpticalTab />
       </PrivateRoute>
     ),
   },

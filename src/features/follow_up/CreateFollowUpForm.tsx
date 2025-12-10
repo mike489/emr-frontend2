@@ -114,7 +114,7 @@ const CreateFollowUpForm: React.FC<CreateFollowUpFormProps> = ({
           };
 
           setInitialValues(updated);
-          toast.success('Follow-up data loaded successfully');
+          // toast.success('Follow-up data loaded successfully');
         } else {
           // No existing data found, set patient_id
           setInitialValues(prev => ({ ...prev, patient_id: patientId }));

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Paper, Tabs, Tab } from '@mui/material';
+import { Box, Button, Paper, Tabs, Tab, Typography } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
-// import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
+import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import type { TabItem } from '../data/data';
 
 interface TabBarProps {
@@ -93,29 +93,29 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
       >
         {showBackButton && (
           <Box
-          // onClick={() => navigate(-1)}
-          // sx={{
-          //   display: 'flex',
-          //   alignItems: 'center',
-          //   gap: 0.5,
-          //   textTransform: 'none',
-          //   color: 'white',
-          //   fontWeight: 500,
-          //   fontSize: '0.875rem',
-          //   px: 1.5,
-          //   py: 0.75,
-          //   borderRadius: '8px',
-          //   minWidth: 'auto',
-          //   bgcolor: 'rgba(255, 255, 255, 0.12)',
-          //   border: '1px solid rgba(255, 255, 255, 0.3)',
-          //   transition: 'all 0.2s ease-in-out',
-          //   '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)' },
-          // }}
+            onClick={() => navigate('/clinics')}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              textTransform: 'none',
+              color: 'white',
+              fontWeight: 500,
+              fontSize: '0.875rem',
+              px: 1.5,
+              py: 0.75,
+              borderRadius: '8px',
+              minWidth: 'auto',
+              bgcolor: 'rgba(255, 255, 255, 0.12)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)' },
+            }}
           >
-            {/* <ArrowBackIcon sx={{ fontSize: 18 }} />
+            <ArrowBackIcon sx={{ fontSize: 18 }} />
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              Back to Home
-            </Typography> */}
+              Home
+            </Typography>
           </Box>
         )}
 

@@ -152,7 +152,13 @@ export default function TopBar({
             <MenuIcon />
           </IconButton>
 
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mr: 2 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            sx={{ mr: 2, ':hover': { cursor: 'pointer' } }}
+            onClick={() => navigate('/')}
+          >
             <Box
               component="img"
               src={Logo}

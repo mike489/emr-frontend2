@@ -35,7 +35,7 @@ const FollowUpTab = () => {
         <CreateFollowUpForm
           patientId={patient.id}
           consultationId={consultation_id}
-          visitId={consultation_id} // optional — followUp creation needs visit_id
+          visitId={consultation_id}
         />
       );
     }

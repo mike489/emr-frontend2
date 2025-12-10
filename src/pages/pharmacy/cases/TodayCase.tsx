@@ -353,6 +353,7 @@ const PharmacyTodayCases: React.FC = () => {
         patient_id: patient.id,
         patient_name: patient.full_name,
         order_number: `ORD-${patient.emr_number}`,
+
         total_amount: '0.00',
         status: 'error',
         created_at: new Date().toISOString(),
