@@ -49,6 +49,7 @@ const DEPARTMENT_MAP: Record<string, string> = {
   '/refraction': 'Refraction',
   '/doctor': 'Doctor',
   '/diagnosis': 'Diagnosis',
+  '/pharmacy': 'Pharmacy',
   '/or': 'OR',
   '/default': 'Default',
 };

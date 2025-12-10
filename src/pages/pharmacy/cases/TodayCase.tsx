@@ -390,8 +390,8 @@ const PharmacyTodayCases: React.FC = () => {
   // Get patient category color
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      'Non Paying': '#1976d2',
-      Emergency: '#d32f2f',
+      'Non Paying': '#d32f2f',
+      Emergency: '#1976d2',
       ICU: '#7b1fa2',
       Pediatric: '#00796b',
       Maternity: '#e91e63',
@@ -682,6 +682,7 @@ const PharmacyTodayCases: React.FC = () => {
                   return (
                     <TableRow
                       key={patient.id || index}
+                      onClick={() => handleViewPatientOrders(patient)}
                       sx={{
                         cursor: 'pointer',
                         '&:hover': {

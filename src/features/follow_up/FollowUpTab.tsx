@@ -31,7 +31,13 @@ const FollowUpTab = () => {
     }
 
     if (visit_type === 'Follow Up' && isLocked === false) {
-      return <CreateFollowUpForm patientId={patient.id} visitId={consultation_id} />;
+      return (
+        <CreateFollowUpForm
+          patientId={patient.id}
+          consultationId={consultation_id}
+          visitId={consultation_id} // optional — followUp creation needs visit_id
+        />
+      );
     }
 
     return <Box color="error.main">This page is only for Follow Up visits</Box>;
