@@ -660,7 +660,10 @@ export const OPTICAL_TABS: TabItem[] = [
   {
     label: 'Cases',
     path: '/optical/cases',
-    children: [{ label: 'Today’s Case', path: '/optical/today-cases' }],
+    children: [
+      { label: 'Today’s Case', path: '/optical/today-cases' },
+      { label: 'Details', path: '/optical/details' },
+    ],
   },
   {
     label: 'Results',

@@ -9,6 +9,7 @@ import Notifications from '../pages/Notifications';
 import Settings from '../pages/Settings';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
+import GlassPrescriptionDetailPage from '../pages/opticals/GlassPrescriptionDetail';
 
 export const serviceRoutes: RouteCollection = {
   pharmacy: {
@@ -64,6 +65,14 @@ export const serviceRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <OpticalTodayCases />
+      </PrivateRoute>
+    ),
+  },
+  opticalOrderDetail: {
+    path: '/optical/details',
+    element: (
+      <PrivateRoute>
+        <GlassPrescriptionDetailPage />
       </PrivateRoute>
     ),
   },

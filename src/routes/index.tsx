@@ -564,6 +564,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.opticalOrder.path,
           element: ROUTES.protected.opticalOrder.element,
         },
+        {
+          path: ROUTES.protected.opticalOrderDetail.path,
+          element: ROUTES.protected.opticalOrderDetail.element,
+        },
       ],
     },
     // 🔹 Patient Details Routes Group Triage Two
@@ -723,8 +727,8 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           element: ROUTES.protected.opticalCases.element,
         },
         {
-          path: ROUTES.protected.opticalResults.path,
-          element: ROUTES.protected.opticalResults.element,
+          path: ROUTES.protected.opticalOrderDetail.path,
+          element: ROUTES.protected.opticalOrderDetail.element,
         },
         {
           path: ROUTES.protected.opticalNotifications.path,

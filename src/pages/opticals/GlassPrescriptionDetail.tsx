@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Modal,
   Box,
   Typography,
   Paper,
@@ -16,10 +15,13 @@ import {
   TableHead,
   TableRow,
   Button,
+  Breadcrumbs,
+  Link,
+  Container,
 } from '@mui/material';
-import { Close, Print, Visibility } from '@mui/icons-material';
+import { Home, Print, ArrowBack } from '@mui/icons-material';
+import { useNavigate, useParams } from 'react-router-dom';
 import { LaboratoryService } from '../../shared/api/services/laboratory.service';
-// import { LaboratoryService } from '../../../shared/api/services/laboratory.service';
 
 // Type definitions based on your API response
 interface GlassPrescriptionDetail {
@@ -62,25 +64,17 @@ interface PatientInfo {
   email?: string;
 }
 
-interface GlassPrescriptionDetailModalProps {
-  open: boolean;
-  onClose: () => void;
-  patientId: string | null;
-  patientInfo?: PatientInfo;
-}
+const GlassPrescriptionDetailPage: React.FC = () => {
+  const { patientId } = useParams<{ patientId: string }>();
+  const navigate = useNavigate();
 
-const GlassPrescriptionDetailModal: React.FC<GlassPrescriptionDetailModalProps> = ({
-  open,
-  onClose,
-  patientId,
-  patientInfo,
-}) => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [prescriptionData, setPrescriptionData] = useState<GlassPrescriptionDetail | null>(null);
+  const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
   const [_showPrescriptionForm, setShowPrescriptionForm] = useState<boolean>(false);
 
-  // Fetch prescription details
+  // Fetch prescription details and patient info
   const fetchPrescriptionDetails = async () => {
     if (!patientId) return;
 
@@ -93,6 +87,17 @@ const GlassPrescriptionDetailModal: React.FC<GlassPrescriptionDetailModalProps> 
 
       if (data) {
         setPrescriptionData(data);
+        // In a real app, you would fetch patient info separately or get it from the prescription data
+        // For now, let's create mock patient info based on the prescription data
+        setPatientInfo({
+          id: data.patient_id,
+          name: 'John Doe', // Replace with actual patient name from API
+          emr_number: 'EMR123456',
+          age: 42,
+          gender: 'Male',
+          phone: '+1234567890',
+          email: 'john.doe@example.com',
+        });
       } else {
         setError('No prescription data found for this patient.');
       }
@@ -105,13 +110,10 @@ const GlassPrescriptionDetailModal: React.FC<GlassPrescriptionDetailModalProps> 
   };
 
   useEffect(() => {
-    if (open && patientId) {
+    if (patientId) {
       fetchPrescriptionDetails();
-    } else {
-      setPrescriptionData(null);
-      setError(null);
     }
-  }, [open, patientId]);
+  }, [patientId]);
 
   // Format boolean display
   const formatBoolean = (value: string) => {
@@ -133,6 +135,37 @@ const GlassPrescriptionDetailModal: React.FC<GlassPrescriptionDetailModalProps> 
   const handlePrint = () => {
     window.print();
   };
+
+  // Handle back navigation
+  const handleBack = () => {
+    navigate(-1); // Go back to previous page
+  };
+
+  // Handle home navigation
+  const handleHome = () => {
+    navigate('/'); // Navigate to home page
+  };
+
+  // Render breadcrumbs
+  const renderBreadcrumbs = () => (
+    <Box sx={{ mb: 3 }}>
+      <Breadcrumbs aria-label="breadcrumb">
+        <Link
+          underline="hover"
+          color="inherit"
+          onClick={handleHome}
+          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+        >
+          <Home sx={{ mr: 0.5, fontSize: 20 }} />
+          Home
+        </Link>
+        <Link underline="hover" color="inherit" onClick={handleBack} sx={{ cursor: 'pointer' }}>
+          Patients
+        </Link>
+        <Typography color="text.primary">Prescription Details</Typography>
+      </Breadcrumbs>
+    </Box>
+  );
 
   // Render lens specifications
   const renderLensSpecifications = () => {
@@ -425,11 +458,11 @@ const GlassPrescriptionDetailModal: React.FC<GlassPrescriptionDetailModalProps> 
     const isProgressive = prescriptionData.progressive === '1';
 
     return (
-      <Paper sx={{ p: 2, bgcolor: '#e8f4fd', mb: 2 }}>
-        <Typography variant="h6" sx={{ mb: 1, color: '#1976d2' }}>
+      <Paper sx={{ p: 3, bgcolor: '#e8f4fd', mb: 3, borderRadius: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#1976d2' }}>
           Prescription Summary
         </Typography>
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2">
               <strong>Type:</strong>{' '}
@@ -480,189 +513,227 @@ const GlassPrescriptionDetailModal: React.FC<GlassPrescriptionDetailModalProps> 
     );
   };
 
+  // Render patient info card
+  const renderPatientInfo = () => {
+    if (!patientInfo) return null;
+
+    return (
+      <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#1e3c72' }}>
+          Patient Information
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="body2">
+              <strong>Name:</strong> {patientInfo.name}
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="body2">
+              <strong>MRN:</strong> {patientInfo.emr_number}
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="body2">
+              <strong>Age:</strong> {patientInfo.age}
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="body2">
+              <strong>Gender:</strong> {patientInfo.gender}
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="body2">
+              <strong>Phone:</strong> {patientInfo.phone}
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="body2">
+              <strong>Email:</strong> {patientInfo.email || 'N/A'}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+    );
+  };
+
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="glass-prescription-modal"
-      aria-describedby="glass-prescription-details"
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-      }}
-    >
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Breadcrumbs */}
+      {renderBreadcrumbs()}
+
+      {/* Header */}
       <Box
         sx={{
-          width: '90%',
-          maxWidth: 1200,
-          maxHeight: '90vh',
-          overflow: 'auto',
-          bgcolor: 'background.paper',
+          mb: 4,
+          p: 3,
+          bgcolor: '#1e3c72',
+          color: 'white',
           borderRadius: 2,
-          boxShadow: 24,
-          p: 0,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
-        {/* Header */}
-        <Box
-          sx={{
-            p: 3,
-            bgcolor: '#1e3c72',
-            color: 'white',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-          }}
-        >
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-              Glass Prescription Details
-            </Typography>
-            {patientInfo && (
-              <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
-                Patient: {patientInfo.name} | MRN: {patientInfo.emr_number} | Age: {patientInfo.age}{' '}
-                | Gender: {patientInfo.gender}
-              </Typography>
-            )}
-          </Box>
-          <IconButton onClick={onClose} sx={{ color: 'white' }}>
-            <Close />
-          </IconButton>
-        </Box>
-
-        {/* Action Buttons */}
-        <Box sx={{ p: 2, bgcolor: '#f5f5f5', display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-          <Button variant="outlined" startIcon={<Print />} onClick={handlePrint} size="small">
-            Print
-          </Button>
-          {/* <Button variant="outlined" startIcon={<Download />} onClick={handleDownload} size="small">
-            Download
-          </Button> */}
-          {/* <Button
-            variant="contained"
-            startIcon={<Edit />}
-            onClick={handleEdit}
-            size="small"
-            sx={{ bgcolor: '#1976d2' }}
-          >
-            Edit Prescription
-          </Button> */}
-        </Box>
-
-        {/* Content */}
-        <Box sx={{ p: 3 }}>
-          {loading ? (
-            <Box
-              sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}
-            >
-              <CircularProgress />
-              <Typography sx={{ ml: 2 }}>Loading prescription details...</Typography>
-            </Box>
-          ) : error ? (
-            <Box sx={{ p: 3, textAlign: 'center' }}>
-              <Typography color="error" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
-              <Button variant="outlined" onClick={fetchPrescriptionDetails}>
-                Retry
-              </Button>
-            </Box>
-          ) : prescriptionData ? (
-            <>
-              {renderPrescriptionSummary()}
-
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="h5" sx={{ mb: 3, color: '#1e3c72' }}>
-                Prescription Specifications
-              </Typography>
-
-              {renderLensSpecifications()}
-
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="h5" sx={{ mb: 3, color: '#1e3c72' }}>
-                Lens Features & Options
-              </Typography>
-
-              {renderLensFeatures()}
-
-              <Divider sx={{ my: 3 }} />
-
-              {/* Additional Information */}
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                      Prescription Notes
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      This prescription is valid for two years from the date of issue. Recommend
-                      annual eye examinations for monitoring vision changes.
-                    </Typography>
-                  </Paper>
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                      Optical Center Instructions
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      • Ensure proper fitting and adjustment
-                      <br />
-                      • Verify PD measurements
-                      <br />
-                      • Confirm lens specifications match prescription
-                      <br />• Schedule follow-up if adaptation issues occur
-                    </Typography>
-                  </Paper>
-                </Grid>
-              </Grid>
-            </>
-          ) : (
-            <Box sx={{ p: 3, textAlign: 'center' }}>
-              <Visibility sx={{ fontSize: 60, color: '#ccc', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                No Prescription Data
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                No glass prescription found for this patient.
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{ mt: 2, bgcolor: '#1976d2' }}
-                onClick={() => setShowPrescriptionForm(true)}
-              >
-                Create New Prescription
-              </Button>
-            </Box>
-          )}
-        </Box>
-
-        {/* Footer */}
-        <Box
-          sx={{
-            p: 2,
-            bgcolor: '#f5f5f5',
-            borderBottomLeftRadius: 8,
-            borderBottomRightRadius: 8,
-            textAlign: 'center',
-          }}
-        >
-          <Typography variant="caption" color="text.secondary">
-            Prescription ID: {prescriptionData?.id || 'N/A'} | Created:{' '}
-            {prescriptionData ? new Date(prescriptionData.created_at).toLocaleDateString() : 'N/A'}{' '}
-            | Updated:{' '}
-            {prescriptionData ? new Date(prescriptionData.updated_at).toLocaleDateString() : 'N/A'}
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+            Glass Prescription Details
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.9 }}>
+            Complete prescription information for patient
           </Typography>
         </Box>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <IconButton onClick={handleBack} sx={{ color: 'white' }}>
+            <ArrowBack />
+          </IconButton>
+          <Button
+            variant="contained"
+            startIcon={<Print />}
+            onClick={handlePrint}
+            sx={{ bgcolor: 'white', color: '#1e3c72', '&:hover': { bgcolor: '#f5f5f5' } }}
+          >
+            Print
+          </Button>
+        </Box>
       </Box>
-    </Modal>
+
+      {/* Main Content */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress />
+          <Typography sx={{ ml: 2 }}>Loading prescription details...</Typography>
+        </Box>
+      ) : error ? (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+          <Button variant="contained" onClick={fetchPrescriptionDetails} sx={{ mr: 2 }}>
+            Retry
+          </Button>
+          <Button variant="outlined" onClick={handleBack}>
+            Go Back
+          </Button>
+        </Paper>
+      ) : prescriptionData ? (
+        <>
+          {/* Patient Info */}
+          {renderPatientInfo()}
+
+          {/* Prescription Summary */}
+          {renderPrescriptionSummary()}
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* Prescription Specifications */}
+          <Typography variant="h5" sx={{ mb: 3, color: '#1e3c72' }}>
+            Prescription Specifications
+          </Typography>
+          {renderLensSpecifications()}
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* Lens Features */}
+          <Typography variant="h5" sx={{ mb: 3, color: '#1e3c72' }}>
+            Lens Features & Options
+          </Typography>
+          {renderLensFeatures()}
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* Additional Information */}
+          <Typography variant="h5" sx={{ mb: 3, color: '#1e3c72' }}>
+            Additional Information
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper sx={{ p: 3 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
+                  Prescription Notes
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  This prescription is valid for two years from the date of issue. Recommend annual
+                  eye examinations for monitoring vision changes.
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  • Ensure lenses meet ANSI Z80.1 standards
+                  <br />
+                  • Verify prescription accuracy before dispensing
+                  <br />• Check patient adaptation during follow-up
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper sx={{ p: 3 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
+                  Optical Center Instructions
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  • Ensure proper fitting and adjustment
+                  <br />
+                  • Verify PD measurements with pupilometer
+                  <br />
+                  • Confirm lens specifications match prescription
+                  <br />
+                  • Schedule follow-up if adaptation issues occur
+                  <br />
+                  • Provide proper lens care instructions
+                  <br />• Verify frame fit and comfort
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </>
+      ) : (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
+            No Prescription Found
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            No glass prescription found for this patient.
+          </Typography>
+          <Button
+            variant="contained"
+            sx={{ bgcolor: '#1976d2' }}
+            onClick={() => setShowPrescriptionForm(true)}
+          >
+            Create New Prescription
+          </Button>
+          <Button variant="outlined" sx={{ ml: 2 }} onClick={handleBack}>
+            Go Back
+          </Button>
+        </Paper>
+      )}
+
+      {/* Footer */}
+      <Box sx={{ mt: 4, pt: 3, borderTop: 1, borderColor: 'divider' }}>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid>
+            <Typography variant="caption" color="text.secondary">
+              Prescription ID: {prescriptionData?.id || 'N/A'} | Created:{' '}
+              {prescriptionData
+                ? new Date(prescriptionData.created_at).toLocaleDateString()
+                : 'N/A'}{' '}
+              | Updated:{' '}
+              {prescriptionData
+                ? new Date(prescriptionData.updated_at).toLocaleDateString()
+                : 'N/A'}
+            </Typography>
+          </Grid>
+          <Grid>
+            <Button variant="outlined" onClick={handleBack} sx={{ mr: 2 }}>
+              Back to Patient List
+            </Button>
+            <Button variant="contained" onClick={handlePrint}>
+              Print Prescription
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+    </Container>
   );
 };
 
-export default GlassPrescriptionDetailModal;
+export default GlassPrescriptionDetailPage;
