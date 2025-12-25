@@ -34,6 +34,7 @@ import LaboratoriesPaymentModal from '../../../features/case/LaboratoriesPayment
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { OperationalService } from '../../../shared/api/services/operations.service';
+import OperationalPaymentModal from '../../../features/case/OperationalPaymentModal';
 // Updated Type definitions to match your API response
 interface PaginationState {
   page: number;
@@ -785,7 +786,7 @@ const OperationalPayments: React.FC = () => {
           </Table>
         </TableContainer>
 
-        <LaboratoriesPaymentModal
+        <OperationalPaymentModal
           open={paymentModalOpen}
           onClose={handleClosePaymentModal}
           patientId={selectedPatient?.id || ''}

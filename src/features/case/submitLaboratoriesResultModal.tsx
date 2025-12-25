@@ -27,6 +27,7 @@ import {
   ListItemIcon,
   ListItemText,
   Avatar,
+  ListItemButton,
 } from '@mui/material';
 import {
   Close,
@@ -40,6 +41,11 @@ import {
   InsertDriveFile,
 } from '@mui/icons-material';
 import { LaboratoryService } from '../../shared/api/services/laboratory.service';
+interface LabTestFile {
+  uuid: string;
+  url: string;
+  mime_type: string;
+}
 
 interface LabTestResult {
   id: string;
@@ -49,6 +55,7 @@ interface LabTestResult {
   is_payment_completed: boolean;
   technician: string | null;
   created_at: string;
+  files?: LabTestFile[];
 }
 
 interface LabTestGroup {
@@ -91,6 +98,12 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getCompletedTestsWithFiles = () => {
+    return labTests.flatMap(group =>
+      group.tests.filter(test => test.files && test.files.length > 0)
+    );
+  };
 
   // Fetch laboratory tests when modal opens
   useEffect(() => {
@@ -160,8 +173,6 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
 
     const newFiles: UploadedFile[] = [];
 
-    // Server accepts these extensions: jpg, jpeg, png, svg, pdf, doc
-    // Note: docx is NOT accepted by server according to error message
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.svg', '.pdf', '.doc'];
     const allowedMimeTypes = [
       'image/jpeg',
@@ -261,117 +272,69 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
       setSubmitting(true);
       setError(null);
 
-      // Validate before submission
-      const allTests = labTests.flatMap(g => g.tests);
-      const testsWithData = allTests.filter(test => {
-        const hasResult = testResults.some(r => r.id === test.id && r.result?.trim());
-        const hasFiles = uploadedFiles.some(f => f.testId === test.id);
-        return hasResult || hasFiles;
-      });
+      const formData = new FormData();
 
-      if (testsWithData.length === 0) {
-        setError('Please enter results or upload files for at least one test');
-        setSubmitting(false);
+      // Build patient_tests array
+      const testsPayload = labTests
+        .flatMap(group =>
+          group.tests.map(test => {
+            const result = testResults.find(r => r.id === test.id)?.result;
+            const files = uploadedFiles.filter(f => f.testId === test.id);
+
+            if (!result?.trim() && files.length === 0) {
+              return null; // skip empty test
+            }
+
+            return {
+              id: test.id,
+              result: result?.trim(),
+              files,
+            };
+          })
+        )
+        .filter(Boolean) as {
+        id: string;
+        result?: string;
+        files: { file: File }[];
+      }[];
+
+      if (testsPayload.length === 0) {
+        setError('Please enter a result or upload files');
         return;
       }
 
-      const formData = new FormData();
+      // Append to FormData
+      testsPayload.forEach((test, testIndex) => {
+        formData.append(`patient_tests[${testIndex}][id]`, test.id);
 
-      // 1. Create an array of test objects with exactly 4 properties
-      const testsData = testsWithData.map(test => {
-        const tr = testResults.find(r => r.id === test.id);
-        const filesForTest = uploadedFiles.filter(f => f.testId === test.id);
-
-        // Each test object must have exactly these 4 properties:
-        return {
-          id: test.id, // Property 1
-          result: tr?.result?.trim() || (filesForTest.length > 0 ? 'FILE_ATTACHED' : ''), // Property 2
-          has_files: filesForTest.length > 0, // Property 3
-          technician: 'Lab Technician', // Property 4
-        };
-      });
-
-      testsData.forEach((test, index) => {
-        // Append each test as individual form fields
-        formData.append(`patient_tests[${index}][id]`, test.id);
-        formData.append(`patient_tests[${index}][result]`, test.result);
-        formData.append(`patient_tests[${index}][has_files]`, test.has_files.toString());
-        formData.append(`patient_tests[${index}][technician]`, test.technician);
-      });
-
-      // OR if server expects a single field with JSON array:
-      // formData.append('patient_tests', JSON.stringify(testsData));
-
-      // 2. Append files separately
-      testsWithData.forEach(test => {
-        const filesForTest = uploadedFiles.filter(f => f.testId === test.id);
-
-        if (filesForTest.length > 0) {
-          filesForTest.forEach((fileObj, _fileIndex) => {
-            // Validate file size before appending
-            if (fileObj.file.size > 10 * 1024 * 1024) {
-              throw new Error(`File ${fileObj.file.name} exceeds 10MB limit`);
-            }
-
-            // Check if file is valid
-            if (fileObj.file instanceof File && fileObj.file.size > 0) {
-              // Use proper naming convention for files
-              formData.append(`patient_tests_files[${test.id}][]`, fileObj.file, fileObj.file.name);
-            } else {
-              console.warn('Skipping invalid file:', fileObj);
-            }
-          });
+        if (test.result) {
+          formData.append(`patient_tests[${testIndex}][result]`, test.result);
         }
+
+        test.files.forEach((fileObj, fileIndex) => {
+          formData.append(`patient_tests[${testIndex}][files][${fileIndex}]`, fileObj.file);
+        });
       });
 
-      formData.append('patientId', patientId);
-
-      // Debug: Log FormData entries
-      console.log('=== FormData Debug ===');
-      console.log('Tests Data:', testsData);
-      console.log('Total Files:', uploadedFiles.length);
-      console.log('FormData entries:');
-
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}: File - ${value.name} (${value.type}, ${value.size} bytes)`);
-        } else {
-          console.log(`${key}: ${value}`);
-        }
+      // 🔍 Debug (remove in prod)
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
       }
 
-      // Call API
       await LaboratoryService.createLabResult(patientId, formData);
 
       setSuccess(true);
-      if (onResultSubmit) onResultSubmit();
+      onResultSubmit?.();
 
       setTimeout(() => {
         onClose();
         setTestResults([]);
         setUploadedFiles([]);
         setSuccess(false);
-      }, 2000);
+      }, 1500);
     } catch (err: any) {
-      console.error('Error submitting lab results:', err);
-
-      // Handle timeout specifically
-      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        setError(
-          'Submission timeout. The server is taking too long to respond. Please try again with fewer files or smaller file sizes.'
-        );
-      } else if (err.response?.data?.errors) {
-        const errorMessages = Object.values(err.response.data.errors)
-          .flat()
-          .filter((msg, index, arr) => arr.indexOf(msg) === index)
-          .join(', ');
-        setError(`Validation errors: ${errorMessages}`);
-
-        // Log detailed error for debugging
-        console.log('Server validation errors:', err.response.data.errors);
-      } else {
-        setError(err.response?.data?.message || 'Failed to submit laboratory results');
-      }
+      console.error(err);
+      setError(err.response?.data?.message || 'Failed to submit laboratory results');
     } finally {
       setSubmitting(false);
     }
@@ -468,7 +431,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
           )}
 
           {/* No Pending Tests State */}
-          {!loading && labTests.length > 0 && !hasPendingTests() && (
+          {/* {!loading && labTests.length > 0 && !hasPendingTests() && (
             <Box textAlign="center" sx={{ py: 4 }}>
               <CheckCircle sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
               <Typography variant="h6" color="textSecondary" gutterBottom>
@@ -477,6 +440,65 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
               <Typography variant="body2" color="textSecondary">
                 All laboratory tests have been completed for this patient.
               </Typography>
+            </Box>
+          )} */}
+
+          {/* No Pending Tests State – Show Completed Files */}
+          {!loading && labTests.length > 0 && !hasPendingTests() && (
+            <Box>
+              {/* Header */}
+              <Box display="flex" alignItems="center" justifyContent="center" gap={1} mb={2}>
+                <CheckCircle fontSize="small" color="success" />
+                <Typography variant="subtitle1" fontWeight={500}>
+                  All Tests Completed
+                </Typography>
+              </Box>
+
+              {/* Files */}
+              <Box>
+                {getCompletedTestsWithFiles().map(test => (
+                  <Box key={test.id} mb={2}>
+                    {/* Test name */}
+                    <Typography variant="body2" fontWeight={600} color="text.primary" mb={0.5}>
+                      {test.test}
+                    </Typography>
+
+                    {/* Files list */}
+                    <List dense disablePadding>
+                      {test.files!.map(file => (
+                        <ListItem key={file.uuid} disablePadding sx={{ mb: 0.25 }}>
+                          <ListItemButton
+                            component="a"
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              px: 1,
+                              py: 0.5,
+                              borderRadius: 1,
+                            }}
+                          >
+                            <ListItemIcon sx={{ minWidth: 28 }}>
+                              {getFileIcon(file.mime_type)}
+                            </ListItemIcon>
+
+                            <ListItemText
+                              primary={
+                                <Typography variant="body2">{file.url.split('/').pop()}</Typography>
+                              }
+                              secondary={
+                                <Typography variant="caption" color="text.secondary">
+                                  {file.mime_type}
+                                </Typography>
+                              }
+                            />
+                          </ListItemButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                ))}
+              </Box>
             </Box>
           )}
 

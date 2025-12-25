@@ -27,6 +27,7 @@ import {
   PATIENTDETILES_TABS_TWO,
   OPERATIONAL_TABS,
   PATIENTDETILES_OPD3_TABS,
+  PATIENTDETAILS_TRIAGE_MINIMAL_TABS,
 } from '../data/data';
 import PrivateTopBar from '../layouts/PrivateTopBar';
 
@@ -574,6 +575,29 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         // },
       ],
     },
+
+    {
+      element: (
+        <AppLayout
+          darkMode={darkMode}
+          onToggleTheme={onToggleTheme}
+          // tabsData={getFilteredTabs(window.location.pathname, PATIENTDETILES_TABS_TWO)}
+          // tabsData={getPatientDetailTabs(visitType)}
+          tabsData={PATIENTDETAILS_TRIAGE_MINIMAL_TABS}
+        />
+      ),
+      children: [
+        {
+          path: ROUTES.protected.examinationTab.path,
+          element: ROUTES.protected.examinationTab.element,
+        },
+        {
+          path: ROUTES.protected.followUpTab.path,
+          element: ROUTES.protected.followUpTab.element,
+        },
+      ],
+    },
+
     // 🔹 Patient Details Routes Group Triage Two
     {
       element: (

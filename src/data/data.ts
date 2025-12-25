@@ -41,9 +41,9 @@ export const FRONT_DESK_TABS: TabItem[] = [
     path: '/front-desk/bills',
     children: [
       { label: 'Investigation Payments ', path: '/front-desk/requested-payments' },
-      { label: 'Card Payments ', path: '/front-desk/patient-payments' },
+      // { label: 'Card Payments ', path: '/front-desk/patient-payments' },
       { label: 'Operational Payments ', path: '/front-desk/operational-payments' },
-      { label: 'Pending Payments ', path: '/front-desk/pending-payments' },
+      // { label: 'Pending Payments ', path: '/front-desk/pending-payments' },
     ],
   },
   // {
@@ -176,6 +176,17 @@ export const PATIENTDETILES_TABS_TWO: TabItem[] = [
   {
     label: 'Optical',
     path: '/triage/optical',
+  },
+];
+
+export const PATIENTDETAILS_TRIAGE_MINIMAL_TABS: TabItem[] = [
+  {
+    label: 'Examination',
+    path: '/triages/examinations',
+  },
+  {
+    label: 'Follow Up',
+    path: '/triages/follow-up',
   },
 ];
 
