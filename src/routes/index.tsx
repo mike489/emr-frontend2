@@ -33,6 +33,7 @@ import PrivateTopBar from '../layouts/PrivateTopBar';
 import Home from '../pages/public/Home';
 import Clinics from '../pages/Clinics';
 import Administration from '../pages/Administration';
+import TriageLists from '../layouts/TriageLists';
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
@@ -47,6 +48,14 @@ interface AppRouterProps {
 }
 
 export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
+  // Define visitType, defaulting to 'new'. Adjust as needed for your logic.
+  const getPatientDetailTabs = (visitType: 'new' | 'follow-up') => {
+    if (visitType === 'new') {
+      return PATIENTDETILES_TABS_TWO.filter(tab => tab.label !== 'Follow Up');
+    }
+    return PATIENTDETILES_TABS_TWO;
+  };
+  const visitType: 'new' | 'follow-up' = 'new';
   const router = createBrowserRouter([
     // 🔹 Public Routes
     // {
@@ -80,6 +89,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
       path: '/administration',
       element: <Administration />,
     },
+
     {
       path: '/login',
       element: <Suspense fallback={<Loading />}>{ROUTES.auth.login.element}</Suspense>,
@@ -529,7 +539,8 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           darkMode={darkMode}
           onToggleTheme={onToggleTheme}
           // tabsData={getFilteredTabs(window.location.pathname, PATIENTDETILES_TABS_TWO)}
-          tabsData={PATIENTDETILES_TABS_TWO}
+          tabsData={getPatientDetailTabs(visitType)}
+          // tabsData={PATIENTDETILES_TABS_TWO}
         />
       ),
       children: [
@@ -778,11 +789,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     },
     {
       path: ROUTES.protected.triageLists.path,
-      element: (
-        <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
-          <Suspense fallback={<Loading />}>{ROUTES.protected.triageLists.element}</Suspense>
-        </PrivateTopBar>
-      ),
+      element: <Suspense fallback={<Loading />}>{ROUTES.protected.triageLists.element}</Suspense>,
     },
 
     {

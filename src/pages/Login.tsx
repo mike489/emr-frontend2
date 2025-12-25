@@ -12,7 +12,7 @@ import {
   alpha,
   useTheme,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -27,6 +27,9 @@ const LoginPage = () => {
   const { login, isLoading } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [openForgot, setOpenForgot] = useState(false);
+  const location = useLocation();
+
+  const redirectTo = (location.state as { from?: string })?.from || '/clinics';
 
   const formik = useFormik({
     initialValues: { email: '', password: '' },
@@ -40,7 +43,7 @@ const LoginPage = () => {
       try {
         await login(values.email, values.password);
         toast.success('Login successful!', { autoClose: 2000 });
-        navigate('/clinics', { replace: true });
+        navigate(redirectTo, { replace: true });
       } catch (error: any) {
         const msg =
           error?.response?.data?.data?.message ||
@@ -342,7 +345,7 @@ const LoginPage = () => {
                 <Button
                   variant="outlined"
                   size="large"
-                  onClick={() => navigate(-1)}
+                  onClick={() => navigate('/')}
                   sx={{
                     flex: 1,
                     borderRadius: 2,

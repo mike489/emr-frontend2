@@ -6,8 +6,8 @@ import { useAuthStore } from '../store/useAuthStore';
 import { ModuleCard } from '../features/shared/components/ModuleCard';
 
 const ClinicLists = () => {
- const navigate = useNavigate();
-   const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { hasPermission, user, isLoading } = useAuthStore();
 
   const { token, isTokenValid } = useAuthStore();
@@ -22,7 +22,6 @@ const ClinicLists = () => {
 
   console.log('User:', user);
 
-  // ✅ Loading spinner
   if (isLoading || !user) {
     return (
       <Container maxWidth="xl" sx={{ mt: 10, textAlign: 'center' }}>
@@ -62,21 +61,21 @@ const ClinicLists = () => {
         >
           <Grid container spacing={2} mb={200}>
             {accessibleModules.map(mod => {
-               const Icon = mod.icon;
-            return (
-              <Grid
-                size={{ xs: 6, md: 4 }}
-                key={mod.title}
-                display="flex"
-                justifyContent="center"
-              >
-                <ModuleCard
-                  title={mod?.title}
-                  image={Icon}
-                  onClick={() => handleClick(mod.route)}
-                />
-              </Grid>
-            );
+              const Icon = mod.icon;
+              return (
+                <Grid
+                  size={{ xs: 6, md: 4 }}
+                  key={mod.title}
+                  display="flex"
+                  justifyContent="center"
+                >
+                  <ModuleCard
+                    title={mod?.title}
+                    image={Icon}
+                    onClick={() => handleClick(mod.route)}
+                  />
+                </Grid>
+              );
             })}
           </Grid>
         </Container>
