@@ -26,7 +26,7 @@ import {
   Alert,
 } from '@mui/material';
 import { Close, ExpandMore, Payment } from '@mui/icons-material';
-import { LaboratoryService } from '../../shared/api/services/laboratory.service';
+// import { LaboratoryService } from '../../shared/api/services/laboratory.service';
 import { toast } from 'react-toastify';
 import { OperationalService } from '../../shared/api/services/operations.service';
 

@@ -30,7 +30,7 @@ import { PatientCategoryService } from '../../../shared/api/services/patientCata
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
 import { Eye, FileUp } from 'lucide-react';
-import LaboratoriesPaymentModal from '../../../features/case/LaboratoriesPaymentModal';
+// import LaboratoriesPaymentModal from '../../../features/case/LaboratoriesPaymentModal';
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { OperationalService } from '../../../shared/api/services/operations.service';
