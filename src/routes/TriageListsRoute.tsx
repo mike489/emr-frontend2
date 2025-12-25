@@ -1,5 +1,5 @@
 // Create a new route guard component for TriageLists
-import { useLocation, Navigate } from 'react-router-dom';
+// import { useLocation, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { Box, CircularProgress } from '@mui/material';
 
@@ -9,7 +9,7 @@ interface Props {
 
 export default function TriageListsRoute({ children }: Props) {
   const { token, isLoading, isTokenValid, logout } = useAuthStore();
-  const location = useLocation();
+  // const location = useLocation();
 
   const Loading = () => (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
