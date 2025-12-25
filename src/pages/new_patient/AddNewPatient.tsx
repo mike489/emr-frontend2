@@ -20,6 +20,7 @@ import { CalendarToday } from '@mui/icons-material';
 import { PatientService } from '../../shared/api/services/patient.service';
 import { toast, ToastContainer } from 'react-toastify';
 import { PatientCategoryService } from '../../shared/api/services/patientCatagory.service';
+import PhoneField from '../../features/shared/components/PhoneInput';
 
 const PatientRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -65,6 +66,7 @@ const PatientRegistration: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [_total, setTotal] = useState(0);
+  const [subCities, setSubCities] = useState<string[]>([]);
 
   // Fetch patient categories on component mount
   useEffect(() => {
@@ -81,13 +83,21 @@ const PatientRegistration: React.FC = () => {
 
   const handleAddressChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    setFormData(prev => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [field]: value,
-      },
-    }));
+
+    if (field === 'city') {
+      setFormData(prev => ({
+        ...prev,
+        address: { ...prev.address, city: value, kifle_ketema: '' }, // reset sub-city
+      }));
+
+      // Update sub-cities for this city
+      setSubCities(cityToSubCities[value] || []);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        address: { ...prev.address, [field]: value },
+      }));
+    }
   };
 
   // const handleArrayInputChange =
@@ -103,22 +113,22 @@ const PatientRegistration: React.FC = () => {
   //     }));
   //   };
 
-  const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+  // const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
 
-    // Ensure it starts with 251 and is exactly 12 digits
-    if (!value.startsWith('251')) {
-      value = '251' + value.replace(/^251/, '');
-    }
+  //   // Ensure it starts with 251 and is exactly 12 digits
+  //   if (!value.startsWith('251')) {
+  //     value = '251' + value.replace(/^251/, '');
+  //   }
 
-    // Limit to 12 digits total
-    value = value.substring(0, 12);
+  //   // Limit to 12 digits total
+  //   value = value.substring(0, 12);
 
-    setFormData(prev => ({
-      ...prev,
-      phone: value,
-    }));
-  };
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     phone: value,
+  //   }));
+  // };
 
   const handleNationalIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
@@ -150,7 +160,7 @@ const PatientRegistration: React.FC = () => {
   // const visitTypes = ['New', 'Follow-up', 'Emergency', 'Review'];
 
   const cities = ['Addis Ababa', 'Dire Dawa', 'Hawassa', 'Bahir Dar', 'Mekelle', 'Jimma'];
-  const kifleKetemas = ['Kirkos', 'Arada', 'Bole', 'Lideta', 'Yeka', 'Nifas Silk'];
+  // const kifleKetemas = ['Kirkos', 'Arada', 'Bole', 'Lideta', 'Yeka', 'Nifas Silk'];
   const weredas = ['Wereda 01', 'Wereda 02', 'Wereda 03', 'Wereda 04', 'Wereda 05'];
 
   function navigateToPreviousPage() {
@@ -162,6 +172,14 @@ const PatientRegistration: React.FC = () => {
       }
     }
   }
+  const cityToSubCities: Record<string, string[]> = {
+    'Addis Ababa': ['Kirkos', 'Arada', 'Bole', 'Lideta', 'Yeka', 'Nifas Silk'],
+    'Dire Dawa': ['Dire 01', 'Dire 02', 'Dire 03'],
+    Hawassa: ['Hawassa 01', 'Hawassa 02'],
+    'Bahir Dar': ['Bahir 01', 'Bahir 02'],
+    Mekelle: ['Mekelle 01', 'Mekelle 02'],
+    Jimma: ['Jimma 01', 'Jimma 02'],
+  };
 
   const validateForm = () => {
     const errors = [];
@@ -171,9 +189,7 @@ const PatientRegistration: React.FC = () => {
       errors.push('Full name is required');
     }
 
-    if (!formData.email.trim()) {
-      errors.push('Email is required');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.push('Email must be a valid email address');
     }
 
@@ -422,35 +438,24 @@ const PatientRegistration: React.FC = () => {
                   <TextField
                     fullWidth
                     size="small"
-                    label="Email *"
+                    label={
+                      <span>
+                        Email
+                        <Typography component="span" variant="caption" color="text.secondary">
+                          (Optional)
+                        </Typography>
+                      </span>
+                    }
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange('email')}
-                    required
-                    error={
-                      formData.email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-                    }
-                    helperText={
-                      formData.email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-                        ? 'Invalid email format'
-                        : 'Required field'
-                    }
                   />
                 </Grid>
 
                 <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Phone"
+                  <PhoneField
                     value={formData.phone}
-                    onChange={handlePhoneChange}
-                    inputProps={{ maxLength: 12 }}
-                    helperText={`Format: 251XXXXXXXXX (12 digits total). Current: ${formData.phone.length}/12`}
-                    error={
-                      formData.phone !== '' &&
-                      (formData.phone.length !== 12 || !formData.phone.startsWith('251'))
-                    }
+                    onChange={(value: string) => setFormData(prev => ({ ...prev, phone: value }))}
                   />
                 </Grid>
               </Grid>
@@ -490,8 +495,9 @@ const PatientRegistration: React.FC = () => {
                     label="Sub-City"
                     value={formData.address.kifle_ketema}
                     onChange={handleAddressChange('kifle_ketema')}
+                    disabled={subCities.length === 0}
                   >
-                    {kifleKetemas.map(kk => (
+                    {subCities.map(kk => (
                       <MenuItem key={kk} value={kk}>
                         {kk}
                       </MenuItem>

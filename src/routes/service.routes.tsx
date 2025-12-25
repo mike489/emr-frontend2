@@ -9,7 +9,7 @@ import Notifications from '../pages/Notifications';
 import Settings from '../pages/Settings';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
-import GlassPrescriptionDetailPage from '../pages/opticals/GlassPrescriptionDetail';
+// import GlassPrescriptionDetailPage from '../pages/opticals/GlassPrescriptionDetail';
 import GlassTab from '../pages/opticals/glassTab';
 
 export const serviceRoutes: RouteCollection = {

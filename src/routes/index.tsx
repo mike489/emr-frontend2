@@ -33,7 +33,7 @@ import PrivateTopBar from '../layouts/PrivateTopBar';
 import Home from '../pages/public/Home';
 import Clinics from '../pages/Clinics';
 import Administration from '../pages/Administration';
-import TriageLists from '../layouts/TriageLists';
+// import TriageLists from '../layouts/TriageLists';
 
 const Loading = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="70vh">
