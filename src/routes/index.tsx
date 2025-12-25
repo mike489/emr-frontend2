@@ -46,13 +46,6 @@ interface AppRouterProps {
   currentPath?: string;
 }
 
-// const getFilteredTabs = (pathname: string, tabs: TabItem[]): TabItem[] => {
-//   if (pathname.includes('/triage/examinations')) {
-//     return tabs.filter(tab => tab.label !== 'Follow Up');
-//   }
-//   return tabs;
-// };
-
 export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
   const router = createBrowserRouter([
     // 🔹 Public Routes
@@ -564,10 +557,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.opticalOrder.path,
           element: ROUTES.protected.opticalOrder.element,
         },
-        {
-          path: ROUTES.protected.opticalOrderDetail.path,
-          element: ROUTES.protected.opticalOrderDetail.element,
-        },
+        // {
+        //   path: ROUTES.protected.opticalOrderDetail.path,
+        //   element: ROUTES.protected.opticalOrderDetail.element,
+        // },
       ],
     },
     // 🔹 Patient Details Routes Group Triage Two

@@ -61,27 +61,27 @@ interface PharmacyPatient {
 }
 
 // API Response interfaces for getPharmacyMedicinesOrder
-interface PharmacyOrderItemResponse {
-  id: string;
-  quantity: string;
-  note: string | null;
-  frequency: string | null;
-  is_payment_completed: string;
-  medicine_id: string;
-  visit_id: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  medicine: {
-    id: string;
-    name: string;
-    price: string;
-    description: string;
-    default_code: string;
-    status: string;
-    created_at: string;
-  };
-}
+// interface PharmacyOrderItemResponse {
+//   id: string;
+//   quantity: string;
+//   note: string | null;
+//   frequency: string | null;
+//   is_payment_completed: string;
+//   medicine_id: string;
+//   visit_id: string;
+//   created_by: string;
+//   created_at: string;
+//   updated_at: string;
+//   medicine: {
+//     id: string;
+//     name: string;
+//     price: string;
+//     description: string;
+//     default_code: string;
+//     status: string;
+//     created_at: string;
+//   };
+// }
 
 interface PharmacyOrder {
   id: string;
@@ -133,7 +133,7 @@ const OpticalTodayCases: React.FC = () => {
   // Modal states
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [_selectedOrder, setSelectedOrder] = useState<PharmacyOrder | null>(null);
-  const [_orderLoading, setOrderLoading] = useState<boolean>(false);
+  const [_orderLoading, _setOrderLoading] = useState<boolean>(false);
   const [_orderError, setOrderError] = useState<string | null>(null);
   const [_currentPatient, setCurrentPatient] = useState<PharmacyPatient | null>(null);
 
@@ -260,117 +260,121 @@ const OpticalTodayCases: React.FC = () => {
   };
 
   // Transform API response to PharmacyOrder format
-  const transformOrderResponse = (
-    patient: PharmacyPatient,
-    orderItems: PharmacyOrderItemResponse[]
-  ): PharmacyOrder => {
-    // Calculate total amount
-    const totalAmount = orderItems.reduce((total, item) => {
-      const quantity = parseInt(item.quantity) || 0;
-      const price = parseFloat(item.medicine.price) || 0;
-      return total + quantity * price;
-    }, 0);
+  // const transformOrderResponse = (
+  //   patient: PharmacyPatient,
+  //   orderItems: PharmacyOrderItemResponse[]
+  // ): PharmacyOrder => {
+  //   // Calculate total amount
+  //   const totalAmount = orderItems.reduce((total, item) => {
+  //     const quantity = parseInt(item.quantity) || 0;
+  //     const price = parseFloat(item.medicine.price) || 0;
+  //     return total + quantity * price;
+  //   }, 0);
 
-    // Transform items
-    const items: OrderItem[] = orderItems.map(item => ({
-      id: item.id,
-      medicine_id: item.medicine_id,
-      name: item.medicine.name,
-      quantity: parseInt(item.quantity) || 0,
-      price: item.medicine.price,
-      total_price: (
-        (parseInt(item.quantity) || 0) * (parseFloat(item.medicine.price) || 0)
-      ).toFixed(2),
-    }));
+  //   // Transform items
+  //   const items: OrderItem[] = orderItems.map(item => ({
+  //     id: item.id,
+  //     medicine_id: item.medicine_id,
+  //     name: item.medicine.name,
+  //     quantity: parseInt(item.quantity) || 0,
+  //     price: item.medicine.price,
+  //     total_price: (
+  //       (parseInt(item.quantity) || 0) * (parseFloat(item.medicine.price) || 0)
+  //     ).toFixed(2),
+  //   }));
 
-    // Get the most recent order date
-    const latestDate =
-      orderItems.length > 0
-        ? orderItems.reduce((latest, item) => {
-            const itemDate = new Date(item.created_at);
-            return itemDate > latest ? itemDate : latest;
-          }, new Date(0))
-        : new Date();
+  //   // Get the most recent order date
+  //   const latestDate =
+  //     orderItems.length > 0
+  //       ? orderItems.reduce((latest, item) => {
+  //           const itemDate = new Date(item.created_at);
+  //           return itemDate > latest ? itemDate : latest;
+  //         }, new Date(0))
+  //       : new Date();
 
-    return {
-      id: `order-${patient.id}`,
-      patient_id: patient.id,
-      patient_name: patient.full_name,
-      order_number: `ORD-${patient.emr_number}`,
-      total_amount: totalAmount.toFixed(2),
-      status: orderItems.some(item => item.is_payment_completed === '1')
-        ? 'completed'
-        : orderItems.length > 0
-          ? 'pending'
-          : 'no orders',
-      created_at: latestDate.toISOString(),
-      items: items,
-      notes:
-        orderItems.length > 0
-          ? `${orderItems.length} medicine${orderItems.length > 1 ? 's' : ''} ordered`
-          : 'No orders placed yet',
-    };
-  };
+  //   return {
+  //     id: `order-${patient.id}`,
+  //     patient_id: patient.id,
+  //     patient_name: patient.full_name,
+  //     order_number: `ORD-${patient.emr_number}`,
+  //     total_amount: totalAmount.toFixed(2),
+  //     status: orderItems.some(item => item.is_payment_completed === '1')
+  //       ? 'completed'
+  //       : orderItems.length > 0
+  //         ? 'pending'
+  //         : 'no orders',
+  //     created_at: latestDate.toISOString(),
+  //     items: items,
+  //     notes:
+  //       orderItems.length > 0
+  //         ? `${orderItems.length} medicine${orderItems.length > 1 ? 's' : ''} ordered`
+  //         : 'No orders placed yet',
+  //   };
+  // };
 
   // Fetch order details for a specific patient
-  const fetchPatientOrderDetails = async (patient: PharmacyPatient) => {
-    setOrderLoading(true);
-    setOrderError(null);
-    setCurrentPatient(patient);
+  // const fetchPatientOrderDetails = async (patient: PharmacyPatient) => {
+  //   setOrderLoading(true);
+  //   setOrderError(null);
+  //   setCurrentPatient(patient);
 
-    try {
-      const res = await LaboratoryService.getPharmacyMedicinesOrder(patient.id);
+  //   try {
+  //     const res = await LaboratoryService.getPharmacyMedicinesOrder(patient.id);
 
-      // Extract order items from API response
-      const orderItems: PharmacyOrderItemResponse[] = res.data?.data?.data || [];
+  //     // Extract order items from API response
+  //     const orderItems: PharmacyOrderItemResponse[] = res.data?.data?.data || [];
 
-      if (orderItems.length > 0) {
-        // Transform the API response to match the PharmacyOrder interface
-        const transformedOrder = transformOrderResponse(patient, orderItems);
-        setSelectedOrder(transformedOrder);
-      } else {
-        // No orders found for this patient
-        const emptyOrder: PharmacyOrder = {
-          id: `order-${patient.id}`,
-          patient_id: patient.id,
-          patient_name: patient.full_name,
-          order_number: `ORD-${patient.emr_number}`,
-          total_amount: '0.00',
-          status: 'no orders',
-          created_at: new Date().toISOString(),
-          items: [],
-          notes: 'No pharmacy orders found for this patient.',
-        };
-        setSelectedOrder(emptyOrder);
-      }
-    } catch (err: any) {
-      setOrderError(err.response?.data?.message || 'Failed to fetch order details');
-      console.error('Error fetching order details:', err);
+  //     if (orderItems.length > 0) {
+  //       // Transform the API response to match the PharmacyOrder interface
+  //       const transformedOrder = transformOrderResponse(patient, orderItems);
+  //       setSelectedOrder(transformedOrder);
+  //     } else {
+  //       // No orders found for this patient
+  //       const emptyOrder: PharmacyOrder = {
+  //         id: `order-${patient.id}`,
+  //         patient_id: patient.id,
+  //         patient_name: patient.full_name,
+  //         order_number: `ORD-${patient.emr_number}`,
+  //         total_amount: '0.00',
+  //         status: 'no orders',
+  //         created_at: new Date().toISOString(),
+  //         items: [],
+  //         notes: 'No pharmacy orders found for this patient.',
+  //       };
+  //       setSelectedOrder(emptyOrder);
+  //     }
+  //   } catch (err: any) {
+  //     setOrderError(err.response?.data?.message || 'Failed to fetch order details');
+  //     console.error('Error fetching order details:', err);
 
-      // Create a basic order structure even on error
-      const errorOrder: PharmacyOrder = {
-        id: `order-${patient.id}`,
-        patient_id: patient.id,
-        patient_name: patient.full_name,
-        order_number: `ORD-${patient.emr_number}`,
+  //     // Create a basic order structure even on error
+  //     const errorOrder: PharmacyOrder = {
+  //       id: `order-${patient.id}`,
+  //       patient_id: patient.id,
+  //       patient_name: patient.full_name,
+  //       order_number: `ORD-${patient.emr_number}`,
 
-        total_amount: '0.00',
-        status: 'error',
-        created_at: new Date().toISOString(),
-        items: [],
-        notes: 'Unable to load order details. Please try again.',
-      };
-      setSelectedOrder(errorOrder);
-    } finally {
-      setOrderLoading(false);
-    }
-  };
+  //       total_amount: '0.00',
+  //       status: 'error',
+  //       created_at: new Date().toISOString(),
+  //       items: [],
+  //       notes: 'Unable to load order details. Please try again.',
+  //     };
+  //     setSelectedOrder(errorOrder);
+  //   } finally {
+  //     setOrderLoading(false);
+  //   }
+  // };
 
   // Handle viewing patient orders
   const handleViewPatientOrders = async (patient: PharmacyPatient) => {
-    // Fetch order details for this patient
-    await fetchPatientOrderDetails(patient);
-    setModalOpen(true);
+    navigate('/optical/details', {
+      state: {
+        patientId: patient.id,
+        index: 0,
+        patient: patient,
+      },
+    });
   };
 
   const handleCloseModal = () => {

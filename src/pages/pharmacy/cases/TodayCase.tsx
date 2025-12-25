@@ -83,7 +83,8 @@ interface PharmacyOrderItemResponse {
   };
 }
 
-interface PharmacyOrder {
+// Rename to avoid type conflict with PharmacyOrderDetailModal types
+interface LocalPharmacyOrder {
   id: string;
   patient_id: string;
   patient_name: string;
@@ -91,17 +92,19 @@ interface PharmacyOrder {
   total_amount: string;
   status: string;
   created_at: string;
-  items: OrderItem[];
+  items: LocalOrderItem[];
   notes?: string;
 }
 
-interface OrderItem {
+interface LocalOrderItem {
   id: string;
   medicine_id: string;
   name: string;
   quantity: number;
   price: string;
   total_price: string;
+  status: string;
+  default_code: string;
 }
 
 interface PaginationState {
@@ -132,7 +135,7 @@ const PharmacyTodayCases: React.FC = () => {
 
   // Modal states
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [selectedOrder, setSelectedOrder] = useState<PharmacyOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<LocalPharmacyOrder | null>(null);
   const [orderLoading, setOrderLoading] = useState<boolean>(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [_currentPatient, setCurrentPatient] = useState<PharmacyPatient | null>(null);
@@ -263,7 +266,7 @@ const PharmacyTodayCases: React.FC = () => {
   const transformOrderResponse = (
     patient: PharmacyPatient,
     orderItems: PharmacyOrderItemResponse[]
-  ): PharmacyOrder => {
+  ): LocalPharmacyOrder => {
     // Calculate total amount
     const totalAmount = orderItems.reduce((total, item) => {
       const quantity = parseInt(item.quantity) || 0;
@@ -272,7 +275,7 @@ const PharmacyTodayCases: React.FC = () => {
     }, 0);
 
     // Transform items
-    const items: OrderItem[] = orderItems.map(item => ({
+    const items: LocalOrderItem[] = orderItems.map(item => ({
       id: item.id,
       medicine_id: item.medicine_id,
       name: item.medicine.name,
@@ -281,6 +284,8 @@ const PharmacyTodayCases: React.FC = () => {
       total_price: (
         (parseInt(item.quantity) || 0) * (parseFloat(item.medicine.price) || 0)
       ).toFixed(2),
+      status: item.medicine.status,
+      default_code: item.medicine.default_code,
     }));
 
     // Get the most recent order date
@@ -330,7 +335,7 @@ const PharmacyTodayCases: React.FC = () => {
         setSelectedOrder(transformedOrder);
       } else {
         // No orders found for this patient
-        const emptyOrder: PharmacyOrder = {
+        const emptyOrder: LocalPharmacyOrder = {
           id: `order-${patient.id}`,
           patient_id: patient.id,
           patient_name: patient.full_name,
@@ -348,12 +353,11 @@ const PharmacyTodayCases: React.FC = () => {
       console.error('Error fetching order details:', err);
 
       // Create a basic order structure even on error
-      const errorOrder: PharmacyOrder = {
+      const errorOrder: LocalPharmacyOrder = {
         id: `order-${patient.id}`,
         patient_id: patient.id,
         patient_name: patient.full_name,
         order_number: `ORD-${patient.emr_number}`,
-
         total_amount: '0.00',
         status: 'error',
         created_at: new Date().toISOString(),

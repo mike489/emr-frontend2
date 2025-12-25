@@ -1,4 +1,3 @@
-// import axios from 'axios';
 import { createApiClient } from '../interceptors';
 
 const LaboratoryApi = createApiClient(import.meta.env.VITE_EMS_URL);
@@ -43,8 +42,11 @@ export const LaboratoryService = {
     });
   },
 
-  getMedications: () => LaboratoryApi.get(`/pharmacy-medicines`),
-
+  // getMedications: (search: string | undefined) => LaboratoryApi.get(`/pharmacy-medicines`),
+  getMedications: (search?: string) => {
+    const params = search ? { search } : {};
+    return LaboratoryApi.get('/pharmacy-medicines', { params });
+  },
   createPharmacyMedicinesOrder: (patientId: string, data: any) =>
     LaboratoryApi.post(`/pharmacy-medicines/order/${patientId}`, data),
 
@@ -60,4 +62,8 @@ export const LaboratoryService = {
 
   getGlassPrescriptionDetails: (patientId: string) =>
     LaboratoryApi.get(`/glass-prescriptions/${patientId}`),
+
+  getGlassOrdersMaterials: () => LaboratoryApi.get(`/glass-orders/materials`),
+
+  createGlassOrders: (data: any) => LaboratoryApi.post(`/glass-orders`, data),
 };
