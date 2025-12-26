@@ -117,7 +117,7 @@ const PatientLaboratories: React.FC<PatientLaboratoriesProps> = ({
           </IconButton>
         </Box>
         <Typography variant="subtitle2" color="textSecondary">
-          Patient: {patientName} (MRN: {patientId})
+          Patient: {patientName}
         </Typography>
       </DialogTitle>
 

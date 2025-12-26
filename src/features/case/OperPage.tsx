@@ -25,6 +25,7 @@ import { ExpandMore, Science, CheckCircle, Delete, Search, Clear } from '@mui/ic
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { OperationalService } from '../../shared/api/services/operations.service';
+import { Pagination } from '@mui/material';
 
 interface Operation {
   id: string;
@@ -55,11 +56,23 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
   // Fetch operations on component mount
   useEffect(() => {
     fetchOperations();
   }, []);
+
+  const paginatedOperations = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return filteredOperations.slice(start, end);
+  }, [filteredOperations, page]);
 
   // Filter operations based on search query
   useEffect(() => {
@@ -296,7 +309,7 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <FormGroup>
-                        {filteredOperations.map(operation => (
+                        {paginatedOperations.map(operation => (
                           <FormControlLabel
                             key={operation.id}
                             control={
@@ -347,6 +360,13 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                         ))}
                       </FormGroup>
                     </AccordionDetails>
+                    <Pagination
+                      count={Math.ceil(filteredOperations.length / rowsPerPage)}
+                      page={page}
+                      onChange={(_, value) => setPage(value)}
+                      color="primary"
+                      sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                    />
                   </Accordion>
                 )}
               </Box>

@@ -562,6 +562,14 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           element: ROUTES.protected.operationTab.element,
         },
         {
+          path: ROUTES.protected.resultTab.path,
+          element: ROUTES.protected.resultTab.element,
+        },
+        {
+          path: ROUTES.protected.resultOperationTab.path,
+          element: ROUTES.protected.resultOperationTab.element,
+        },
+        {
           path: ROUTES.protected.medicationsOrder.path,
           element: ROUTES.protected.medicationsOrder.element,
         },

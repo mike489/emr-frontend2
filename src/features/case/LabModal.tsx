@@ -158,7 +158,7 @@ const LabModal: React.FC<LabModalProps> = ({ open, onClose, patientId, patientNa
           </IconButton>
         </Box>
         <Typography variant="subtitle2" color="textSecondary">
-          Patient: {patientName} (MRN: {patientId})
+          Patient: {patientName}
         </Typography>
       </DialogTitle>
 

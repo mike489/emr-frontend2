@@ -7,6 +7,7 @@ interface ModuleCardProps {
   onClick?: () => void;
   icon?: React.ReactNode;
   sx?: object;
+  disabled?: boolean;
 }
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({ title, image, onClick, sx }) => {

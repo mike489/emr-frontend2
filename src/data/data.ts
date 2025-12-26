@@ -168,6 +168,10 @@ export const PATIENTDETILES_TABS_TWO: TabItem[] = [
   {
     label: 'Results',
     path: '/triage/results',
+    children: [
+      { label: 'Lab Results', path: '/triage/results' },
+      { label: 'Operations Results', path: '/triage/operations-results' },
+    ],
   },
   {
     label: 'Medications',

@@ -210,7 +210,7 @@ const LaboratoriesPaymentModal: React.FC<LaboratoriesPaymentModalProps> = ({
           </IconButton>
         </Box>
         <Typography variant="subtitle2" color="textSecondary">
-          Patient: {patientName} (MRN: {patientId})
+          Patient: {patientName}
         </Typography>
       </DialogTitle>
 

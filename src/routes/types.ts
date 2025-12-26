@@ -15,3 +15,23 @@ export interface RoutesStructure {
   protected: RouteCollection;
   notFound: RouteConfig;
 }
+
+export type ClinicPermission =
+  | 'front_desk_access'
+  | 'triage_one_access'
+  | 'triage_two_access'
+  | 'triage_three_access'
+  | 'refraction_access'
+  | 'retina_access'
+  | 'diagnostic_access'
+  | 'optical_access'
+  | 'pharmacy_access'
+  | 'inpatient_access'
+  | 'surgery_access';
+
+export interface ClinicModule {
+  title: string;
+  Icon: string;
+  entryRoute: string;
+  permission: ClinicPermission;
+}

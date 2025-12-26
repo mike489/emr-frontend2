@@ -20,5 +20,5 @@ export const OperationalService = {
     OperationalApi.get('/operation-requests', { params: filters }),
 
   createOperationPayment: (patientId: string, data: any) =>
-    OperationalApi.post(`/operation-payments/${patientId}`, data),
+    OperationalApi.post(`/operation-pay/${patientId}`, data),
 };
