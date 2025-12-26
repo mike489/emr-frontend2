@@ -158,7 +158,7 @@ export const PATIENTDETILES_TABS_TWO: TabItem[] = [
     path: '/triage/follow-up',
   },
   {
-    label: 'Orders',
+    label: 'Investigations',
     path: '/triage/orders',
   },
   {
