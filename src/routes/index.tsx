@@ -813,11 +813,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Individual Routes (not in layout groups)
     {
       path: ROUTES.protected.eyeSmart.path,
-      element: (
-        <PrivateTopBar darkMode={darkMode} onToggleTheme={onToggleTheme}>
-          <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>
-        </PrivateTopBar>
-      ),
+      element: <Suspense fallback={<Loading />}>{ROUTES.protected.eyeSmart.element}</Suspense>,
     },
     {
       path: ROUTES.protected.triageLists.path,

@@ -21,16 +21,20 @@ const TriageLists = () => {
   const theme = useTheme();
   const { hasPermission, user, isLoading, token, isTokenValid } = useAuthStore();
 
+  const isLoggedIn = !!user && !!token && isTokenValid();
+
   const handleClick = (route: string) => {
-    if (token && isTokenValid()) {
+    // Ask for login only when a specific triage module card is clicked
+    if (isLoggedIn) {
       navigate(route);
     } else {
       navigate('/login', { state: { from: route } });
     }
   };
 
-  // ✅ Loading spinner
-  if (isLoading || !user) {
+  // ✅ While checking auth, you can still show the page (no hard redirect here)
+  // Just show a loader if we are in the middle of login / auth fetch
+  if (isLoading) {
     return (
       <Container maxWidth="xl" sx={{ mt: 20 }}>
         <Box display="flex" justifyContent="center">
@@ -40,8 +44,10 @@ const TriageLists = () => {
     );
   }
 
-  // ✅ Filter accessible modules
-  const accessibleModules = TRIAGE_MODULES.filter(mod => hasPermission(mod.permission));
+  // ✅ If not logged in yet, show all modules; after login, apply permission filter
+  const accessibleModules = isLoggedIn
+    ? TRIAGE_MODULES.filter(mod => hasPermission(mod.permission))
+    : TRIAGE_MODULES;
 
   // ✅ Detect subroutes (like /examinations)
   const isSubRoute = location.pathname.includes('/examinations');
@@ -54,7 +60,7 @@ const TriageLists = () => {
     <Container
       maxWidth="xl"
       sx={{
-        // minHeight: '100vh',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -227,6 +233,10 @@ const TriageLists = () => {
             <Grid container spacing={4} justifyContent="center">
               {accessibleModules.map(mod => {
                 const Icon = mod.icon;
+
+                // Before login: everything clickable. After login: enforce permissions.
+                const allowed = !isLoggedIn || hasPermission(mod.permission);
+
                 return (
                   <Grid
                     size={{ xs: 12, sm: 6, md: 4, lg: 2.4 }}
@@ -234,6 +244,7 @@ const TriageLists = () => {
                     sx={{
                       display: 'flex',
                       justifyContent: 'center',
+                      opacity: allowed ? 1 : 0.4,
                     }}
                   >
                     <Box
@@ -241,23 +252,28 @@ const TriageLists = () => {
                         transform: 'scale(1)',
                         transition: 'transform 0.2s ease-in-out',
                         '&:hover': {
-                          transform: 'scale(1.05)',
+                          transform: allowed ? 'scale(1.05)' : 'scale(1)',
                         },
                       }}
                     >
                       <ModuleCard
                         title={mod?.title}
                         image={Icon}
-                        onClick={() => handleClick(mod.route)}
+                        disabled={!allowed}
+                        onClick={() => allowed && handleClick(mod.route)}
                         sx={{
                           borderRadius: 3,
                           boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.15)}`,
                           border: '1px solid #f0f0f0',
                           transition: 'all 0.3s ease-in-out',
-                          '&:hover': {
-                            boxShadow: `0 12px 35px ${alpha(theme.palette.primary.main, 0.25)}`,
-                            borderColor: alpha(theme.palette.primary.main, 0.3),
-                          },
+                          ...(allowed
+                            ? {
+                                '&:hover': {
+                                  boxShadow: `0 12px 35px ${alpha(theme.palette.primary.main, 0.25)}`,
+                                  borderColor: alpha(theme.palette.primary.main, 0.3),
+                                },
+                              }
+                            : {}),
                         }}
                       />
                     </Box>

@@ -71,8 +71,12 @@ const ResultPage: React.FC<ResultPageProps> = ({ patientId, patientName }) => {
                   <TableCell align="center">
                     <strong>Result</strong>
                   </TableCell>
+
                   <TableCell align="center">
                     <strong>Date</strong>
+                  </TableCell>
+                  <TableCell align="center">
+                    <strong>Files</strong>
                   </TableCell>
                   <TableCell align="right">
                     <strong>Technician</strong>
@@ -83,10 +87,61 @@ const ResultPage: React.FC<ResultPageProps> = ({ patientId, patientName }) => {
                 {group.tests.map((test: any) => (
                   <TableRow key={test.id} hover>
                     <TableCell>{test.test}</TableCell>
+
                     <TableCell align="center" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                       {test.result || 'Pending'}
                     </TableCell>
+
                     <TableCell align="center">{test.created_at}</TableCell>
+
+                    {/* FILES COLUMN */}
+                    <TableCell align="center">
+                      {test.files && test.files.length > 0 ? (
+                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                          {test.files.map((file: any) =>
+                            file.mime_type.startsWith('image/') ? (
+                              <a
+                                key={file.uuid}
+                                href={file.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Box
+                                  component="img"
+                                  src={file.url}
+                                  alt="Lab file"
+                                  sx={{
+                                    width: 40,
+                                    height: 40,
+                                    objectFit: 'cover',
+                                    borderRadius: 1,
+                                    border: '1px solid #ddd',
+                                    cursor: 'pointer',
+                                  }}
+                                />
+                              </a>
+                            ) : (
+                              <a
+                                key={file.uuid}
+                                href={file.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: 'none' }}
+                              >
+                                <Typography variant="body2" color="primary">
+                                  View File
+                                </Typography>
+                              </a>
+                            )
+                          )}
+                        </Box>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
+                    </TableCell>
+
                     <TableCell align="right">{test.technician}</TableCell>
                   </TableRow>
                 ))}

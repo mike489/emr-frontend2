@@ -51,11 +51,8 @@ export const ROUTES: RoutesStructure = {
     },
     eyeSmart: {
       path: '/clinic-lists',
-      element: (
-        <PrivateRoute>
-          <ClinicLists />
-        </PrivateRoute>
-      ),
+      // ✅ ClinicLists page is public-like: it decides itself when to ask for login
+      element: <ClinicLists />,
     },
 
     // Spread all route groups

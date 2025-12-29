@@ -10,19 +10,35 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { ModuleCard } from '../features/shared/components/ModuleCard';
-import { CLINIC_MODULES } from '../config/clinicModules';
+import { CLINIC_MODULES, type ClinicModule } from '../config/clinicModules';
 import { useAuthStore } from '../store/useAuthStore';
 import { ArrowBack } from '@mui/icons-material';
 
 const Clinics = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { token, isTokenValid } = useAuthStore();
+  const { token, isTokenValid, hasPermission, user } = useAuthStore();
 
-  const handleClick = (route: string) => {
-    if (token && isTokenValid()) {
+  const isLoggedIn = !!user && !!token && isTokenValid();
+  const userPermissions = user?.permissions ?? [];
+
+  const handleClick = (mod: ClinicModule) => {
+    const route = mod.entryRoute;
+
+    // For Triage and Ophthalmology, we want login to be asked from the INNER list,
+    // so from Clinic Modules we always navigate straight to their list page.
+    const isTriageModule = route === '/triage-lists';
+    const isDoctorModule = route === '/clinic-lists';
+
+    if (!isLoggedIn && (isTriageModule || isDoctorModule)) {
+      navigate(route);
+      return;
+    }
+
+    if (isLoggedIn) {
       navigate(route);
     } else {
+      // Not logged in yet → send to login, then redirect back after success
       navigate('/login', { state: { from: route } });
     }
   };
@@ -171,8 +187,46 @@ const Clinics = () => {
           </Box> */}
 
           <Grid container spacing={3} justifyContent="center">
-            {CLINIC_MODULES.map((mod, _index) => {
+            {CLINIC_MODULES.map(mod => {
               const Icon = mod.Icon;
+
+              // ✅ Before login: everything looks enabled and clickable.
+              // ✅ After login: apply permission check.
+              let allowed = !isLoggedIn || hasPermission(mod.permission);
+
+              // Special handling: if user has any triage_* access, the Clinic "Triage"
+              // card should be enabled (not blurred).
+              const triagePermissions = [
+                'triage_one_access',
+                'triage_two_access',
+                'triage_three_access',
+              ];
+              const hasAnyTriageAccess = userPermissions.some(p =>
+                triagePermissions.includes(p)
+              );
+
+              if (isLoggedIn && mod.entryRoute === '/triage-lists' && hasAnyTriageAccess) {
+                allowed = true;
+              }
+
+              // Special handling: if user has any doctor/ophthalmology access, the Clinic
+              // "OPHTHALMOLOGY" card should be enabled (not blurred).
+              const doctorPermissions = [
+                'retina_access',
+                'glaucoma_access',
+                'pediatric_access',
+                'opd_one_access',
+                'opd_two_access',
+                'opd_three_access',
+              ];
+              const hasAnyDoctorAccess = userPermissions.some(p =>
+                doctorPermissions.includes(p)
+              );
+
+              if (isLoggedIn && mod.entryRoute === '/clinic-lists' && hasAnyDoctorAccess) {
+                allowed = true;
+              }
+
               return (
                 <Grid
                   size={{ xs: 12, sm: 6, md: 4, lg: 2.4 }}
@@ -180,6 +234,7 @@ const Clinics = () => {
                   sx={{
                     display: 'flex',
                     justifyContent: 'center',
+                    opacity: allowed ? 1 : 0.4,
                   }}
                 >
                   <Box
@@ -187,26 +242,40 @@ const Clinics = () => {
                       transform: 'scale(1)',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
-                        transform: 'translateY(-8px) scale(1.02)',
+                        transform: allowed ? 'translateY(-8px) scale(1.02)' : 'scale(1)',
                       },
                     }}
                   >
                     <ModuleCard
                       title={mod?.title}
                       image={Icon}
-                      onClick={() => handleClick(mod.entryRoute)}
+                      disabled={!allowed}
+                      onClick={() => allowed && handleClick(mod)}
                       sx={{
                         borderRadius: 3,
                         boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.1)}`,
                         border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                         transition: 'all 0.3s ease-in-out',
-                        background: `linear-gradient(145deg, #ffffff 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
+                        background: `linear-gradient(145deg, #ffffff 0%, ${alpha(
+                          theme.palette.primary.light,
+                          0.05
+                        )} 100%)`,
                         height: '100%',
-                        '&:hover': {
-                          boxShadow: `0 16px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
-                          borderColor: alpha(theme.palette.primary.main, 0.3),
-                          background: `linear-gradient(145deg, ${alpha(theme.palette.primary.light, 0.1)} 0%, #ffffff 100%)`,
-                        },
+                        ...(allowed
+                          ? {
+                              '&:hover': {
+                                boxShadow: `0 16px 40px ${alpha(
+                                  theme.palette.primary.main,
+                                  0.2
+                                )}`,
+                                borderColor: alpha(theme.palette.primary.main, 0.3),
+                                background: `linear-gradient(145deg, ${alpha(
+                                  theme.palette.primary.light,
+                                  0.1
+                                )} 0%, #ffffff 100%)`,
+                              },
+                            }
+                          : {}),
                       }}
                     />
                   </Box>

@@ -10,8 +10,19 @@ import PatientDetailGlaucoma from '../pages/ophthalmology/glaucoma/PatientDetail
 import PatientDetailPediatric from '../pages/ophthalmology/pediatric/PatientDetailPediatric';
 import PatientDetailOPD1 from '../pages/ophthalmology/opd1/PatientDetailOPD1';
 import PatientDetailOPD3 from '../pages/ophthalmology/opd3/PatientDetailOPD3';
+import ClinicLists from '../layouts/ClinicLists';
+import OphthalmologyListRoute from './ophthalmologyRoute';
 
 export const ophthalmologyRoutes: RouteCollection = {
+  eyeSmart: {
+    path: '/clinic-lists',
+
+    element: (
+      <OphthalmologyListRoute>
+        <ClinicLists />,
+      </OphthalmologyListRoute>
+    ),
+  },
   retina: {
     path: '/retina',
     element: (

@@ -9,6 +9,7 @@ import Checkout from '../pages/front_desk/checkout/checkout';
 
 import TriageLists from '../layouts/TriageLists';
 import PrivateRoute from './PrivateRoute';
+import TriageListsRoute from './TriageListsRoute';
 import type { RouteCollection } from './types';
 import EmergencyTriage from '../pages/triage/emergency/EmergencyTriage';
 import EmergencyTriage3 from '../pages/triage/emergency/EmergencyTriage3';
@@ -29,9 +30,10 @@ export const triageRoutes: RouteCollection = {
   triageLists: {
     path: '/triage-lists',
     element: (
-      <PrivateRoute>
+      // ✅ Special route: Triage lists page is visible without forcing login
+      <TriageListsRoute>
         <TriageLists />
-      </PrivateRoute>
+      </TriageListsRoute>
     ),
   },
   examinationsTriage: {

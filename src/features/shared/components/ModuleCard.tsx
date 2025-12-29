@@ -10,10 +10,16 @@ interface ModuleCardProps {
   disabled?: boolean;
 }
 
-export const ModuleCard: React.FC<ModuleCardProps> = ({ title, image, onClick, sx }) => {
+export const ModuleCard: React.FC<ModuleCardProps> = ({
+  title,
+  image,
+  onClick,
+  sx,
+  disabled = false,
+}) => {
   return (
     <Card
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       sx={{
         ...sx,
         width: 200,
@@ -23,17 +29,24 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ title, image, onClick, s
         border: '1px solid #e0e0e0',
         boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         bgcolor: '#f5f5f5',
-        '&:hover': {
-          transform: 'translateY(-6px)',
-          boxShadow: '0 12px 24px rgba(0,0,0,0.12)',
-          bgcolor: '#f8fbff',
-          borderColor: 'primary.light',
-        },
-        '&:active': {
-          transform: 'translateY(-2px)',
-        },
+        ...(disabled
+          ? {
+              opacity: 0.5,
+              pointerEvents: 'none',
+            }
+          : {
+              '&:hover': {
+                transform: 'translateY(-6px)',
+                boxShadow: '0 12px 24px rgba(0,0,0,0.12)',
+                bgcolor: '#f8fbff',
+                borderColor: 'primary.light',
+              },
+              '&:active': {
+                transform: 'translateY(-2px)',
+              },
+            }),
       }}
     >
       <CardContent

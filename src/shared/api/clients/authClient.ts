@@ -34,6 +34,11 @@ export interface LoginResponse {
   token_type: string;
   expires_in: number;
   roles: Role[];
+  /**
+   * Flat permissions array returned outside of roles
+   * e.g. ["front_desk_access", "inpatient_access"]
+   */
+  permissions?: string[];
   user: User; // ✅ add this
 }
 

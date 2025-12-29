@@ -17,6 +17,11 @@ export interface AuthUser {
   username: string;
   profile_image: string | null;
   roles: RoleWithPermissions[];
+  /**
+   * Flat list of permission names returned from backend
+   * e.g. ["front_desk_access", "inpatient_access"]
+   */
+  permissions: string[];
 }
 
 // API login response type
@@ -29,6 +34,11 @@ interface LoginApiResponse {
     token_type: string;
     expires_in: number;
     roles: RoleWithPermissions[];
+    /**
+     * Optional flat permissions list returned outside roles
+     * e.g. ["front_desk_access", "inpatient_access"]
+     */
+    permissions?: string[];
     id?: string;
     name?: string;
     email?: string;
@@ -87,6 +97,8 @@ export const useAuthStore = create<AuthState>()(
             username: loginData.username ?? '',
             profile_image: loginData.profile_image ?? null,
             roles: loginData.roles ?? [],
+        // Use the top-level permissions returned from backend (outside roles)
+        permissions: loginData.permissions ?? [],
           };
 
           // Persist
@@ -131,10 +143,11 @@ export const useAuthStore = create<AuthState>()(
 
       hasPermission: (permName: string) => {
         const { user } = get();
-        if (!user?.roles) return false;
-        return user.roles.some(role =>
-          Array.isArray(role.permissions) ? role.permissions.some(p => p.name === permName) : false
-        );
+
+        if (!user) return false;
+
+        // Only use the flat permissions array returned outside roles
+        return Array.isArray(user.permissions) ? user.permissions.includes(permName) : false;
       },
     }),
     {

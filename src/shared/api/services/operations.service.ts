@@ -19,6 +19,24 @@ export const OperationalService = {
   getORPatients: (filters?: Record<string, any>) =>
     OperationalApi.get('/operation-requests', { params: filters }),
 
+  getORPatientsTest: (patientId: string) => OperationalApi.get(`/operation-requests/${patientId}`),
+
   createOperationPayment: (patientId: string, data: any) =>
     OperationalApi.post(`/operation-pay/${patientId}`, data),
+
+  createOperationResult: async (patientId: string, formData: FormData) => {
+    // For FormData uploads, override timeout
+    return await OperationalApi.post(`/submit-operations-result/${patientId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 60000, // 60 seconds for file uploads
+      onUploadProgress: progressEvent => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total || 1)
+        );
+        console.log(`Upload progress: ${percentCompleted}%`);
+      },
+    });
+  },
 };

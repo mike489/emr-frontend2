@@ -8,34 +8,34 @@ export const DOCTOR_MODULES = [
   {
     title: 'RETINA',
     icon: Retina,
-    permission: 'read_adnexa_examination',
+    permission: 'retina_access',
     route: '/retina/patients-list',
   },
   {
     title: 'GLAUCOMA',
     icon: Glacoma,
-    permission: 'read_adnexa_examination',
+    permission: 'glaucoma_access',
     route: '/glaucoma',
   },
-  // { title: 'UVEA', icon: EyeOff, permission: 'read_adnexa_examination', route: '/uvea' },
+
   {
     title: 'PEDIATRIC OPHTHALMOLOGY',
     icon: Periatic,
-    permission: 'read_adnexa_examination',
+    permission: 'pediatric_access',
     route: '/pediatric',
   },
 
-  { title: 'OPD 1', icon: OPD, permission: 'read_adnexa_examination', route: '/opd-one' },
+  { title: 'OPD 1', icon: OPD, permission: 'opd_one_access', route: '/opd-one' },
   {
     title: 'OPD 2',
     icon: OPD,
-    permission: 'read_adnexa_examination',
+    permission: 'opd_two_access',
     route: '/opd-two',
   },
   {
     title: 'OPD 3',
     icon: OPD,
-    permission: 'read_adnexa_examination',
+    permission: 'opd_three_access',
     route: '/opd-three',
   },
 ] as const;
