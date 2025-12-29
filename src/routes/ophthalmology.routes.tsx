@@ -11,7 +11,7 @@ import PatientDetailPediatric from '../pages/ophthalmology/pediatric/PatientDeta
 import PatientDetailOPD1 from '../pages/ophthalmology/opd1/PatientDetailOPD1';
 import PatientDetailOPD3 from '../pages/ophthalmology/opd3/PatientDetailOPD3';
 import ClinicLists from '../layouts/ClinicLists';
-import OphthalmologyListRoute from './ophthalmologyRoute';
+import OphthalmologyListRoute from './OphthalmologyListRoute';
 
 export const ophthalmologyRoutes: RouteCollection = {
   eyeSmart: {
