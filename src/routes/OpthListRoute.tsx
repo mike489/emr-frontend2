@@ -7,7 +7,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default function OphthalmologyListRoute({ children }: Props) {
+export default function OpthListRoute({ children }: Props) {
   const { token, isLoading, isTokenValid, logout } = useAuthStore();
   // const location = useLocation();OPHTHALMOLOGY
 
