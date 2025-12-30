@@ -9,7 +9,7 @@ export const DOCTOR_MODULES = [
     title: 'RETINA',
     icon: Retina,
     permission: 'retina_access',
-    route: '/retina/patients-list',
+    route: '/retina/patients',
   },
   {
     title: 'GLAUCOMA',

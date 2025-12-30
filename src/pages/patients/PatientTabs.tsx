@@ -13,7 +13,9 @@ export default function PatientTabs() {
   const location = useLocation();
   const patient = location.state?.patient;
 
-  const [currentTab, setCurrentTab] = useState<string>('examinations');
+  const isFollowUpVisit = patient?.visit_type === 'Follow Up';
+
+  const [currentTab, setCurrentTab] = useState<string>(isFollowUpVisit ? 'follow-up' : 'examinations');
   const [examData, setExamData] = useState<any>(null);
   console.log('Examinations:', examData);
   const [loading, setLoading] = useState(true);
@@ -46,8 +48,6 @@ export default function PatientTabs() {
       </Box>
     );
   }
-
-  const isFollowUpVisit = patient.visit_type === 'Follow Up';
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setCurrentTab(newValue);

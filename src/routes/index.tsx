@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, useLocation } from 'react-router-dom';
 import { ROUTES } from './routes';
 import { Suspense } from 'react';
 import { Box, CircularProgress } from '@mui/material';
@@ -28,12 +28,16 @@ import {
   OPERATIONAL_TABS,
   PATIENTDETILES_OPD3_TABS,
   PATIENTDETAILS_TRIAGE_MINIMAL_TABS,
+  RETINA_TABS,
+  GLAUCOMA_TABS,
+  PEDIATRIC_TABS,
 } from '../data/data';
 import PrivateTopBar from '../layouts/PrivateTopBar';
 
 import Home from '../pages/public/Home';
 import Clinics from '../pages/Clinics';
 import Administration from '../pages/Administration';
+import ProtectedRoute from './ProtectedRoute';
 // import TriageLists from '../layouts/TriageLists';
 
 const Loading = () => (
@@ -42,6 +46,18 @@ const Loading = () => (
   </Box>
 );
 
+const PatientDetailWrapper = ({ darkMode, onToggleTheme }: AppRouterProps) => {
+  const location = useLocation();
+  const visitType = location.state?.visit_type || location.state?.patient?.visit_type || 'New';
+
+  const tabs =
+    visitType === 'Follow Up'
+      ? PATIENTDETILES_TABS_TWO
+      : PATIENTDETILES_TABS_TWO.filter(tab => tab.label !== 'Follow Up');
+
+  return <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={tabs} />;
+};
+
 interface AppRouterProps {
   darkMode: boolean;
   onToggleTheme: () => void;
@@ -49,14 +65,7 @@ interface AppRouterProps {
 }
 
 export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
-  // Define visitType, defaulting to 'new'. Adjust as needed for your logic.
-  const getPatientDetailTabs = (visitType: 'new' | 'follow-up') => {
-    if (visitType === 'new') {
-      return PATIENTDETILES_TABS_TWO.filter(tab => tab.label !== 'Follow Up');
-    }
-    return PATIENTDETILES_TABS_TWO;
-  };
-  const visitType: 'new' | 'follow-up' = 'new';
+
   const router = createBrowserRouter([
     // 🔹 Public Routes
     // {
@@ -99,7 +108,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Front Desk Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS} />
+        <ProtectedRoute permission="front_desk_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={FRONT_DESK_TABS} />
+        </ProtectedRoute>
       ),
 
       children: [
@@ -226,7 +237,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Doctor Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS} />
+        <ProtectedRoute permission="retina_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DOCTOR_TABS} />
+        </ProtectedRoute>
       ),
 
       children: [
@@ -234,10 +247,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.examinationsDoctor.path,
           element: ROUTES.protected.examinationsDoctor.element,
         },
-        {
-          path: ROUTES.protected.retina.path,
-          element: ROUTES.protected.retina.element,
-        },
+        // {
+        //   path: ROUTES.protected.retina.path,
+        //   element: ROUTES.protected.retina.element,
+        // },
         {
           path: ROUTES.protected.referralsDoctor.path,
           element: ROUTES.protected.referralsDoctor.element,
@@ -254,10 +267,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.emergencyDoctor.path,
           element: ROUTES.protected.emergencyDoctor.element,
         },
-        {
-          path: ROUTES.protected.glaucoma.path,
-          element: ROUTES.protected.glaucoma.element,
-        },
+        // {
+        //   path: ROUTES.protected.glaucoma.path,
+        //   element: ROUTES.protected.glaucoma.element,
+        // },
         {
           path: ROUTES.protected.pediatric.path,
           element: ROUTES.protected.pediatric.element,
@@ -289,10 +302,131 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
       ],
     },
 
+    // 🔹 RETINA_TABS Routes Group
+    {
+      element: (
+        <ProtectedRoute permission="retina_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={RETINA_TABS} />
+        </ProtectedRoute>
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.examinationsRetina.path,
+          element: ROUTES.protected.examinationsRetina.element,
+        },
+        {
+          path: ROUTES.protected.retinaPatients.path,
+          element: ROUTES.protected.retinaPatients.element,
+        },
+        {
+          path: ROUTES.protected.patientsDetailRetina.path,
+          element: ROUTES.protected.patientsDetailRetina.element,
+        },
+        {
+          path: ROUTES.protected.discussionRetina.path,
+          element: ROUTES.protected.discussionRetina.element,
+        },
+
+        {
+          path: ROUTES.protected.settings.path,
+          element: ROUTES.protected.settings.element,
+        },
+        {
+          path: ROUTES.protected.notifications.path,
+          element: ROUTES.protected.notifications.element,
+        },
+      ],
+    },
+
+    // 🔹 GLAUCOMA_TABS Routes Group
+    {
+      element: (
+        <ProtectedRoute permission="glaucoma_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={GLAUCOMA_TABS} />
+        </ProtectedRoute>
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.glaucoma.path,
+          element: ROUTES.protected.glaucoma.element,
+        },
+        {
+          path: ROUTES.protected.examinationsGlaucoma.path,
+          element: ROUTES.protected.examinationsGlaucoma.element,
+        },
+        // {
+        //   path: ROUTES.protected.retinaPatients.path,
+        //   element: ROUTES.protected.retinaPatients.element,
+        // },
+        {
+          path: ROUTES.protected.glaucomaPatientDetail.path,
+          element: ROUTES.protected.glaucomaPatientDetail.element,
+        },
+        {
+          path: ROUTES.protected.discussionGlaucoma.path,
+          element: ROUTES.protected.discussionGlaucoma.element,
+        },
+
+        {
+          path: ROUTES.protected.settings.path,
+          element: ROUTES.protected.settings.element,
+        },
+        {
+          path: ROUTES.protected.notifications.path,
+          element: ROUTES.protected.notifications.element,
+        },
+      ],
+    },
+
+    // 🔹 PEDIATRIC_TABS Routes Group
+    {
+      element: (
+        <ProtectedRoute permission="pediatric_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={PEDIATRIC_TABS} />
+        </ProtectedRoute>
+      ),
+
+      children: [
+        {
+          path: ROUTES.protected.pediatric.path,
+          element: ROUTES.protected.pediatric.element,
+        },
+        {
+          path: ROUTES.protected.examinationsPediatric.path,
+          element: ROUTES.protected.examinationsPediatric.element,
+        },
+        // {
+        //   path: ROUTES.protected.pediatricPatients.path,
+        //   element: ROUTES.protected.pediatricPatients.element,
+        // },
+        {
+          path: ROUTES.protected.pediatricPatientDetail.path,
+          element: ROUTES.protected.pediatricPatientDetail.element,
+        },
+        {
+          path: ROUTES.protected.discussionPediatric.path,
+          element: ROUTES.protected.discussionPediatric.element,
+        },
+
+        {
+          path: ROUTES.protected.settings.path,
+          element: ROUTES.protected.settings.element,
+        },
+        {
+          path: ROUTES.protected.notifications.path,
+          element: ROUTES.protected.notifications.element,
+        },
+      ],
+    },
+
     // 🔹 Triage Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_ONE} />
+        <ProtectedRoute permission="triage_one_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_ONE} />
+        </ProtectedRoute>
       ),
 
       children: [
@@ -334,7 +468,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Refraction Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={REFRACTION_TABS} />
+        <ProtectedRoute permission="refraction_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={REFRACTION_TABS} />
+        </ProtectedRoute>
       ),
 
       children: [
@@ -536,13 +672,7 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Patient Details Routes Group 2
     {
       element: (
-        <AppLayout
-          darkMode={darkMode}
-          onToggleTheme={onToggleTheme}
-          // tabsData={getFilteredTabs(window.location.pathname, PATIENTDETILES_TABS_TWO)}
-          tabsData={getPatientDetailTabs(visitType)}
-          // tabsData={PATIENTDETILES_TABS_TWO}
-        />
+        <PatientDetailWrapper darkMode={darkMode} onToggleTheme={onToggleTheme} />
       ),
       children: [
         {
@@ -638,7 +768,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Diagnosis Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DIAGNOSIS_TABS} />
+        <ProtectedRoute permission="diagnostic_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={DIAGNOSIS_TABS} />
+        </ProtectedRoute>
       ),
 
       children: [
@@ -680,7 +812,13 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Operational Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={OPERATIONAL_TABS} />
+        <ProtectedRoute permission="surgery_access">
+          <AppLayout
+            darkMode={darkMode}
+            onToggleTheme={onToggleTheme}
+            tabsData={OPERATIONAL_TABS}
+          />
+        </ProtectedRoute>
       ),
 
       children: [
@@ -722,7 +860,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Pharmacy Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={PHARMACY_TABS} />
+        <ProtectedRoute permission="pharmacy_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={PHARMACY_TABS} />
+        </ProtectedRoute>
       ),
       children: [
         {
@@ -751,7 +891,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 Optical Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={OPTICAL_TABS} />
+        <ProtectedRoute permission="optical_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={OPTICAL_TABS} />
+        </ProtectedRoute>
       ),
       children: [
         {
@@ -780,7 +922,9 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
     // 🔹 In-Patient Routes Group
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={IN_PATIENT_TABS} />
+        <ProtectedRoute permission="inpatient_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={IN_PATIENT_TABS} />
+        </ProtectedRoute>
       ),
       children: [
         {
@@ -853,9 +997,12 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         </PrivateTopBar>
       ),
     },
+
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_TWO} />
+        <ProtectedRoute permission="triage_two_access">
+          <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_TWO} />
+        </ProtectedRoute>
       ),
       children: [
         {
@@ -899,7 +1046,13 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
 
     {
       element: (
-        <AppLayout darkMode={darkMode} onToggleTheme={onToggleTheme} tabsData={TRIAGE_TABS_THREE} />
+        <ProtectedRoute permission="triage_three_access">
+          <AppLayout
+            darkMode={darkMode}
+            onToggleTheme={onToggleTheme}
+            tabsData={TRIAGE_TABS_THREE}
+          />
+        </ProtectedRoute>
       ),
       children: [
         {

@@ -253,7 +253,7 @@ export const triageRoutes: RouteCollection = {
     ),
   },
   followUpTab: {
-    path: '/triage/follow-up',
+    path: '/follow-up',
     element: (
       <PrivateRoute>
         <FollowUpTab />
@@ -261,7 +261,7 @@ export const triageRoutes: RouteCollection = {
     ),
   },
   orderTab: {
-    path: '/triage/orders',
+    path: '/orders',
     element: (
       <PrivateRoute>
         <LabTab />
@@ -269,7 +269,7 @@ export const triageRoutes: RouteCollection = {
     ),
   },
   operationTab: {
-    path: 'triage/operations',
+    path: '/operations',
     element: (
       <PrivateRoute>
         <OperationTab />
@@ -278,7 +278,7 @@ export const triageRoutes: RouteCollection = {
   },
 
   resultTab: {
-    path: 'triage/results',
+    path: '/results',
     element: (
       <PrivateRoute>
         <ResultTab />
@@ -295,7 +295,7 @@ export const triageRoutes: RouteCollection = {
   },
 
   medicationsOrder: {
-    path: '/triage/medications',
+    path: '/medications',
     element: (
       <PrivateRoute>
         <MedTab />
@@ -303,7 +303,7 @@ export const triageRoutes: RouteCollection = {
     ),
   },
   opticalOrder: {
-    path: '/triage/optical',
+    path: '/opticals',
     element: (
       <PrivateRoute>
         <OpticalTab />

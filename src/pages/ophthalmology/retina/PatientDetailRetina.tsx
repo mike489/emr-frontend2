@@ -280,7 +280,7 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
     }
     // Always navigate to follow-up tab for Follow Up visits
     else if (visit.visit_type === 'Follow Up') {
-      navigate('/triage/follow-up', {
+      navigate('/follow-up', {
         state: {
           patient: patient,
           consultation_id: consultationId,

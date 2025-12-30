@@ -1,4 +1,4 @@
-import Retina from '../pages/ophthalmology/retina/retina';
+// import Retina from '../pages/ophthalmology/retina/retina';
 import Glaucoma from '../pages/ophthalmology/glaucoma/glaucoma';
 import Pediatric from '../pages/ophthalmology/pediatric/pediatric';
 import Opd1 from '../pages/ophthalmology/opd1/opd1';
@@ -23,38 +23,38 @@ export const ophthalmologyRoutes: RouteCollection = {
       </OpthListRoute>
     ),
   },
-  retina: {
-    path: '/retina',
-    element: (
-      <PrivateRoute>
-        <Retina />
-      </PrivateRoute>
-    ),
-  },
-  glaucoma: {
-    path: '/glaucoma',
-    element: (
-      <PrivateRoute>
-        <Glaucoma />
-      </PrivateRoute>
-    ),
-  },
-  glaucomaPatientDetail: {
-    path: '/glaucoma/patients-detail',
-    element: (
-      <PrivateRoute>
-        <PatientDetailGlaucoma />
-      </PrivateRoute>
-    ),
-  },
-  pediatric: {
-    path: '/pediatric',
-    element: (
-      <PrivateRoute>
-        <Pediatric />
-      </PrivateRoute>
-    ),
-  },
+  // retina: {
+  //   path: '/retina',
+  //   element: (
+  //     <PrivateRoute>
+  //       <Retina />
+  //     </PrivateRoute>
+  //   ),
+  // },
+  // glaucoma: {
+  //   path: '/glaucoma',
+  //   element: (
+  //     <PrivateRoute>
+  //       <Glaucoma />
+  //     </PrivateRoute>
+  //   ),
+  // },
+  // glaucomaPatientDetail: {
+  //   path: '/glaucoma/patients-detail',
+  //   element: (
+  //     <PrivateRoute>
+  //       <PatientDetailGlaucoma />
+  //     </PrivateRoute>
+  //   ),
+  // },
+  // pediatric: {
+  //   path: '/pediatric',
+  //   element: (
+  //     <PrivateRoute>
+  //       <Pediatric />
+  //     </PrivateRoute>
+  //   ),
+  // },
   pediatricPatientDetail: {
     path: '/pediatric/patients-detail',
     element: (

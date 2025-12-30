@@ -22,6 +22,9 @@ import type { RoutesStructure } from './types';
 import { managementRoutes } from './managment.routes';
 import { chiefadminRoutes } from './chiefadmin.routes';
 import { orRoutes } from './or.routes';
+import { retinaRoutes } from './retina.routes';
+import { glaucomaRoutes } from './glaucoma.route';
+import { pediatricRoutes } from './pediatric.routes';
 
 export const ROUTES: RoutesStructure = {
   public: {
@@ -67,6 +70,9 @@ export const ROUTES: RoutesStructure = {
     ...chiefadminRoutes,
     ...serviceRoutes,
     ...sharedRoutes,
+    ...retinaRoutes,
+    ...glaucomaRoutes,
+    ...pediatricRoutes,
   },
   notFound: { path: '*', element: <NotFound /> },
 };
@@ -84,6 +90,9 @@ export {
   chiefadminRoutes,
   serviceRoutes,
   sharedRoutes,
+  retinaRoutes,
+  glaucomaRoutes,
+  pediatricRoutes,
 };
 
 export type { RoutesStructure } from './types';

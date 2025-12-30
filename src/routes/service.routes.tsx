@@ -54,7 +54,7 @@ export const serviceRoutes: RouteCollection = {
     ),
   },
   optical: {
-    path: '/optical/',
+    path: '/optical',
     element: (
       <PrivateRoute>
         <OpticalTodayCases />

@@ -46,26 +46,6 @@ export const FRONT_DESK_TABS: TabItem[] = [
       // { label: 'Pending Payments ', path: '/front-desk/pending-payments' },
     ],
   },
-  // {
-  //   label: 'Notifications',
-  //   path: '/notifications',
-  //   // children: [
-  //   //   { label: 'Appointment Reminders', path: '/front-desk/notifications/reminders' },
-  //   //   { label: 'Follow-Up Alerts', path: '/front-desk/notifications/followups' },
-  //   //   { label: 'System Updates', path: '/front-desk/notifications/updates' },
-  //   //   { label: 'Messages from Doctors', path: '/front-desk/notifications/messages' },
-  //   // ],
-  // },
-
-  // {
-  //   label: 'Settings',
-  //   path: '/settings',
-  //   // children: [
-  //   { label: 'User Profile', path: '/front-desk/profile' },
-  //   { label: 'Change Password', path: '/front-desk/change-password' },
-  //   { label: 'Logout ', path: '/' },
-  // ],
-  // },
 ];
 
 // ───────────────────────────────────────────
@@ -76,26 +56,9 @@ export const PATIENTDETILES_TABS: TabItem[] = [
   {
     label: 'Visit Patient',
     path: '/triage/patient-details',
-    // children: [
-    //   {
-    //     label: 'Examination',
-    //     path: '/triage/examinations',
-    //   },
-    //   {
-    //     label: 'Follow Up',
-    //     path: '/triage/follow-up',
-    //   },
-    //   {
-    //     label: 'Orders',
-    //     path: '/triage/orders',
-    //   },
-    //   {
-    //     label: 'Laboratory',
-    //     path: '/triage/laboratory',
-    //   },
-    // ],
   },
 ];
+
 export const PATIENTDETILES_TRIAGE_TABS_TWO: TabItem[] = [
   {
     label: 'Visit Patient',
@@ -155,31 +118,31 @@ export const PATIENTDETILES_TABS_TWO: TabItem[] = [
   },
   {
     label: 'Follow Up',
-    path: '/triage/follow-up',
+    path: '/follow-up',
   },
   {
     label: 'Investigations',
-    path: '/triage/orders',
+    path: '/orders',
   },
   {
     label: 'Operations',
-    path: '/triage/operations',
+    path: '/operations',
   },
   {
     label: 'Results',
-    path: '/triage/results',
+    path: '/results',
     children: [
-      { label: 'Lab Results', path: '/triage/results' },
+      { label: 'Lab Results', path: '/results' },
       { label: 'Operations Results', path: '/triage/operations-results' },
     ],
   },
   {
     label: 'Medications',
-    path: '/triage/medications',
+    path: '/medications',
   },
   {
     label: 'Optical',
-    path: '/triage/optical',
+    path: '/optical',
   },
 ];
 
@@ -268,7 +231,7 @@ export const TRIAGE_TABS_ONE: TabItem[] = [
       { label: 'Patient List', path: '/triage-one/patients-list' },
       { label: 'Referrals', path: '/triage-one/referrals' },
       { label: 'Checkout patients ', path: '/triage-one/checkout-patients' },
-      { label: 'Follow up', path: '/triage-one/follow-up' },
+      // { label: 'Follow up', path: '/triage-one/follow-up' },
       { label: 'Emergency Patients', path: '/triage-one/emergency-patients' },
     ],
   },
@@ -371,31 +334,17 @@ export const DOCTOR_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/doctor/emergency-patients' },
     ],
   },
-  // {
-  //   label: 'Examination',
-  //   path: '/doctor/examinations',
-  // },
+
   {
     label: 'Discussion',
     path: '/doctor/discussion',
   },
-
-  // {
-  //   label: 'Notifications',
-  //   path: '/notifications',
-  // },
-
-  // {
-  //   label: 'Settings',
-  //   path: '/settings',
-  // },
-  // { label: "Logout", path: "/logout" },
 ];
 
 export const PEDIATRIC_TABS: TabItem[] = [
   {
     label: 'Patients',
-    path: '/pediatric/patients',
+    path: '/pediatric',
     children: [
       { label: 'Patient List', path: '/pediatric/patients-list' },
       { label: 'Referrals', path: '/pediatric/referrals' },
@@ -403,10 +352,7 @@ export const PEDIATRIC_TABS: TabItem[] = [
       { label: 'Emergency Patients', path: '/pediatric/emergency-patients' },
     ],
   },
-  // {
-  //   label: 'Examination',
-  //   path: '/pediatric/examinations',
-  // },
+
   {
     label: 'Discussion',
     path: '/pediatric/discussion',
@@ -426,66 +372,32 @@ export const PEDIATRIC_TABS: TabItem[] = [
 export const RETINA_TABS: TabItem[] = [
   {
     label: 'Patients',
-    path: '/retina/patients',
-    children: [
-      { label: 'Patient List', path: '/retina/patients-list' },
-      { label: 'Referrals', path: '/retina/referrals' },
-      { label: 'Checkout patients ', path: '/retina/checkout-patients' },
-      { label: 'Emergency Patients', path: '/retina/emergency-patients' },
-    ],
+    path: '/retina',
+    // children: [
+    //   { label: 'Patient List', path: '/retina/patients' },
+    //   { label: 'Referrals', path: '/retina/referrals' },
+    //   { label: 'Checkout patients', path: '/retina/checkout-patients' },
+    //   { label: 'Emergency Patients', path: '/retina/emergency-patients' },
+    // ],
   },
-  // {
-  //   label: 'Examination',
-  //   path: '/retina/examinations',
-  // },
   {
     label: 'Discussion',
     path: '/retina/discussion',
   },
-
-  // {
-  //   label: 'Notifications',
-  //   path: '/notifications',
-  // },
-
-  // {
-  //   label: 'Settings',
-  //   path: '/settings',
-  // },
-  // { label: "Logout", path: "/logout" },
 ];
 
 export const GLAUCOMA_TABS: TabItem[] = [
   {
     label: 'Patients',
-    path: '/glaucoma/patients',
-    children: [
-      { label: 'Patient List', path: '/glaucoma/patients-list' },
-      { label: 'Referrals', path: '/glaucoma/referrals' },
-      { label: 'Checkout patients ', path: '/glaucoma/checkout-patients' },
-      { label: 'Emergency Patients', path: '/glaucoma/emergency-patients' },
-    ],
+    path: '/glaucoma',
   },
-  // {
-  //   label: 'Examination',
-  //   path: '/glaucoma/examinations',
-  // },
+
   {
     label: 'Discussion',
     path: '/glaucoma/discussion',
   },
-
-  // {
-  //   label: 'Notifications',
-  //   path: '/notifications',
-  // },
-
-  // {
-  //   label: 'Settings',
-  //   path: '/settings',
-  // },
-  // { label: "Logout", path: "/logout" },
 ];
+
 export const OPD_ONE_TABS: TabItem[] = [
   {
     label: 'Patients',
@@ -700,15 +612,6 @@ export const IN_PATIENT_TABS: TabItem[] = [
     label: 'Patient Beds',
     path: '/in-patient/patient-beds',
   },
-  // {
-  //   label: 'Notifications',
-  //   path: '/in-patient/notifications',
-  // },
-  // {
-  //   label: 'Settings',
-  //   path: '/in-patient/settings',
-  // },
-  // { label: "Logout", path: "/logout" },
 ];
 
 export const COUNSELOR_TABS: TabItem[] = [
@@ -717,16 +620,6 @@ export const COUNSELOR_TABS: TabItem[] = [
     path: '/counselor/patients',
     // children: [{ label: 'Today’s Case', path: '/counselor/today-cases' }],
   },
-
-  // {
-  //   label: 'Notifications',
-  //   path: '/counselor/notifications',
-  // },
-  // {
-  //   label: 'Settings',
-  //   path: '/counselor/settings',
-  // },
-  // { label: "Logout", path: "/logout" },
 ];
 // ───────────────────────────────────────────
 // DEFAULT TABS

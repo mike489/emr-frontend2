@@ -37,6 +37,9 @@ import {
   DIAGNOSIS_TABS,
   DEFAULT_TABS,
   OPERATIONAL_TABS,
+  RETINA_TABS,
+  GLAUCOMA_TABS,
+  PEDIATRIC_TABS,
 } from '../data/data';
 
 /* ----------------------- Notification Panel ----------------------- */
@@ -48,6 +51,9 @@ const DEPARTMENT_MAP: Record<string, string> = {
   '/triage': 'Triage',
   '/refraction': 'Refraction',
   '/doctor': 'Doctor',
+  '/retina': 'Retina',
+  '/glaucoma': 'Glaucoma',
+  '/pediatric': 'Pediatric',
   '/diagnosis': 'Diagnosis',
   '/pharmacy': 'Pharmacy',
   '/or': 'OR',
@@ -112,6 +118,15 @@ export default function TopBar({
     } else if (path.startsWith('/doctor')) {
       activeTabs = DOCTOR_TABS;
       dept = DEPARTMENT_MAP['/doctor'];
+    } else if (path.startsWith('/retina')) {
+      activeTabs = RETINA_TABS;
+      dept = DEPARTMENT_MAP['/retina'];
+    } else if (path.startsWith('/glaucoma')) {
+      activeTabs = GLAUCOMA_TABS;
+      dept = DEPARTMENT_MAP['/glaucoma'];
+    } else if (path.startsWith('/pediatric')) {
+      activeTabs = PEDIATRIC_TABS;
+      dept = DEPARTMENT_MAP['/pediatric'];
     } else if (path.startsWith('/diagnosis')) {
       activeTabs = DIAGNOSIS_TABS;
       dept = DEPARTMENT_MAP['/diagnosis'];
