@@ -1,12 +1,12 @@
 // import Retina from '../pages/ophthalmology/retina/retina';
-import Glaucoma from '../pages/ophthalmology/glaucoma/glaucoma';
-import Pediatric from '../pages/ophthalmology/pediatric/pediatric';
+// import Glaucoma from '../pages/ophthalmology/glaucoma/glaucoma';
+// import Pediatric from '../pages/ophthalmology/pediatric/pediatric';
 import Opd1 from '../pages/ophthalmology/opd1/opd1';
 import Opd2 from '../pages/ophthalmology/opd2/opd2';
 import Opd3 from '../pages/ophthalmology/opd3/opd3';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
-import PatientDetailGlaucoma from '../pages/ophthalmology/glaucoma/PatientDetailGlaucoma';
+// import PatientDetailGlaucoma from '../pages/ophthalmology/glaucoma/PatientDetailGlaucoma';
 import PatientDetailPediatric from '../pages/ophthalmology/pediatric/PatientDetailPediatric';
 import PatientDetailOPD1 from '../pages/ophthalmology/opd1/PatientDetailOPD1';
 import PatientDetailOPD3 from '../pages/ophthalmology/opd3/PatientDetailOPD3';
