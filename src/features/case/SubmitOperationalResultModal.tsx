@@ -334,7 +334,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       }, 1500);
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.message || 'Failed to submit laboratory results');
+      setError(err.response?.data?.message || 'Failed to submit OR results');
     } finally {
       setSubmitting(false);
     }
@@ -365,7 +365,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">Submit Laboratory Results</Typography>
+          <Typography variant="h6">Submit OR Results</Typography>
           <IconButton onClick={onClose} size="small" disabled={submitting}>
             <Close />
           </IconButton>

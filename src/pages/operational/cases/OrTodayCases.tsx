@@ -29,10 +29,11 @@ import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { CheckCircle, FileUp } from 'lucide-react';
 import LabModal from '../../../features/case/LabModal';
 
-import SubmitLaboratoriesResultModal from '../../../features/case/submitLaboratoriesResultModal';
+// import SubmitLaboratoriesResultModal from '../../../features/case/submitLaboratoriesResultModal';
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { OperationalService } from '../../../shared/api/services/operations.service';
+import SubmitOperationalResultModal from '../../../features/case/SubmitOperationalResultModal';
 
 // Updated Type definitions to match your API response
 interface PaginationState {
@@ -796,7 +797,7 @@ const OrTodayCases: React.FC = () => {
                         </IconButton>
                       </Tooltip> */}
 
-                      <Tooltip title="Submit Laboratory Results" arrow>
+                      <Tooltip title="Submit Or Results" arrow>
                         <IconButton
                           size="small"
                           onClick={() => handleOpenSubmitResultModal(patient)}
@@ -848,7 +849,7 @@ const OrTodayCases: React.FC = () => {
           </Table>
         </TableContainer>
 
-        <SubmitLaboratoriesResultModal
+        <SubmitOperationalResultModal
           open={submitResultModalOpen}
           onClose={handleCloseSubmitResultModal}
           patientId={selectedPatientForResults?.id || ''}
