@@ -57,17 +57,17 @@ const TabBar: React.FC<TabBarProps> = ({ tabsData }) => {
     if (parent.children && parent.children.length > 0) {
       const firstChild = parent.children[0];
       setSelectedChild(firstChild.label);
-      navigate(firstChild.path);
+      navigate(firstChild.path, { state: location.state });
     } else if (parent.path) {
       setSelectedChild(null);
-      navigate(parent.path);
+      navigate(parent.path, { state: location.state });
     }
   };
 
   const handleChildClick = (childPath: string, parentIndex: number, childLabel: string) => {
     setActiveParent(parentIndex);
     setSelectedChild(childLabel);
-    navigate(childPath);
+    navigate(childPath, { state: location.state });
   };
 
   const showBackButton = location.pathname !== '/' && location.pathname !== '/home';

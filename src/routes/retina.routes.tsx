@@ -4,6 +4,7 @@ import Discussion from '../pages/triage/Discussion';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
 import PatientDetailRetina from '../pages/ophthalmology/retina/PatientDetailRetina';
+import FollowUpList from '../features/follow_up/FollowUpList';
 
 export const retinaRoutes: RouteCollection = {
   examinationsRetina: {
@@ -36,6 +37,14 @@ export const retinaRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <Discussion />
+      </PrivateRoute>
+    ),
+  },
+  followUpRetina: {
+    path: '/retina/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
       </PrivateRoute>
     ),
   },

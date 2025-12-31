@@ -57,6 +57,10 @@ export const PATIENTDETILES_TABS: TabItem[] = [
     label: 'Visit Patient',
     path: '/triage/patient-details',
   },
+  {
+    label: 'Follow Ups',
+    path: '/triage/follow-ups',
+  },
 ];
 
 export const PATIENTDETILES_TRIAGE_TABS_TWO: TabItem[] = [
@@ -64,11 +68,19 @@ export const PATIENTDETILES_TRIAGE_TABS_TWO: TabItem[] = [
     label: 'Visit Patient',
     path: '/triage-two/patient-details',
   },
+  {
+    label: 'Follow Ups',
+    path: '/triage-two/follow-ups',
+  },
 ];
 export const PATIENTDETILES_TRIAGE_TABS_THREE: TabItem[] = [
   {
     label: 'Visit Patient',
     path: '/triage-three/patient-details',
+  },
+  {
+    label: 'Follow Ups',
+    path: '/triage-three/follow-ups',
   },
 ];
 
@@ -77,17 +89,29 @@ export const PATIENTDETILES_REFRACTION_TABS: TabItem[] = [
     label: 'Visit Patient',
     path: '/refraction/patient-details',
   },
+  {
+    label: 'Follow Ups',
+    path: '/refraction/follow-ups',
+  },
 ];
 export const PATIENTDETILES_RETINA_TABS: TabItem[] = [
   {
     label: 'Visit Patient',
     path: '/retina/patients-detail',
   },
+  {
+    label: 'Follow Ups',
+    path: '/retina/follow-ups',
+  },
 ];
 export const PATIENTDETILES_GLAUCOMA_TABS: TabItem[] = [
   {
     label: 'Visit Patient',
     path: '/glaucoma/patients-detail',
+  },
+  {
+    label: 'Follow Ups',
+    path: '/glaucoma/follow-ups',
   },
 ];
 
@@ -96,6 +120,10 @@ export const PATIENTDETILES_PEDIATRIC_TABS: TabItem[] = [
     label: 'Visit Patient',
     path: '/pediatric/patients-detail',
   },
+  {
+    label: 'Follow Ups',
+    path: '/pediatric/follow-ups',
+  },
 ];
 
 export const PATIENTDETILES_OPD1_TABS: TabItem[] = [
@@ -103,11 +131,19 @@ export const PATIENTDETILES_OPD1_TABS: TabItem[] = [
     label: 'Visit Patient',
     path: '/opd-one/patients-detail',
   },
+  {
+    label: 'Follow Ups',
+    path: '/opd-one/follow-ups',
+  },
 ];
 export const PATIENTDETILES_OPD3_TABS: TabItem[] = [
   {
     label: 'Visit Patient',
     path: '/opd-three/patients-detail',
+  },
+  {
+    label: 'Follow Ups',
+    path: '/opd-three/follow-ups',
   },
 ];
 
@@ -345,12 +381,6 @@ export const PEDIATRIC_TABS: TabItem[] = [
   {
     label: 'Patients',
     path: '/pediatric',
-    children: [
-      { label: 'Patient List', path: '/pediatric/patients-list' },
-      { label: 'Referrals', path: '/pediatric/referrals' },
-      { label: 'Checkout patients ', path: '/pediatric/checkout-patients' },
-      { label: 'Emergency Patients', path: '/pediatric/emergency-patients' },
-    ],
   },
 
   {

@@ -65,7 +65,6 @@ interface AppRouterProps {
 }
 
 export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
-
   const router = createBrowserRouter([
     // 🔹 Public Routes
     // {
@@ -271,10 +270,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         //   path: ROUTES.protected.glaucoma.path,
         //   element: ROUTES.protected.glaucoma.element,
         // },
-        {
-          path: ROUTES.protected.pediatric.path,
-          element: ROUTES.protected.pediatric.element,
-        },
+        // {
+        //   path: ROUTES.protected.pediatric.path,
+        //   element: ROUTES.protected.pediatric.element,
+        // },
         {
           path: ROUTES.protected.opd1.path,
           element: ROUTES.protected.opd1.element,
@@ -320,10 +319,6 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           element: ROUTES.protected.retinaPatients.element,
         },
         {
-          path: ROUTES.protected.patientsDetailRetina.path,
-          element: ROUTES.protected.patientsDetailRetina.element,
-        },
-        {
           path: ROUTES.protected.discussionRetina.path,
           element: ROUTES.protected.discussionRetina.element,
         },
@@ -360,10 +355,6 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         //   path: ROUTES.protected.retinaPatients.path,
         //   element: ROUTES.protected.retinaPatients.element,
         // },
-        {
-          path: ROUTES.protected.glaucomaPatientDetail.path,
-          element: ROUTES.protected.glaucomaPatientDetail.element,
-        },
         {
           path: ROUTES.protected.discussionGlaucoma.path,
           element: ROUTES.protected.discussionGlaucoma.element,
@@ -402,13 +393,13 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         //   element: ROUTES.protected.pediatricPatients.element,
         // },
         {
-          path: ROUTES.protected.pediatricPatientDetail.path,
-          element: ROUTES.protected.pediatricPatientDetail.element,
-        },
-        {
           path: ROUTES.protected.discussionPediatric.path,
           element: ROUTES.protected.discussionPediatric.element,
         },
+        // {
+        //   path: ROUTES.protected.pediatricPatientDetail.path,
+        //   element: ROUTES.protected.pediatricPatientDetail.element,
+        // },
 
         {
           path: ROUTES.protected.settings.path,
@@ -420,6 +411,8 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         },
       ],
     },
+
+
 
     // 🔹 Triage Routes Group
     {
@@ -520,6 +513,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.patientDetails.path,
           element: ROUTES.protected.patientDetails.element,
         },
+        {
+          path: ROUTES.protected.followUpsDetails.path,
+          element: ROUTES.protected.followUpsDetails.element,
+        },
         // {
         //   path: ROUTES.protected.examinationTab.path,
         //   element: ROUTES.protected.examinationTab.element,
@@ -563,6 +560,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.patientDetailsTriageThree.path,
           element: ROUTES.protected.patientDetailsTriageThree.element,
         },
+        {
+          path: ROUTES.protected.followUpsDetailsThree.path,
+          element: ROUTES.protected.followUpsDetailsThree.element,
+        },
       ],
     },
 
@@ -581,6 +582,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.patientDetailRefraction.path,
           element: ROUTES.protected.patientDetailRefraction.element,
         },
+        {
+          path: ROUTES.protected.followUpRefraction.path,
+          element: ROUTES.protected.followUpRefraction.element,
+        },
       ],
     },
     // 🔹 Patient Details Routes Group Refraction
@@ -597,6 +602,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.patientsDetailRetina.path,
           element: ROUTES.protected.patientsDetailRetina.element,
+        },
+        {
+          path: ROUTES.protected.followUpRetina.path,
+          element: ROUTES.protected.followUpRetina.element,
         },
       ],
     },
@@ -615,6 +624,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.glaucomaPatientDetail.path,
           element: ROUTES.protected.glaucomaPatientDetail.element,
         },
+        {
+          path: ROUTES.protected.followUpGlaucoma.path,
+          element: ROUTES.protected.followUpGlaucoma.element,
+        },
       ],
     },
     // 🔹 Patient Details Routes Group Pediatric
@@ -632,8 +645,13 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.pediatricPatientDetail.path,
           element: ROUTES.protected.pediatricPatientDetail.element,
         },
+        {
+          path: ROUTES.protected.followUpPediatric.path,
+          element: ROUTES.protected.followUpPediatric.element,
+        },
       ],
     },
+
     // 🔹 Patient Details Routes Group OPD1
     {
       element: (
@@ -648,6 +666,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.opd1PatientDetail.path,
           element: ROUTES.protected.opd1PatientDetail.element,
+        },
+        {
+          path: ROUTES.protected.followUpOpd1.path,
+          element: ROUTES.protected.followUpOpd1.element,
         },
       ],
     },
@@ -666,14 +688,16 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
           path: ROUTES.protected.opd3PatientDetail.path,
           element: ROUTES.protected.opd3PatientDetail.element,
         },
+        {
+          path: ROUTES.protected.followUpOpd3.path,
+          element: ROUTES.protected.followUpOpd3.element,
+        },
       ],
     },
 
     // 🔹 Patient Details Routes Group 2
     {
-      element: (
-        <PatientDetailWrapper darkMode={darkMode} onToggleTheme={onToggleTheme} />
-      ),
+      element: <PatientDetailWrapper darkMode={darkMode} onToggleTheme={onToggleTheme} />,
       children: [
         {
           path: ROUTES.protected.examinationTab.path,
@@ -761,6 +785,10 @@ export const AppRouter = ({ darkMode, onToggleTheme }: AppRouterProps) => {
         {
           path: ROUTES.protected.operationTab.path,
           element: ROUTES.protected.operationTab.element,
+        },
+        {
+          path: ROUTES.protected.followUpsDetailsTwo.path,
+          element: ROUTES.protected.followUpsDetailsTwo.element,
         },
       ],
     },

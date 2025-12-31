@@ -25,6 +25,7 @@ import MedTab from '../pages/pharmacy_medicines_order/MedTab';
 import OpticalTab from '../pages/opticals/OpticalTab';
 import ResultTab from '../features/case/ResultTab';
 import ResultOperationTab from '../features/case/ResultOperationTab';
+import FollowUpList from '../features/follow_up/FollowUpList';
 
 export const triageRoutes: RouteCollection = {
   triageLists: {
@@ -241,6 +242,30 @@ export const triageRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <PatientDetails />
+      </PrivateRoute>
+    ),
+  },
+  followUpsDetails: {
+    path: '/triage/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
+      </PrivateRoute>
+    ),
+  },
+  followUpsDetailsTwo: {
+    path: '/triage-two/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
+      </PrivateRoute>
+    ),
+  },
+  followUpsDetailsThree: {
+    path: '/triage-three/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
       </PrivateRoute>
     ),
   },

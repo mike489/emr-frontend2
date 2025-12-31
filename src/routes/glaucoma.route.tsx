@@ -5,6 +5,7 @@ import type { RouteCollection } from './types';
 import PatientDetailGlaucoma from '../pages/ophthalmology/glaucoma/PatientDetailGlaucoma';
 import PatientTabsLayout from '../pages/examination/PatientTabsLayout';
 import Discussion from '../pages/triage/Discussion';
+import FollowUpList from '../features/follow_up/FollowUpList';
 
 export const glaucomaRoutes: RouteCollection = {
   examinationsGlaucoma: {
@@ -37,6 +38,14 @@ export const glaucomaRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <Discussion />
+      </PrivateRoute>
+    ),
+  },
+  followUpGlaucoma: {
+    path: '/glaucoma/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
       </PrivateRoute>
     ),
   },

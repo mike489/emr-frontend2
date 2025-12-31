@@ -6,6 +6,7 @@ import EmergencyLists from '../pages/front_desk/emergency/EmergencyList';
 import PrivateRoute from './PrivateRoute';
 import type { RouteCollection } from './types';
 import PatientDetailRefraction from '../pages/refraction/PatientDetailRefraction';
+import FollowUpList from '../features/follow_up/FollowUpList';
 
 export const refractionRoutes: RouteCollection = {
   examinationsRefraction: {
@@ -69,6 +70,14 @@ export const refractionRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <PatientDetailRefraction />
+      </PrivateRoute>
+    ),
+  },
+  followUpRefraction: {
+    path: '/refraction/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
       </PrivateRoute>
     ),
   },

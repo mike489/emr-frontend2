@@ -12,6 +12,7 @@ import PatientDetailOPD1 from '../pages/ophthalmology/opd1/PatientDetailOPD1';
 import PatientDetailOPD3 from '../pages/ophthalmology/opd3/PatientDetailOPD3';
 import ClinicLists from '../layouts/ClinicLists';
 import OpthListRoute from './OpthListRoute';
+import FollowUpList from '../features/follow_up/FollowUpList';
 
 export const ophthalmologyRoutes: RouteCollection = {
   eyeSmart: {
@@ -79,6 +80,14 @@ export const ophthalmologyRoutes: RouteCollection = {
       </PrivateRoute>
     ),
   },
+  followUpOpd1: {
+    path: '/opd-one/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
+      </PrivateRoute>
+    ),
+  },
   opd2: {
     path: '/opd-two',
     element: (
@@ -108,6 +117,14 @@ export const ophthalmologyRoutes: RouteCollection = {
     element: (
       <PrivateRoute>
         <PatientDetailOPD3 />
+      </PrivateRoute>
+    ),
+  },
+  followUpOpd3: {
+    path: '/opd-three/follow-ups',
+    element: (
+      <PrivateRoute>
+        <FollowUpList />
       </PrivateRoute>
     ),
   },

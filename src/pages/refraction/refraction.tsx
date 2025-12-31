@@ -292,7 +292,7 @@ const Refraction: React.FC = () => {
   };
 
   const handleRowClick = (patient: Patient) => {
-    navigate('/refraction/patient-detail', {
+    navigate('/refraction/patient-details', {
       state: {
         consultation_id: patient.constultation_id,
         index: 0,

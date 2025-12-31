@@ -73,8 +73,8 @@ interface TestResultInput {
 interface UploadedFile {
   id: string;
   file: File;
-  testId: string; // Required - always associate with specific test
-  testName: string; // Required - for display and organization
+  testId: string;
+  testName: string;
 }
 
 interface TestNewProps {
