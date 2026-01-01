@@ -283,7 +283,7 @@ const VisitsTable: React.FC<VisitsTableProps> = ({
 
     // Always navigate to examination tab for New visits
     if (visit.visit_type === 'New') {
-      navigate('/examinations', {
+      navigate('/triage/examinations', {
         state: {
           patient: patient,
           consultation_id: consultationId,

@@ -178,7 +178,7 @@ export const PATIENTDETILES_TABS_TWO: TabItem[] = [
   },
   {
     label: 'Optical',
-    path: '/optical',
+    path: '/opticals',
   },
 ];
 
