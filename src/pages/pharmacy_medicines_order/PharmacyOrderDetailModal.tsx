@@ -22,6 +22,7 @@ import {
   styled,
   Checkbox,
   FormControlLabel,
+  TextField,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
@@ -35,6 +36,7 @@ interface OrderItem {
   total_price: string;
   status: string | number;
   default_code: string;
+  is_payment_completed: any;
 }
 
 interface PharmacyOrder {
@@ -55,6 +57,7 @@ interface PharmacyOrderDetailModalProps {
   order: PharmacyOrder | null;
   loading: boolean;
   error: string | null;
+  onResultSubmit?: () => void;
 }
 
 // Styled component for print-only content
@@ -78,8 +81,53 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
   order,
   loading,
   error,
+  onResultSubmit,
 }) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [results, setResults] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleResultChange = (itemId: string, value: string) => {
+    setResults(prev => ({ ...prev, [itemId]: value }));
+  };
+
+  const handleSubmitResults = async () => {
+    if (!order) return;
+    try {
+      setSubmitting(true);
+      setSubmitError(null);
+      
+      // We'll follow the pattern of LaboratoryService.createPharmacyMedicinesOrder
+      // but targeting a new (assumed) endpoint for results
+      const resultsToSubmit = Object.entries(results)
+        .filter(([itemId, result]) => {
+          const item = order.items.find(i => i.id === itemId);
+          const isPaid = item?.is_payment_completed === '1';
+          return result.trim() !== '' && isPaid;
+        })
+        .map(([itemId, result]) => ({
+          order_item_id: itemId,
+          result: result
+        }));
+
+      if (resultsToSubmit.length === 0) {
+        setSubmitError("Please enter results for paid items");
+        setSubmitting(false);
+        return;
+      }
+
+      // Placeholder for actual result submission service call
+      // await LaboratoryService.submitPharmacyResults(resultsToSubmit);
+      
+      onResultSubmit?.();
+      onClose();
+    } catch (err: any) {
+      setSubmitError(err.response?.data?.message || "Failed to submit results");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -349,6 +397,10 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
           <Alert severity="error" sx={{ mb: 2, '@media print': { display: 'none' } }}>
             {error}
           </Alert>
+        ) : submitError ? (
+          <Alert severity="error" sx={{ mb: 2, '@media print': { display: 'none' } }}>
+            {submitError}
+          </Alert>
         ) : order ? (
           <Box>
             {/* Print-only header */}
@@ -479,10 +531,16 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
                       Price
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      Payment
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                       Status
                     </TableCell>
                     <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                       Quantity
+                    </TableCell>
+                    <TableCell width="200px" sx={{ fontWeight: 'bold' }}>
+                      Result
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                       Total
@@ -508,6 +566,14 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
                       </TableCell>
                       <TableCell align="right">Birr {parseFloat(item.price).toFixed(2)}</TableCell>
                       <TableCell align="right">
+                        <Chip
+                          label={item.is_payment_completed === '1' ? 'Paid' : 'Unpaid'}
+                          size="small"
+                          color={item.is_payment_completed === '1' ? 'success' : 'error'}
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell align="right">
                         <Chip size="small" {...getStatusChip(item.status)} />
                       </TableCell>
                       <TableCell align="center">
@@ -515,6 +581,23 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
                           <Chip label={item.quantity} size="small" variant="outlined" />
                         </ScreenOnlyContent>
                         <PrintOnlyContent>{item.quantity}</PrintOnlyContent>
+                      </TableCell>
+                      <TableCell>
+                        <ScreenOnlyContent>
+                          <TextField
+                            size="small"
+                            fullWidth
+                            placeholder={item.is_payment_completed === '1' ? "Enter result..." : "Payment pending"}
+                            value={results[item.id] || ''}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleResultChange(item.id, e.target.value)}
+                            disabled={item.is_payment_completed !== '1' || submitting}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                backgroundColor: item.is_payment_completed !== '1' ? 'rgba(0,0,0,0.04)' : 'transparent'
+                              }
+                            }}
+                          />
+                        </ScreenOnlyContent>
                       </TableCell>
                       <TableCell align="right" sx={{ fontWeight: 'medium' }}>
                         Birr {parseFloat(item.total_price).toFixed(2)}
@@ -587,10 +670,20 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
                 onClick={handlePrint}
                 variant="outlined"
                 size="small"
-                disabled={order?.items.length === 0}
+                disabled={order?.items.length === 0 || submitting}
                 sx={{ mr: 1 }}
               >
                 Print {selectedItems.length > 0 ? 'Selected' : 'All'}
+              </Button>
+              <Button
+                onClick={handleSubmitResults}
+                variant="contained"
+                size="small"
+                color="success"
+                disabled={submitting || Object.keys(results).length === 0}
+                sx={{ mr: 1 }}
+              >
+                {submitting ? <CircularProgress size={20} color="inherit" /> : 'Give Result'}
               </Button>
               <Button onClick={onClose} variant="contained" size="small">
                 Close

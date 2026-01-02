@@ -105,6 +105,7 @@ interface LocalOrderItem {
   total_price: string;
   status: string;
   default_code: string;
+  is_payment_completed: any;
 }
 
 interface PaginationState {
@@ -275,7 +276,7 @@ const PharmacyTodayCases: React.FC = () => {
     }, 0);
 
     // Transform items
-    const items: LocalOrderItem[] = orderItems.map(item => ({
+    const items: LocalOrderItem[] = orderItems.map((item: any) => ({
       id: item.id,
       medicine_id: item.medicine_id,
       name: item.medicine.name,
@@ -286,6 +287,13 @@ const PharmacyTodayCases: React.FC = () => {
       ).toFixed(2),
       status: item.medicine.status,
       default_code: item.medicine.default_code,
+      is_payment_completed:
+        String(item.is_payment_completed) === '1' ||
+        item.is_payment_completed === 1 ||
+        item.is_payment_completed === true ||
+        String(item.is_payment_completed).toLowerCase() === 'true'
+          ? '1'
+          : '0',
     }));
 
     // Get the most recent order date
@@ -303,7 +311,13 @@ const PharmacyTodayCases: React.FC = () => {
       patient_name: patient.full_name,
       order_number: `ORD-${patient.emr_number}`,
       total_amount: totalAmount.toFixed(2),
-      status: orderItems.some(item => item.is_payment_completed === '1')
+      status: orderItems.some(
+        (item: any) =>
+          item.is_payment_completed === '1' ||
+          item.is_payment_completed === 1 ||
+          item.is_payment_completed === true ||
+          String(item.is_payment_completed).toLowerCase() === 'true'
+      )
         ? 'completed'
         : orderItems.length > 0
           ? 'pending'
@@ -798,6 +812,7 @@ const PharmacyTodayCases: React.FC = () => {
         order={selectedOrder}
         loading={orderLoading}
         error={orderError}
+        onResultSubmit={fetchPharmacyPatients}
       />
 
       <ToastContainer position="top-right" autoClose={3000} />

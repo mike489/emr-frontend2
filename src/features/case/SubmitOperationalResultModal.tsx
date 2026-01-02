@@ -26,7 +26,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Avatar,
   ListItemButton,
 } from '@mui/material';
 import {
@@ -171,10 +170,10 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
     return result ? result.result : '';
   };
 
-  const hasPendingTests = () => {
-    const tests = getAllTests();
-    return tests.some(test => !test.result);
-  };
+  // const hasPendingTests = () => {
+  //   const tests = getAllTests();
+  //   return tests.some(test => !test.result);
+  // };
 
   const canSubmitResults = () => {
     return testResults.length > 0 || uploadedFiles.length > 0;
@@ -381,8 +380,16 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
 
       <DialogContent>
         <Box sx={{ mt: 2 }}>
-          {success && <Alert severity="success" sx={{ mb: 2 }}>Results submitted successfully!</Alert>}
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Results submitted successfully!
+            </Alert>
+          )}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
           <input
             type="file"
@@ -407,18 +414,24 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           ) : labTests.length === 0 ? (
             <Box textAlign="center" sx={{ py: 4 }}>
               <Science sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-              <Typography variant="h6" color="textSecondary">No Operations Found</Typography>
+              <Typography variant="h6" color="textSecondary">
+                No Operations Found
+              </Typography>
             </Box>
           ) : (
             <Box>
               {/* Completed Tests with Files */}
               {getCompletedTestsWithFiles().length > 0 && (
                 <Box mb={3}>
-                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Completed Operations with Files</Typography>
+                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                    Completed Operations with Files
+                  </Typography>
                   <Box display="flex" flexWrap="wrap" gap={2}>
                     {getCompletedTestsWithFiles().map(test => (
                       <Paper key={test.id} variant="outlined" sx={{ p: 1.5, minWidth: 200 }}>
-                        <Typography variant="body2" fontWeight="bold">{getTestDisplayName(test)}</Typography>
+                        <Typography variant="body2" fontWeight="bold">
+                          {getTestDisplayName(test)}
+                        </Typography>
                         <Button
                           size="small"
                           startIcon={<Visibility />}
@@ -443,9 +456,17 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                   return (
                     <Accordion key={idx} defaultExpanded sx={{ mb: 2 }}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                          <Typography variant="subtitle1" fontWeight="bold">{group.group_name}</Typography>
-                          <Chip label={`${group.tests.filter(t => !t.result).length} pending`} size="small" color="warning" />
+                        <Box
+                          sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}
+                        >
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {group.group_name}
+                          </Typography>
+                          <Chip
+                            label={`${group.tests.filter(t => !t.result).length} pending`}
+                            size="small"
+                            color="warning"
+                          />
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails>
@@ -469,25 +490,34 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                   <TableRow key={test.id} sx={{ opacity: hasRes ? 0.7 : 1 }}>
                                     <TableCell>{getTestDisplayName(test)}</TableCell>
                                     <TableCell>
-                                      <Chip label={isPaid ? 'Paid' : 'Unpaid'} size="small" color={isPaid ? 'success' : 'error'} />
+                                      <Chip
+                                        label={isPaid ? 'Paid' : 'Unpaid'}
+                                        size="small"
+                                        color={isPaid ? 'success' : 'error'}
+                                      />
                                     </TableCell>
                                     <TableCell>
                                       <Box display="flex" alignItems="center" gap={1}>
                                         <Button
                                           size="small"
                                           startIcon={<AttachFile />}
-                                          onClick={() => handleUploadForTest(test.id, getTestDisplayName(test))}
+                                          onClick={() =>
+                                            handleUploadForTest(test.id, getTestDisplayName(test))
+                                          }
                                           disabled={submitting || !isPaid || hasRes}
-                                          variant={testFiles.length > 0 ? "contained" : "outlined"}
-                                          color={testFiles.length > 0 ? "success" : "primary"}
+                                          variant={testFiles.length > 0 ? 'contained' : 'outlined'}
+                                          color={testFiles.length > 0 ? 'success' : 'primary'}
                                         >
                                           {testFiles.length > 0 ? `${testFiles.length}` : 'Upload'}
                                         </Button>
                                         {test.files && test.files.length > 0 && (
-                                          <IconButton size="small" onClick={() => {
-                                            setViewingFiles(test.files || null);
-                                            setViewDialogTestName(getTestDisplayName(test));
-                                          }}>
+                                          <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                              setViewingFiles(test.files || null);
+                                              setViewDialogTestName(getTestDisplayName(test));
+                                            }}
+                                          >
                                             <Visibility fontSize="small" />
                                           </IconButton>
                                         )}
@@ -500,15 +530,23 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                         <TextField
                                           fullWidth
                                           size="small"
-                                          placeholder={isPaid ? "Enter result..." : "Payment required"}
+                                          placeholder={
+                                            isPaid ? 'Enter result...' : 'Payment required'
+                                          }
                                           value={getResultValue(test.id)}
-                                          onChange={e => handleResultChange(test.id, e.target.value)}
+                                          onChange={e =>
+                                            handleResultChange(test.id, e.target.value)
+                                          }
                                           disabled={submitting || !isPaid}
                                         />
                                       )}
                                     </TableCell>
                                     <TableCell>
-                                      <Chip label={getTestStatus(test).status} size="small" color={getTestStatus(test).color} />
+                                      <Chip
+                                        label={getTestStatus(test).status}
+                                        size="small"
+                                        color={getTestStatus(test).color}
+                                      />
                                     </TableCell>
                                   </TableRow>
                                 );
@@ -541,25 +579,34 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                           <TableRow key={test.id} sx={{ opacity: hasRes ? 0.7 : 1 }}>
                             <TableCell>{getTestDisplayName(test)}</TableCell>
                             <TableCell>
-                              <Chip label={isPaid ? 'Paid' : 'Unpaid'} size="small" color={isPaid ? 'success' : 'error'} />
+                              <Chip
+                                label={isPaid ? 'Paid' : 'Unpaid'}
+                                size="small"
+                                color={isPaid ? 'success' : 'error'}
+                              />
                             </TableCell>
                             <TableCell>
                               <Box display="flex" alignItems="center" gap={1}>
                                 <Button
                                   size="small"
                                   startIcon={<AttachFile />}
-                                  onClick={() => handleUploadForTest(test.id, getTestDisplayName(test))}
+                                  onClick={() =>
+                                    handleUploadForTest(test.id, getTestDisplayName(test))
+                                  }
                                   disabled={submitting || !isPaid || hasRes}
-                                  variant={testFiles.length > 0 ? "contained" : "outlined"}
-                                  color={testFiles.length > 0 ? "success" : "primary"}
+                                  variant={testFiles.length > 0 ? 'contained' : 'outlined'}
+                                  color={testFiles.length > 0 ? 'success' : 'primary'}
                                 >
                                   {testFiles.length > 0 ? `${testFiles.length}` : 'Upload'}
                                 </Button>
                                 {test.files && test.files.length > 0 && (
-                                  <IconButton size="small" onClick={() => {
-                                    setViewingFiles(test.files || null);
-                                    setViewDialogTestName(getTestDisplayName(test));
-                                  }}>
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      setViewingFiles(test.files || null);
+                                      setViewDialogTestName(getTestDisplayName(test));
+                                    }}
+                                  >
                                     <Visibility fontSize="small" />
                                   </IconButton>
                                 )}
@@ -572,7 +619,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                 <TextField
                                   fullWidth
                                   size="small"
-                                  placeholder={isPaid ? "Enter result..." : "Payment required"}
+                                  placeholder={isPaid ? 'Enter result...' : 'Payment required'}
                                   value={getResultValue(test.id)}
                                   onChange={e => handleResultChange(test.id, e.target.value)}
                                   disabled={submitting || !isPaid}
@@ -580,7 +627,11 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                               )}
                             </TableCell>
                             <TableCell>
-                              <Chip label={getTestStatus(test).status} size="small" color={getTestStatus(test).color} />
+                              <Chip
+                                label={getTestStatus(test).status}
+                                size="small"
+                                color={getTestStatus(test).color}
+                              />
                             </TableCell>
                           </TableRow>
                         );
@@ -595,17 +646,35 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           {/* New Files List */}
           {uploadedFiles.length > 0 && (
             <Paper sx={{ p: 2, mt: 3, bgcolor: 'action.hover' }}>
-              <Typography variant="subtitle2" fontWeight="bold">New Files to Upload</Typography>
+              <Typography variant="subtitle2" fontWeight="bold">
+                New Files to Upload
+              </Typography>
               <List dense>
                 {uploadedFiles.map(file => (
-                  <ListItem key={file.id} secondaryAction={
-                    <Box>
-                      <IconButton size="small" onClick={() => handleViewLocalFile(file.file)}><Visibility fontSize="small" /></IconButton>
-                      <IconButton size="small" color="error" onClick={() => handleRemoveFile(file.id)}><Delete fontSize="small" /></IconButton>
-                    </Box>
-                  }>
-                    <ListItemIcon><AttachFile fontSize="small" /></ListItemIcon>
-                    <ListItemText primary={file.file.name} secondary={`${file.testName} • ${formatFileSize(file.file.size)}`} />
+                  <ListItem
+                    key={file.id}
+                    secondaryAction={
+                      <Box>
+                        <IconButton size="small" onClick={() => handleViewLocalFile(file.file)}>
+                          <Visibility fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleRemoveFile(file.id)}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    }
+                  >
+                    <ListItemIcon>
+                      <AttachFile fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={file.file.name}
+                      secondary={`${file.testName} • ${formatFileSize(file.file.size)}`}
+                    />
                   </ListItem>
                 ))}
               </List>
@@ -615,7 +684,9 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>Cancel</Button>
+        <Button onClick={onClose} disabled={submitting}>
+          Cancel
+        </Button>
         <Button
           onClick={handleSubmitResults}
           variant="contained"
@@ -642,7 +713,9 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
             ))}
           </List>
         </DialogContent>
-        <DialogActions><Button onClick={() => setViewingFiles(null)}>Close</Button></DialogActions>
+        <DialogActions>
+          <Button onClick={() => setViewingFiles(null)}>Close</Button>
+        </DialogActions>
       </Dialog>
     </Dialog>
   );
