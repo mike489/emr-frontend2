@@ -39,8 +39,10 @@ import {
   PictureAsPdf,
   Description,
   InsertDriveFile,
+  Visibility,
 } from '@mui/icons-material';
 import { LaboratoryService } from '../../shared/api/services/laboratory.service';
+
 interface LabTestFile {
   uuid: string;
   url: string;
@@ -97,13 +99,15 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [viewingFiles, setViewingFiles] = useState<LabTestFile[] | null>(null);
+  const [viewDialogTestName, setViewDialogTestName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getCompletedTestsWithFiles = () => {
-    return labTests.flatMap(group =>
-      group.tests.filter(test => test.files && test.files.length > 0)
-    );
-  };
+  // const getCompletedTestsWithFiles = () => {
+  //   return labTests.flatMap(group =>
+  //     group.tests.filter(test => test.files && test.files.length > 0)
+  //   );
+  // };
 
   // Fetch laboratory tests when modal opens
   useEffect(() => {
@@ -153,14 +157,19 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
   };
 
   const hasPendingTests = () => {
-    return labTests.some(group =>
-      group.tests.some(test => !test.result && test.is_payment_completed)
+    return labTests.some(
+      group => group.tests.some(test => !test.result) // Show ALL tests without results
     );
   };
 
   const canSubmitResults = () => {
-    // Allow submission if there are any results entered OR files uploaded
-    return testResults.length > 0 || uploadedFiles.length > 0;
+    // Allow submission if there are any pending tests with entered results OR files uploaded
+    const hasResultsForPendingTests = testResults.some(result => {
+      const test = labTests.flatMap(g => g.tests).find(t => t.id === result.id);
+      return test && !test.result; // Only count results for tests that don't have results yet
+    });
+
+    return hasResultsForPendingTests || uploadedFiles.length > 0;
   };
 
   const handleFileUpload = (
@@ -242,8 +251,22 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
   const getFileIcon = (fileType: string) => {
     if (fileType.includes('pdf')) return <PictureAsPdf />;
     if (fileType.includes('word') || fileType.includes('document')) return <Description />;
-    if (fileType.includes('image')) return <Description />; // You can add an image icon if needed
+    if (fileType.includes('image')) return <Description />;
     return <InsertDriveFile />;
+  };
+
+  const handleViewFile = (url: string) => {
+    if (!url) return;
+    // Check if URL is already absolute
+    const absoluteUrl = url.startsWith('http') ? url : `${import.meta.env.VITE_EMS_URL}/${url}`;
+    window.open(absoluteUrl, '_blank');
+  };
+
+  const handleViewLocalFile = (file: File) => {
+    const url = URL.createObjectURL(file);
+    window.open(url, '_blank');
+    // We don't revoke here because it might be needed again, 
+    // but in a real app you'd manage these URLs.
   };
 
   const formatFileSize = (bytes: number) => {
@@ -272,46 +295,34 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
       setSubmitting(true);
       setError(null);
 
-      const formData = new FormData();
+      // Filter for tests that actually have something to submit
+      const testsToSubmit = labTests
+        .flatMap(group => group.tests)
+        .filter(test => {
+          const hasResult = testResults.find(r => r.id === test.id)?.result?.trim();
+          const hasFiles = uploadedFiles.filter(f => f.testId === test.id).length > 0;
+          return !test.result && (hasResult || hasFiles); // Only submit if test doesn't have result yet AND has new data
+        });
 
-      // Build patient_tests array
-      const testsPayload = labTests
-        .flatMap(group =>
-          group.tests.map(test => {
-            const result = testResults.find(r => r.id === test.id)?.result;
-            const files = uploadedFiles.filter(f => f.testId === test.id);
-
-            if (!result?.trim() && files.length === 0) {
-              return null; // skip empty test
-            }
-
-            return {
-              id: test.id,
-              result: result?.trim(),
-              files,
-            };
-          })
-        )
-        .filter(Boolean) as {
-        id: string;
-        result?: string;
-        files: { file: File }[];
-      }[];
-
-      if (testsPayload.length === 0) {
-        setError('Please enter a result or upload files');
+      if (testsToSubmit.length === 0) {
+        setError('Please enter results or upload files for pending tests');
         return;
       }
 
-      // Append to FormData
-      testsPayload.forEach((test, testIndex) => {
+      const formData = new FormData();
+
+      // Build patient_tests array
+      testsToSubmit.forEach((test, testIndex) => {
+        const result = testResults.find(r => r.id === test.id)?.result;
+        const files = uploadedFiles.filter(f => f.testId === test.id);
+
         formData.append(`patient_tests[${testIndex}][id]`, test.id);
 
-        if (test.result) {
-          formData.append(`patient_tests[${testIndex}][result]`, test.result);
+        if (result?.trim()) {
+          formData.append(`patient_tests[${testIndex}][result]`, result.trim());
         }
 
-        test.files.forEach((fileObj, fileIndex) => {
+        files.forEach((fileObj, fileIndex) => {
           formData.append(`patient_tests[${testIndex}][files][${fileIndex}]`, fileObj.file);
         });
       });
@@ -344,7 +355,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
     if (test.result) return { status: 'Completed', color: 'success' as const };
     if (test.is_payment_completed)
       return { status: 'Ready for Results', color: 'warning' as const };
-    return { status: 'Payment Pending', color: 'error' as const };
+    return { status: 'Payment Required', color: 'error' as const };
   };
 
   const handleUploadForTest = (testId: string, testName: string) => {
@@ -430,87 +441,19 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
             </Box>
           )}
 
-          {/* No Pending Tests State */}
-          {/* {!loading && labTests.length > 0 && !hasPendingTests() && (
-            <Box textAlign="center" sx={{ py: 4 }}>
-              <CheckCircle sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
-              <Typography variant="h6" color="textSecondary" gutterBottom>
-                All Tests Completed
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                All laboratory tests have been completed for this patient.
-              </Typography>
-            </Box>
-          )} */}
-
-          {/* No Pending Tests State – Show Completed Files */}
-          {!loading && labTests.length > 0 && !hasPendingTests() && (
-            <Box>
-              {/* Header */}
-              <Box display="flex" alignItems="center" justifyContent="center" gap={1} mb={2}>
-                <CheckCircle fontSize="small" color="success" />
-                <Typography variant="subtitle1" fontWeight={500}>
-                  All Tests Completed
-                </Typography>
-              </Box>
-
-              {/* Files */}
-              <Box>
-                {getCompletedTestsWithFiles().map(test => (
-                  <Box key={test.id} mb={2}>
-                    {/* Test name */}
-                    <Typography variant="body2" fontWeight={600} color="text.primary" mb={0.5}>
-                      {test.test}
-                    </Typography>
-
-                    {/* Files list */}
-                    <List dense disablePadding>
-                      {test.files!.map(file => (
-                        <ListItem key={file.uuid} disablePadding sx={{ mb: 0.25 }}>
-                          <ListItemButton
-                            component="a"
-                            href={file.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                              px: 1,
-                              py: 0.5,
-                              borderRadius: 1,
-                            }}
-                          >
-                            <ListItemIcon sx={{ minWidth: 28 }}>
-                              {getFileIcon(file.mime_type)}
-                            </ListItemIcon>
-
-                            <ListItemText
-                              primary={
-                                <Typography variant="body2">{file.url.split('/').pop()}</Typography>
-                              }
-                              secondary={
-                                <Typography variant="caption" color="text.secondary">
-                                  {file.mime_type}
-                                </Typography>
-                              }
-                            />
-                          </ListItemButton>
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          )}
-
-          {/* Laboratory Tests List */}
-          {!loading && hasPendingTests() && (
+          {/* Laboratory Tests List - Shows ALL tests (both with and without results) */}
+          {!loading && labTests.length > 0 && (
             <Box>
               {labTests.map((group, groupIndex) => {
-                const pendingTests = group.tests.filter(
-                  test => !test.result && test.is_payment_completed
-                );
+                const allTests = group.tests;
+                const pendingTests = group.tests.filter(test => !test.result);
+                const completedTests = group.tests.filter(test => test.result);
 
-                if (pendingTests.length === 0) return null;
+                if (allTests.length === 0) return null;
+
+                // Count tests by payment status for better display
+                const unpaidTests = pendingTests.filter(test => !test.is_payment_completed).length;
+                const paidTests = pendingTests.filter(test => test.is_payment_completed).length;
 
                 return (
                   <Accordion key={groupIndex} defaultExpanded sx={{ mb: 2 }}>
@@ -521,23 +464,49 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                             {group.group_name}
                           </Typography>
                           <Box display="flex" alignItems="center" gap={1}>
-                            <Chip
-                              label={`${pendingTests.length} pending`}
-                              size="small"
-                              color="warning"
-                              variant="outlined"
-                            />
-                            <Chip
-                              label={`${
-                                pendingTests.filter(
-                                  test =>
-                                    testResults.some(tr => tr.id === test.id) ||
-                                    getFilesForTest(test.id).length > 0
-                                ).length
-                              } selected`}
-                              size="small"
-                              color="primary"
-                            />
+                            {pendingTests.length > 0 && (
+                              <Chip
+                                label={`${pendingTests.length} pending`}
+                                size="small"
+                                color="warning"
+                                variant="outlined"
+                              />
+                            )}
+                            {completedTests.length > 0 && (
+                              <Chip
+                                label={`${completedTests.length} completed`}
+                                size="small"
+                                color="success"
+                              />
+                            )}
+                            {unpaidTests > 0 && (
+                              <Chip
+                                label={`${unpaidTests} need payment`}
+                                size="small"
+                                color="error"
+                              />
+                            )}
+                            {paidTests > 0 && (
+                              <Chip
+                                label={`${paidTests} ready`}
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                              />
+                            )}
+                            {pendingTests.length > 0 && (
+                              <Chip
+                                label={`${
+                                  pendingTests.filter(
+                                    test =>
+                                      testResults.some(tr => tr.id === test.id) ||
+                                      getFilesForTest(test.id).length > 0
+                                  ).length
+                                } in progress`}
+                                size="small"
+                                color="primary"
+                              />
+                            )}
                           </Box>
                         </Box>
                       </Box>
@@ -548,6 +517,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                           <TableHead>
                             <TableRow>
                               <TableCell>Test Name</TableCell>
+                              <TableCell>Payment Status</TableCell>
                               <TableCell>File Upload</TableCell>
                               <TableCell width="250px">Result</TableCell>
                               <TableCell>Status</TableCell>
@@ -557,16 +527,19 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                           <TableBody>
                             {group.tests.map((test, testIndex) => {
                               const status = getTestStatus(test);
-                              const canEnterResult = !test.result && test.is_payment_completed;
+                              const canEnterResult = !test.result; // Allow entry for tests without results
                               const isSelected = testResults.some(tr => tr.id === test.id);
                               const testFiles = getFilesForTest(test.id);
                               const hasFiles = testFiles.length > 0;
+                              const isPaid = test.is_payment_completed;
+                              const hasExistingResult = !!test.result;
+                              const hasExistingFiles = test.files && test.files.length > 0;
 
                               return (
                                 <TableRow
                                   key={testIndex}
                                   sx={{
-                                    opacity: test.result ? 0.7 : 1,
+                                    opacity: hasExistingResult ? 0.8 : 1,
                                     backgroundColor:
                                       isSelected || hasFiles ? 'action.selected' : 'transparent',
                                     '&:hover': {
@@ -578,17 +551,82 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                                     <Typography
                                       variant="body2"
                                       fontWeight={canEnterResult ? 'bold' : 'normal'}
+                                      color={
+                                        !isPaid && !hasExistingResult
+                                          ? 'text.secondary'
+                                          : 'text.primary'
+                                      }
                                     >
                                       {test.test}
+                                      {!isPaid && !hasExistingResult && (
+                                        <Typography
+                                          variant="caption"
+                                          color="error"
+                                          display="block"
+                                          sx={{ fontStyle: 'italic' }}
+                                        >
+                                          Payment required
+                                        </Typography>
+                                      )}
+                                      {hasExistingFiles && (
+                                        <Typography
+                                          variant="caption"
+                                          color="primary"
+                                          display="block"
+                                        >
+                                          {test.files!.length} existing file(s)
+                                        </Typography>
+                                      )}
+                                      {hasFiles && (
+                                        <Typography
+                                          variant="caption"
+                                          color="secondary"
+                                          display="block"
+                                        >
+                                          {testFiles.length} new file(s) to upload
+                                        </Typography>
+                                      )}
                                     </Typography>
-                                    {hasFiles && (
-                                      <Typography variant="caption" color="primary" display="block">
-                                        {testFiles.length} file(s) uploaded for this test
-                                      </Typography>
-                                    )}
                                   </TableCell>
+
                                   <TableCell>
-                                    {canEnterResult && (
+                                    <Chip
+                                      label={isPaid ? 'Paid' : 'Unpaid'}
+                                      size="small"
+                                      color={isPaid ? 'success' : 'error'}
+                                      variant={isPaid ? 'filled' : 'outlined'}
+                                    />
+                                  </TableCell>
+
+                                  <TableCell>
+                                    {hasExistingResult ? (
+                                      // Show existing files if test is completed
+                                      hasExistingFiles ? (
+                                        <Box>
+                                          <Button
+                                            size="small"
+                                            startIcon={<Visibility />}
+                                            onClick={() => {
+                                              if (test.files && test.files.length === 1) {
+                                                handleViewFile(test.files[0].url);
+                                              } else if (test.files && test.files.length > 1) {
+                                                setViewingFiles(test.files);
+                                                setViewDialogTestName(test.test);
+                                              }
+                                            }}
+                                            variant="outlined"
+                                            color="primary"
+                                          >
+                                            View Files ({test.files!.length})
+                                          </Button>
+                                        </Box>
+                                      ) : (
+                                        <Typography variant="caption" color="textSecondary">
+                                          No files
+                                        </Typography>
+                                      )
+                                    ) : canEnterResult ? (
+                                      // Allow upload for pending tests
                                       <Button
                                         size="small"
                                         startIcon={<AttachFile />}
@@ -596,17 +634,55 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                                         disabled={submitting}
                                         variant={hasFiles ? 'contained' : 'outlined'}
                                         color={hasFiles ? 'success' : 'primary'}
+                                        sx={{
+                                          opacity: !isPaid ? 0.7 : 1,
+                                          '&:disabled': { opacity: 0.5 },
+                                        }}
                                       >
                                         {hasFiles ? `${testFiles.length} File(s)` : 'Upload File'}
                                       </Button>
-                                    )}
+                                    ) : null}
                                   </TableCell>
+
                                   <TableCell>
-                                    {canEnterResult ? (
+                                    {hasExistingResult ? (
+                                      // Show existing result for completed tests
+                                      <Box>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            fontFamily: 'monospace',
+                                            backgroundColor: 'white',
+                                            px: 1,
+                                            py: 0.5,
+                                            borderRadius: 1,
+                                            border: '1px solid #e0e0e0',
+                                            color: 'success.dark',
+                                            fontWeight: 'medium',
+                                          }}
+                                        >
+                                          {test.result}
+                                        </Typography>
+                                        {test.technician && (
+                                          <Typography
+                                            variant="caption"
+                                            color="textSecondary"
+                                            display="block"
+                                          >
+                                            By: {test.technician}
+                                          </Typography>
+                                        )}
+                                      </Box>
+                                    ) : canEnterResult ? (
+                                      // Allow editing for pending tests
                                       <TextField
                                         fullWidth
                                         size="small"
-                                        placeholder="Enter test result (optional)..."
+                                        placeholder={
+                                          isPaid
+                                            ? 'Enter test result...'
+                                            : 'Enter result (payment pending)...'
+                                        }
                                         value={getResultValue(test.id)}
                                         onChange={e => handleResultChange(test.id, e.target.value)}
                                         disabled={submitting}
@@ -618,27 +694,39 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                                             );
                                           }
                                         }}
+                                        sx={{
+                                          '& .MuiOutlinedInput-root': {
+                                            backgroundColor: !isPaid
+                                              ? 'rgba(255, 0, 0, 0.04)'
+                                              : 'transparent',
+                                            borderColor: !isPaid
+                                              ? 'rgba(255, 0, 0, 0.2)'
+                                              : undefined,
+                                          },
+                                        }}
                                       />
                                     ) : (
                                       <Typography
                                         variant="body2"
                                         sx={{
-                                          fontFamily: test.result ? 'monospace' : 'inherit',
-                                          backgroundColor: test.result ? 'white' : 'transparent',
-                                          px: test.result ? 1 : 0,
-                                          py: test.result ? 0.5 : 0,
-                                          borderRadius: test.result ? 1 : 0,
-                                          border: test.result ? '1px solid #e0e0e0' : 'none',
+                                          fontStyle: 'italic',
+                                          color: 'text.secondary',
                                         }}
                                       >
-                                        {test.result || 'N/A'}
+                                        N/A
                                       </Typography>
                                     )}
                                   </TableCell>
 
                                   <TableCell>
-                                    <Chip label={status.status} color={status.color} size="small" />
+                                    <Chip
+                                      label={status.status}
+                                      color={status.color}
+                                      size="small"
+                                      variant={hasExistingResult ? 'filled' : 'outlined'}
+                                    />
                                   </TableCell>
+
                                   <TableCell>
                                     <Typography variant="body2">{test.created_at}</Typography>
                                   </TableCell>
@@ -660,7 +748,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
             <Paper sx={{ p: 2, mb: 3 }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6" color="primary">
-                  Uploaded Files ({uploadedFiles.length})
+                  New Files to Upload ({uploadedFiles.length})
                 </Typography>
                 <Typography variant="caption" color="textSecondary">
                   Files will be organized in: patient_tests/test_id/
@@ -675,7 +763,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                     sx={{ mb: 3, border: '1px solid #e0e0e0', borderRadius: 1, p: 2 }}
                   >
                     <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
-                      {test?.test || 'Unknown Test'} ({files.length} file(s))
+                      {test?.test || 'Unknown Test'} ({files.length} new file(s))
                       <Typography variant="caption" color="textSecondary" sx={{ ml: 2 }}>
                         Test ID: {testId}
                       </Typography>
@@ -685,14 +773,25 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
                         <ListItem
                           key={file.id}
                           secondaryAction={
-                            <IconButton
-                              edge="end"
-                              aria-label="delete"
-                              onClick={() => handleRemoveFile(file.id)}
-                              disabled={submitting}
-                            >
-                              <Delete />
-                            </IconButton>
+                            <Box display="flex" gap={1}>
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => handleViewLocalFile(file.file)}
+                                title="View file"
+                              >
+                                <Visibility />
+                              </IconButton>
+                              <IconButton
+                                edge="end"
+                                aria-label="delete"
+                                onClick={() => handleRemoveFile(file.id)}
+                                disabled={submitting}
+                                color="error"
+                              >
+                                <Delete />
+                              </IconButton>
+                            </Box>
                           }
                         >
                           <ListItemIcon>
@@ -726,6 +825,42 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
             </Paper>
           )}
         </Box>
+
+        {/* Existing Files Viewer Dialog */}
+        <Dialog
+          open={Boolean(viewingFiles)}
+          onClose={() => setViewingFiles(null)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">Files for {viewDialogTestName}</Typography>
+              <IconButton onClick={() => setViewingFiles(null)} size="small">
+                <Close />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers>
+            <List>
+              {viewingFiles?.map((file, index) => (
+                <ListItem key={file.uuid || index} disablePadding>
+                  <ListItemButton onClick={() => handleViewFile(file.url)}>
+                    <ListItemIcon>{getFileIcon(file.mime_type)}</ListItemIcon>
+                    <ListItemText
+                      primary={`File ${index + 1}`}
+                      secondary={file.mime_type}
+                    />
+                    <Visibility color="action" />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setViewingFiles(null)}>Close</Button>
+          </DialogActions>
+        </Dialog>
       </DialogContent>
 
       <DialogActions>
@@ -742,7 +877,7 @@ const SubmitLaboratoriesResultModal: React.FC<SubmitLaboratoriesResultModalProps
           >
             {submitting
               ? 'Uploading... (This may take a minute)'
-              : `Submit (${testResults.length} text + ${uploadedFiles.length} files)`}
+              : `Submit Results (${testResults.length} text + ${uploadedFiles.length} files)`}
           </Button>
         )}
       </DialogActions>

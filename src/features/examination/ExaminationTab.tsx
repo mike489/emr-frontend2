@@ -1,4 +1,4 @@
-import { Box, Container } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 import ExaminationForm from './ExaminationForm';
 import ExaminationDataPrint from './ExaminationDataPrint';
 import { usePatientDetailsState } from '../../contexts/PatientContext';
@@ -26,16 +26,28 @@ const ExaminationTab = () => {
       return <div>No consultation data available</div>;
     }
 
-    if (visit_type === 'New' && isLocked === true) {
+    const normalizedVisitType = visit_type?.toLowerCase();
+    const isAcceptedVisitType = normalizedVisitType === 'new' || normalizedVisitType === 'follow up' || !visit_type;
+
+    if (isAcceptedVisitType && isLocked === true) {
       return <ExaminationDataPrint consultationId={consultation_id} />;
     }
 
-    if (visit_type === 'New' && isLocked === false) {
+    if (isAcceptedVisitType && isLocked === false) {
       return <ExaminationForm consultationId={consultation_id} />;
     }
 
     // Fallback
-    return <div>Invalid visit type or status</div>;
+    return (
+      <Box sx={{ p: 3, textAlign: 'center' }}>
+        <Typography color="error" variant="h6">
+          Invalid visit type or status
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Visit Type: {visit_type || 'N/A'} | Status: {isLocked ? 'Locked' : 'Unlocked'}
+        </Typography>
+      </Box>
+    );
   };
 
   return (

@@ -39,6 +39,7 @@ import {
   PictureAsPdf,
   Description,
   InsertDriveFile,
+  Visibility,
 } from '@mui/icons-material';
 import { OperationalService } from '../../shared/api/services/operations.service';
 
@@ -99,6 +100,8 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [viewingFiles, setViewingFiles] = useState<LabTestFile[] | null>(null);
+  const [viewDialogTestName, setViewDialogTestName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Helper to check if data is in grouped format
@@ -118,7 +121,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   };
 
   const getCompletedTestsWithFiles = () => {
-    return getAllTests().filter(test => test.files && test.files.length > 0);
+    return getAllTests().filter(test => test.files && test.files.length > 0 && !!test.result);
   };
 
   // Fetch laboratory tests when modal opens
@@ -170,12 +173,10 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
 
   const hasPendingTests = () => {
     const tests = getAllTests();
-    // Consider any test without a result as pending (regardless of payment status)
     return tests.some(test => !test.result);
   };
 
   const canSubmitResults = () => {
-    // Allow submission if there are any results entered OR files uploaded
     return testResults.length > 0 || uploadedFiles.length > 0;
   };
 
@@ -204,7 +205,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       const file = files[i];
       const fileName = file.name.toLowerCase();
 
-      // Check file extension
       const fileExtension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
       const isValidExtension = allowedExtensions.includes(fileExtension);
       const isValidMimeType = allowedMimeTypes.includes(file.type);
@@ -214,19 +214,16 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
         continue;
       }
 
-      // Validate file size
       if (file.size > maxSize) {
         setError(`File too large: ${file.name}. Maximum size is 10MB.`);
         continue;
       }
 
-      // For .docx files, we need to handle them specially since server doesn't accept them
       if (fileExtension === '.docx') {
         setError('DOCX files are not accepted. Please save as DOC or PDF instead.');
         continue;
       }
 
-      // Create a new File object to ensure it's valid
       const validFile = new File([file], file.name, {
         type: file.type,
         lastModified: file.lastModified,
@@ -245,7 +242,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       setError(null);
     }
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -258,8 +254,19 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   const getFileIcon = (fileType: string) => {
     if (fileType.includes('pdf')) return <PictureAsPdf />;
     if (fileType.includes('word') || fileType.includes('document')) return <Description />;
-    if (fileType.includes('image')) return <Description />; // You can add an image icon if needed
+    if (fileType.includes('image')) return <Description />;
     return <InsertDriveFile />;
+  };
+
+  const handleViewFile = (url: string) => {
+    if (!url) return;
+    const absoluteUrl = url.startsWith('http') ? url : `${import.meta.env.VITE_EMS_URL}/${url}`;
+    window.open(absoluteUrl, '_blank');
+  };
+
+  const handleViewLocalFile = (file: File) => {
+    const url = URL.createObjectURL(file);
+    window.open(url, '_blank');
   };
 
   const formatFileSize = (bytes: number) => {
@@ -270,19 +277,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const organizeFilesByTest = () => {
-    const organized: Record<string, UploadedFile[]> = {};
-
-    uploadedFiles.forEach(file => {
-      if (!organized[file.testId]) {
-        organized[file.testId] = [];
-      }
-      organized[file.testId].push(file);
-    });
-
-    return organized;
-  };
-
   const handleSubmitResults = async () => {
     try {
       setSubmitting(true);
@@ -291,14 +285,14 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       const formData = new FormData();
       const tests = getAllTests();
 
-      // Build patient_services array
       const testsPayload = tests
         .map(test => {
-          const result = testResults.find(r => r.id === test.id)?.result;
+          const resultEntry = testResults.find(r => r.id === test.id);
+          const result = resultEntry?.result;
           const files = uploadedFiles.filter(f => f.testId === test.id);
 
           if (!result?.trim() && files.length === 0) {
-            return null; // skip empty test
+            return null;
           }
 
           return {
@@ -310,15 +304,15 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
         .filter(Boolean) as {
         id: string;
         result?: string;
-        files: { file: File }[];
+        files: UploadedFile[];
       }[];
 
       if (testsPayload.length === 0) {
         setError('Please enter a result or upload files');
+        setSubmitting(false);
         return;
       }
 
-      // Append to FormData
       testsPayload.forEach((test, testIndex) => {
         formData.append(`patient_services[${testIndex}][id]`, test.id);
 
@@ -330,11 +324,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           formData.append(`patient_services[${testIndex}][files][${fileIndex}]`, fileObj.file);
         });
       });
-
-      // 🔍 Debug (remove in prod)
-      for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
 
       await OperationalService.createOperationResult(patientId, formData);
 
@@ -349,7 +338,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       }, 1500);
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.message || 'Failed to submit laboratory results');
+      setError(err.response?.data?.message || 'Failed to submit results');
     } finally {
       setSubmitting(false);
     }
@@ -357,27 +346,23 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
 
   const getTestStatus = (test: LabTestResult) => {
     if (test.result) return { status: 'Completed', color: 'success' as const };
-    // Updated: Show "Awaiting Results" for tests without results
     return { status: 'Awaiting Results', color: 'warning' as const };
   };
 
   const handleUploadForTest = (testId: string, testName: string) => {
     if (fileInputRef.current) {
-      // Store the test ID and name in data attributes
       fileInputRef.current.setAttribute('data-test-id', testId);
       fileInputRef.current.setAttribute('data-test-name', testName);
       fileInputRef.current.click();
     }
   };
 
-  // Get files for a specific test
   const getFilesForTest = (testId: string) => {
     return uploadedFiles.filter(file => file.testId === testId);
   };
 
-  // Get test name for display
   const getTestDisplayName = (test: LabTestResult) => {
-    return test.service_name || test.test || 'Unknown Test';
+    return test.service_name || test.test || 'Unknown Operation';
   };
 
   return (
@@ -396,27 +381,13 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
 
       <DialogContent>
         <Box sx={{ mt: 2 }}>
-          {/* Success Alert */}
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Operational results submitted successfully! Files will be organized in
-              patient_services directory.
-            </Alert>
-          )}
+          {success && <Alert severity="success" sx={{ mb: 2 }}>Results submitted successfully!</Alert>}
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-          {/* Error Alert */}
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          {/* Hidden file input */}
           <input
             type="file"
             ref={fileInputRef}
             style={{ display: 'none' }}
-            // Match server requirements: jpg, jpeg, png, svg, pdf, doc
             accept=".jpg,.jpeg,.png,.svg,.pdf,.doc,image/jpeg,image/png,image/svg+xml,application/pdf,application/msword"
             multiple
             onChange={e => {
@@ -428,129 +399,53 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
             }}
           />
 
-          {/* Loading State */}
-          {loading && (
+          {loading ? (
             <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 4 }}>
               <CircularProgress />
-              <Typography sx={{ ml: 2 }}>Loading operational tests...</Typography>
+              <Typography sx={{ ml: 2 }}>Loading operations...</Typography>
             </Box>
-          )}
-
-          {/* No Tests State */}
-          {!loading && labTests.length === 0 && !error && (
+          ) : labTests.length === 0 ? (
             <Box textAlign="center" sx={{ py: 4 }}>
               <Science sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-              <Typography variant="h6" color="textSecondary" gutterBottom>
-                No Operational Tests Found
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                No operational tests requiring results for this patient.
-              </Typography>
+              <Typography variant="h6" color="textSecondary">No Operations Found</Typography>
             </Box>
-          )}
-
-          {/* Show only when ALL tests have results (completed) */}
-          {!loading &&
-            labTests.length > 0 &&
-            getAllTests().length > 0 &&
-            getAllTests().every(test => test.result) && (
-              <Box>
-                {/* Header */}
-                <Box display="flex" alignItems="center" justifyContent="center" gap={1} mb={2}>
-                  <CheckCircle fontSize="small" color="success" />
-                  <Typography variant="subtitle1" fontWeight={500}>
-                    All Tests Completed
-                  </Typography>
-                </Box>
-
-                {/* Files */}
-                <Box>
-                  {getCompletedTestsWithFiles().map(test => (
-                    <Box key={test.id} mb={2}>
-                      {/* Test name */}
-                      <Typography variant="body2" fontWeight={600} color="text.primary" mb={0.5}>
-                        {getTestDisplayName(test)}
-                      </Typography>
-
-                      {/* Files list */}
-                      <List dense disablePadding>
-                        {test.files!.map(file => (
-                          <ListItem key={file.uuid} disablePadding sx={{ mb: 0.25 }}>
-                            <ListItemButton
-                              component="a"
-                              href={file.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              sx={{
-                                px: 1,
-                                py: 0.5,
-                                borderRadius: 1,
-                              }}
-                            >
-                              <ListItemIcon sx={{ minWidth: 28 }}>
-                                {getFileIcon(file.mime_type)}
-                              </ListItemIcon>
-
-                              <ListItemText
-                                primary={
-                                  <Typography variant="body2">
-                                    {file.url.split('/').pop()}
-                                  </Typography>
-                                }
-                                secondary={
-                                  <Typography variant="caption" color="text.secondary">
-                                    {file.mime_type}
-                                  </Typography>
-                                }
-                              />
-                            </ListItemButton>
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            )}
-
-          {/* Operational Tests List - Show when there are pending tests */}
-          {!loading && hasPendingTests() && (
+          ) : (
             <Box>
-              {/* If data is in grouped format */}
+              {/* Completed Tests with Files */}
+              {getCompletedTestsWithFiles().length > 0 && (
+                <Box mb={3}>
+                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Completed Operations with Files</Typography>
+                  <Box display="flex" flexWrap="wrap" gap={2}>
+                    {getCompletedTestsWithFiles().map(test => (
+                      <Paper key={test.id} variant="outlined" sx={{ p: 1.5, minWidth: 200 }}>
+                        <Typography variant="body2" fontWeight="bold">{getTestDisplayName(test)}</Typography>
+                        <Button
+                          size="small"
+                          startIcon={<Visibility />}
+                          onClick={() => {
+                            setViewingFiles(test.files || null);
+                            setViewDialogTestName(getTestDisplayName(test));
+                          }}
+                        >
+                          View {test.files?.length} Files
+                        </Button>
+                      </Paper>
+                    ))}
+                  </Box>
+                </Box>
+              )}
+
+              {/* Pending or Unsubmitted Results */}
               {isGroupedFormat(labTests) ? (
-                labTests.map((group, groupIndex) => {
-                  const pendingTests = group.tests.filter(test => !test.result);
-
-                  if (pendingTests.length === 0) return null;
-
+                labTests.map((group, idx) => {
+                  const hasVisibleTests = group.tests.length > 0;
+                  if (!hasVisibleTests) return null;
                   return (
-                    <Accordion key={groupIndex} defaultExpanded sx={{ mb: 2 }}>
+                    <Accordion key={idx} defaultExpanded sx={{ mb: 2 }}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Box sx={{ width: '100%' }}>
-                          <Box display="flex" justifyContent="space-between" alignItems="center">
-                            <Typography variant="subtitle1" fontWeight="bold">
-                              {group.group_name}
-                            </Typography>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <Chip
-                                label={`${pendingTests.length} pending`}
-                                size="small"
-                                color="warning"
-                                variant="outlined"
-                              />
-                              <Chip
-                                label={`${
-                                  pendingTests.filter(
-                                    test =>
-                                      testResults.some(tr => tr.id === test.id) ||
-                                      getFilesForTest(test.id).length > 0
-                                  ).length
-                                } selected`}
-                                size="small"
-                                color="primary"
-                              />
-                            </Box>
-                          </Box>
+                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="subtitle1" fontWeight="bold">{group.group_name}</Typography>
+                          <Chip label={`${group.tests.filter(t => !t.result).length} pending`} size="small" color="warning" />
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails>
@@ -558,112 +453,62 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                           <Table size="small">
                             <TableHead>
                               <TableRow>
-                                <TableCell>Test Name</TableCell>
-                                <TableCell>File Upload</TableCell>
+                                <TableCell>Operation</TableCell>
+                                <TableCell>Payment</TableCell>
+                                <TableCell>Files</TableCell>
                                 <TableCell width="250px">Result</TableCell>
                                 <TableCell>Status</TableCell>
-                                <TableCell>Requested Date</TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {group.tests.map((test, testIndex) => {
-                                const status = getTestStatus(test);
-                                const canEnterResult = !test.result; // Allow result entry for any test without result
-                                const isSelected = testResults.some(tr => tr.id === test.id);
+                              {group.tests.map(test => {
+                                const isPaid = test.is_payment_completed;
+                                const hasRes = !!test.result;
                                 const testFiles = getFilesForTest(test.id);
-                                const hasFiles = testFiles.length > 0;
-
                                 return (
-                                  <TableRow
-                                    key={testIndex}
-                                    sx={{
-                                      opacity: test.result ? 0.7 : 1,
-                                      backgroundColor:
-                                        isSelected || hasFiles ? 'action.selected' : 'transparent',
-                                      '&:hover': {
-                                        backgroundColor: 'action.hover',
-                                      },
-                                    }}
-                                  >
+                                  <TableRow key={test.id} sx={{ opacity: hasRes ? 0.7 : 1 }}>
+                                    <TableCell>{getTestDisplayName(test)}</TableCell>
                                     <TableCell>
-                                      <Typography
-                                        variant="body2"
-                                        fontWeight={canEnterResult ? 'bold' : 'normal'}
-                                      >
-                                        {getTestDisplayName(test)}
-                                      </Typography>
-                                      {hasFiles && (
-                                        <Typography
-                                          variant="caption"
-                                          color="primary"
-                                          display="block"
-                                        >
-                                          {testFiles.length} file(s) uploaded for this test
-                                        </Typography>
-                                      )}
+                                      <Chip label={isPaid ? 'Paid' : 'Unpaid'} size="small" color={isPaid ? 'success' : 'error'} />
                                     </TableCell>
                                     <TableCell>
-                                      {canEnterResult && (
+                                      <Box display="flex" alignItems="center" gap={1}>
                                         <Button
                                           size="small"
                                           startIcon={<AttachFile />}
-                                          onClick={() =>
-                                            handleUploadForTest(test.id, getTestDisplayName(test))
-                                          }
-                                          disabled={submitting}
-                                          variant={hasFiles ? 'contained' : 'outlined'}
-                                          color={hasFiles ? 'success' : 'primary'}
+                                          onClick={() => handleUploadForTest(test.id, getTestDisplayName(test))}
+                                          disabled={submitting || !isPaid || hasRes}
+                                          variant={testFiles.length > 0 ? "contained" : "outlined"}
+                                          color={testFiles.length > 0 ? "success" : "primary"}
                                         >
-                                          {hasFiles ? `${testFiles.length} File(s)` : 'Upload File'}
+                                          {testFiles.length > 0 ? `${testFiles.length}` : 'Upload'}
                                         </Button>
-                                      )}
+                                        {test.files && test.files.length > 0 && (
+                                          <IconButton size="small" onClick={() => {
+                                            setViewingFiles(test.files || null);
+                                            setViewDialogTestName(getTestDisplayName(test));
+                                          }}>
+                                            <Visibility fontSize="small" />
+                                          </IconButton>
+                                        )}
+                                      </Box>
                                     </TableCell>
                                     <TableCell>
-                                      {canEnterResult ? (
+                                      {hasRes ? (
+                                        <Typography variant="body2">{test.result}</Typography>
+                                      ) : (
                                         <TextField
                                           fullWidth
                                           size="small"
-                                          placeholder="Enter test result (optional)..."
+                                          placeholder={isPaid ? "Enter result..." : "Payment required"}
                                           value={getResultValue(test.id)}
-                                          onChange={e =>
-                                            handleResultChange(test.id, e.target.value)
-                                          }
-                                          disabled={submitting}
-                                          onFocus={() => {
-                                            if (!isSelected) {
-                                              handleResultChange(
-                                                test.id,
-                                                getResultValue(test.id) || ''
-                                              );
-                                            }
-                                          }}
+                                          onChange={e => handleResultChange(test.id, e.target.value)}
+                                          disabled={submitting || !isPaid}
                                         />
-                                      ) : (
-                                        <Typography
-                                          variant="body2"
-                                          sx={{
-                                            fontFamily: test.result ? 'monospace' : 'inherit',
-                                            backgroundColor: test.result ? 'white' : 'transparent',
-                                            px: test.result ? 1 : 0,
-                                            py: test.result ? 0.5 : 0,
-                                            borderRadius: test.result ? 1 : 0,
-                                            border: test.result ? '1px solid #e0e0e0' : 'none',
-                                          }}
-                                        >
-                                          {test.result || 'N/A'}
-                                        </Typography>
                                       )}
                                     </TableCell>
-
                                     <TableCell>
-                                      <Chip
-                                        label={status.status}
-                                        color={status.color}
-                                        size="small"
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Typography variant="body2">{test.created_at}</Typography>
+                                      <Chip label={getTestStatus(test).status} size="small" color={getTestStatus(test).color} />
                                     </TableCell>
                                   </TableRow>
                                 );
@@ -676,242 +521,129 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                   );
                 })
               ) : (
-                /* If data is in flat array format */
-                <Accordion defaultExpanded sx={{ mb: 2 }}>
-                  <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Box sx={{ width: '100%' }}>
-                      <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          Operational Services
-                        </Typography>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Chip
-                            label={`${getAllTests().filter(t => !t.result).length} pending`}
-                            size="small"
-                            color="warning"
-                            variant="outlined"
-                          />
-                          <Chip
-                            label={`${
-                              getAllTests().filter(
-                                test =>
-                                  testResults.some(tr => tr.id === test.id) ||
-                                  getFilesForTest(test.id).length > 0
-                              ).length
-                            } selected`}
-                            size="small"
-                            color="primary"
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Service Name</TableCell>
-                            <TableCell>File Upload</TableCell>
-                            <TableCell width="250px">Result</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Requested Date</TableCell>
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Operation</TableCell>
+                        <TableCell>Payment</TableCell>
+                        <TableCell>Files</TableCell>
+                        <TableCell width="250px">Result</TableCell>
+                        <TableCell>Status</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {getAllTests().map(test => {
+                        const isPaid = test.is_payment_completed;
+                        const hasRes = !!test.result;
+                        const testFiles = getFilesForTest(test.id);
+                        return (
+                          <TableRow key={test.id} sx={{ opacity: hasRes ? 0.7 : 1 }}>
+                            <TableCell>{getTestDisplayName(test)}</TableCell>
+                            <TableCell>
+                              <Chip label={isPaid ? 'Paid' : 'Unpaid'} size="small" color={isPaid ? 'success' : 'error'} />
+                            </TableCell>
+                            <TableCell>
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <Button
+                                  size="small"
+                                  startIcon={<AttachFile />}
+                                  onClick={() => handleUploadForTest(test.id, getTestDisplayName(test))}
+                                  disabled={submitting || !isPaid || hasRes}
+                                  variant={testFiles.length > 0 ? "contained" : "outlined"}
+                                  color={testFiles.length > 0 ? "success" : "primary"}
+                                >
+                                  {testFiles.length > 0 ? `${testFiles.length}` : 'Upload'}
+                                </Button>
+                                {test.files && test.files.length > 0 && (
+                                  <IconButton size="small" onClick={() => {
+                                    setViewingFiles(test.files || null);
+                                    setViewDialogTestName(getTestDisplayName(test));
+                                  }}>
+                                    <Visibility fontSize="small" />
+                                  </IconButton>
+                                )}
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              {hasRes ? (
+                                <Typography variant="body2">{test.result}</Typography>
+                              ) : (
+                                <TextField
+                                  fullWidth
+                                  size="small"
+                                  placeholder={isPaid ? "Enter result..." : "Payment required"}
+                                  value={getResultValue(test.id)}
+                                  onChange={e => handleResultChange(test.id, e.target.value)}
+                                  disabled={submitting || !isPaid}
+                                />
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Chip label={getTestStatus(test).status} size="small" color={getTestStatus(test).color} />
+                            </TableCell>
                           </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {getAllTests().map((test, testIndex) => {
-                            const status = getTestStatus(test);
-                            const canEnterResult = !test.result; // Allow result entry for any test without result
-                            const isSelected = testResults.some(tr => tr.id === test.id);
-                            const testFiles = getFilesForTest(test.id);
-                            const hasFiles = testFiles.length > 0;
-
-                            return (
-                              <TableRow
-                                key={testIndex}
-                                sx={{
-                                  opacity: test.result ? 0.7 : 1,
-                                  backgroundColor:
-                                    isSelected || hasFiles ? 'action.selected' : 'transparent',
-                                  '&:hover': {
-                                    backgroundColor: 'action.hover',
-                                  },
-                                }}
-                              >
-                                <TableCell>
-                                  <Typography
-                                    variant="body2"
-                                    fontWeight={canEnterResult ? 'bold' : 'normal'}
-                                  >
-                                    {getTestDisplayName(test)}
-                                  </Typography>
-                                  {hasFiles && (
-                                    <Typography variant="caption" color="primary" display="block">
-                                      {testFiles.length} file(s) uploaded for this test
-                                    </Typography>
-                                  )}
-                                </TableCell>
-                                <TableCell>
-                                  {canEnterResult && (
-                                    <Button
-                                      size="small"
-                                      startIcon={<AttachFile />}
-                                      onClick={() =>
-                                        handleUploadForTest(test.id, getTestDisplayName(test))
-                                      }
-                                      disabled={submitting}
-                                      variant={hasFiles ? 'contained' : 'outlined'}
-                                      color={hasFiles ? 'success' : 'primary'}
-                                    >
-                                      {hasFiles ? `${testFiles.length} File(s)` : 'Upload File'}
-                                    </Button>
-                                  )}
-                                </TableCell>
-                                <TableCell>
-                                  {canEnterResult ? (
-                                    <TextField
-                                      fullWidth
-                                      size="small"
-                                      placeholder="Enter test result (optional)..."
-                                      value={getResultValue(test.id)}
-                                      onChange={e => handleResultChange(test.id, e.target.value)}
-                                      disabled={submitting}
-                                      onFocus={() => {
-                                        if (!isSelected) {
-                                          handleResultChange(
-                                            test.id,
-                                            getResultValue(test.id) || ''
-                                          );
-                                        }
-                                      }}
-                                    />
-                                  ) : (
-                                    <Typography
-                                      variant="body2"
-                                      sx={{
-                                        fontFamily: test.result ? 'monospace' : 'inherit',
-                                        backgroundColor: test.result ? 'white' : 'transparent',
-                                        px: test.result ? 1 : 0,
-                                        py: test.result ? 0.5 : 0,
-                                        borderRadius: test.result ? 1 : 0,
-                                        border: test.result ? '1px solid #e0e0e0' : 'none',
-                                      }}
-                                    >
-                                      {test.result || 'N/A'}
-                                    </Typography>
-                                  )}
-                                </TableCell>
-
-                                <TableCell>
-                                  <Chip label={status.status} color={status.color} size="small" />
-                                </TableCell>
-                                <TableCell>
-                                  <Typography variant="body2">{test.created_at}</Typography>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </AccordionDetails>
-                </Accordion>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </Box>
           )}
 
-          {/* Uploaded Files Section - Organized by Test */}
+          {/* New Files List */}
           {uploadedFiles.length > 0 && (
-            <Paper sx={{ p: 2, mb: 3 }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6" color="primary">
-                  Uploaded Files ({uploadedFiles.length})
-                </Typography>
-                <Typography variant="caption" color="textSecondary">
-                  Files will be organized in: patient_services/test_id/
-                </Typography>
-              </Box>
-
-              {Object.entries(organizeFilesByTest()).map(([testId, files]) => {
-                const test = getAllTests().find(t => t.id === testId);
-                return (
-                  <Box
-                    key={testId}
-                    sx={{ mb: 3, border: '1px solid #e0e0e0', borderRadius: 1, p: 2 }}
-                  >
-                    <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
-                      {test ? getTestDisplayName(test) : `Test ID: ${testId}`} ({files.length}{' '}
-                      file(s))
-                      <Typography variant="caption" color="textSecondary" sx={{ ml: 2 }}>
-                        Test ID: {testId}
-                      </Typography>
-                    </Typography>
-                    <List>
-                      {files.map(file => (
-                        <ListItem
-                          key={file.id}
-                          secondaryAction={
-                            <IconButton
-                              edge="end"
-                              aria-label="delete"
-                              onClick={() => handleRemoveFile(file.id)}
-                              disabled={submitting}
-                            >
-                              <Delete />
-                            </IconButton>
-                          }
-                        >
-                          <ListItemIcon>
-                            <Avatar sx={{ bgcolor: 'primary.light' }}>
-                              {getFileIcon(file.file.type)}
-                            </Avatar>
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={
-                              <Typography variant="body1" fontWeight="medium">
-                                {file.file.name}
-                              </Typography>
-                            }
-                            secondary={
-                              <Box>
-                                <Typography variant="body2" color="textSecondary">
-                                  {formatFileSize(file.file.size)} • {file.file.type}
-                                </Typography>
-                                <Typography variant="caption" color="primary">
-                                  Will be saved to: patient_services/{testId}/
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                );
-              })}
+            <Paper sx={{ p: 2, mt: 3, bgcolor: 'action.hover' }}>
+              <Typography variant="subtitle2" fontWeight="bold">New Files to Upload</Typography>
+              <List dense>
+                {uploadedFiles.map(file => (
+                  <ListItem key={file.id} secondaryAction={
+                    <Box>
+                      <IconButton size="small" onClick={() => handleViewLocalFile(file.file)}><Visibility fontSize="small" /></IconButton>
+                      <IconButton size="small" color="error" onClick={() => handleRemoveFile(file.id)}><Delete fontSize="small" /></IconButton>
+                    </Box>
+                  }>
+                    <ListItemIcon><AttachFile fontSize="small" /></ListItemIcon>
+                    <ListItemText primary={file.file.name} secondary={`${file.testName} • ${formatFileSize(file.file.size)}`} />
+                  </ListItem>
+                ))}
+              </List>
             </Paper>
           )}
         </Box>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
-          Cancel
+        <Button onClick={onClose} disabled={submitting}>Cancel</Button>
+        <Button
+          onClick={handleSubmitResults}
+          variant="contained"
+          color="primary"
+          disabled={!canSubmitResults() || submitting}
+          startIcon={submitting ? <CircularProgress size={16} /> : <CheckCircle />}
+        >
+          {submitting ? 'Submitting...' : 'Submit Results'}
         </Button>
-        {(hasPendingTests() || uploadedFiles.length > 0) && (
-          <Button
-            onClick={handleSubmitResults}
-            variant="contained"
-            color="primary"
-            disabled={!canSubmitResults() || submitting}
-            startIcon={submitting ? <CircularProgress size={16} /> : <CheckCircle />}
-          >
-            {submitting
-              ? 'Uploading... (This may take a minute)'
-              : `Submit (${testResults.length} text + ${uploadedFiles.length} files)`}
-          </Button>
-        )}
       </DialogActions>
+
+      {/* File List Dialog */}
+      <Dialog open={!!viewingFiles} onClose={() => setViewingFiles(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Files for {viewDialogTestName}</DialogTitle>
+        <DialogContent>
+          <List>
+            {viewingFiles?.map((file, idx) => (
+              <ListItem key={file.uuid || idx} disablePadding>
+                <ListItemButton onClick={() => handleViewFile(file.url)}>
+                  <ListItemIcon>{getFileIcon(file.mime_type)}</ListItemIcon>
+                  <ListItemText primary={file.url.split('/').pop()} secondary={file.mime_type} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions><Button onClick={() => setViewingFiles(null)}>Close</Button></DialogActions>
+      </Dialog>
     </Dialog>
   );
 };

@@ -23,4 +23,6 @@ export const FollowUpService = {
     }),
   getFollowUpNote: (patient_id: string) =>
     patientApi.get('/follow-up-notes', { params: { patient_id } }),
+  getIopValues: (patient_id: string) =>
+    patientApi.get(`/follow-up-notes/iop_values/${patient_id}`),
 };

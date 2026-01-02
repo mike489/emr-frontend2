@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 import AllergyModal from './AllergyModal';
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import IopModal from './IopModal';
+import { FollowUpService } from '../../shared/api/services/followUp.service';
 
 type PatientsProps = {
   patient?: Patient;
@@ -26,6 +28,9 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
         : patient.allergies.split(',').map(a => a.trim())
       : []
   );
+  const [iopModalOpen, setIopModalOpen] = useState(false);
+  const [iopValues, setIopValues] = useState<any[]>([]);
+  const [iopLoading, setIopLoading] = useState(false);
 
   const address = !patient?.address
     ? '—'
@@ -72,6 +77,21 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
     setAllergies(updated);
     onAllergyAdded?.(updated);
     toast.success('Allergy removed');
+  };
+
+  const handleIopClick = async () => {
+    if (!patient?.id) return;
+    setIopModalOpen(true);
+    setIopLoading(true);
+    try {
+      const response = await FollowUpService.getIopValues(patient.id);
+      setIopValues(response.data?.data?.iop_values || []);
+    } catch (err: any) {
+      console.error('Error fetching IOP values:', err);
+      toast.error('Failed to fetch IOP values');
+    } finally {
+      setIopLoading(false);
+    }
   };
 
   return (
@@ -134,6 +154,20 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
                       color: 'white',
                     }}
                   />
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={handleIopClick}
+                    sx={{ 
+                      bgcolor: 'white', 
+                      color: '#1976d2', 
+                      minWidth: 'auto', 
+                      px: 2,
+                      '&:hover': { bgcolor: '#f5f5f5' }
+                    }}
+                  >
+                    IOP
+                  </Button>
                   <Button
                     size="small"
                     title="Send to Department"
@@ -276,6 +310,13 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
         open={allergyModalOpen}
         onClose={() => setAllergyModalOpen(false)}
         onSubmit={addAllergy}
+        patientName={patient?.full_name}
+      />
+      <IopModal
+        open={iopModalOpen}
+        onClose={() => setIopModalOpen(false)}
+        iopValues={iopValues}
+        loading={iopLoading}
         patientName={patient?.full_name}
       />
 
