@@ -39,8 +39,12 @@ import {
   Description,
   InsertDriveFile,
   Visibility,
+  MedicalInformation,
 } from '@mui/icons-material';
 import { OperationalService } from '../../shared/api/services/operations.service';
+import { LaboratoryService } from '../../shared/api/services/laboratory.service';
+import PrescriptionModal from './PrescriptionModal';
+import { toast } from 'react-toastify';
 
 interface LabTestFile {
   uuid: string;
@@ -58,6 +62,7 @@ interface LabTestResult {
   technician: string | null;
   created_at: string;
   files?: LabTestFile[];
+  lab_test_id?: string;
 }
 
 interface LabTestGroup {
@@ -101,6 +106,8 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   const [success, setSuccess] = useState(false);
   const [viewingFiles, setViewingFiles] = useState<LabTestFile[] | null>(null);
   const [viewDialogTestName, setViewDialogTestName] = useState<string>('');
+  const [prescriptionOpen, setPrescriptionOpen] = useState(false);
+  const [selectedOpForPrescription, setSelectedOpForPrescription] = useState<LabTestResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Helper to check if data is in grouped format
@@ -360,6 +367,30 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
     return uploadedFiles.filter(file => file.testId === testId);
   };
 
+  const handleOpenPrescription = (test: LabTestResult) => {
+    setSelectedOpForPrescription(test);
+    setPrescriptionOpen(true);
+  };
+
+  const handlePrescriptionSubmit = async (data: any) => {
+    try {
+      setSubmitting(true);
+      const orderData = {
+        medicines: [data],
+        order_date: new Date().toISOString(),
+        notes: `Prescription for operation: ${selectedOpForPrescription ? getTestDisplayName(selectedOpForPrescription) : 'Unknown'}`,
+      };
+      await LaboratoryService.createPharmacyMedicinesOrder(patientId, orderData);
+      toast.success('Prescription saved successfully!');
+    } catch (err: any) {
+      console.error('Failed to save prescription:', err);
+      setError(err.response?.data?.message || 'Failed to save prescription');
+      toast.error('Failed to save prescription');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const getTestDisplayName = (test: LabTestResult) => {
     return test.service_name || test.test || 'Unknown Operation';
   };
@@ -477,6 +508,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                 <TableCell>Operation</TableCell>
                                 <TableCell>Payment</TableCell>
                                 <TableCell>Files</TableCell>
+                                <TableCell>Prescription</TableCell>
                                 <TableCell width="250px">Result</TableCell>
                                 <TableCell>Status</TableCell>
                               </TableRow>
@@ -524,6 +556,18 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                       </Box>
                                     </TableCell>
                                     <TableCell>
+                                      <Button
+                                        size="small"
+                                        startIcon={<MedicalInformation />}
+                                        onClick={() => handleOpenPrescription(test)}
+                                        variant="outlined"
+                                        color="secondary"
+                                        disabled={!isPaid}
+                                      >
+                                        Add
+                                      </Button>
+                                    </TableCell>
+                                    <TableCell>
                                       {hasRes ? (
                                         <Typography variant="body2">{test.result}</Typography>
                                       ) : (
@@ -566,6 +610,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                         <TableCell>Operation</TableCell>
                         <TableCell>Payment</TableCell>
                         <TableCell>Files</TableCell>
+                        <TableCell>Prescription</TableCell>
                         <TableCell width="250px">Result</TableCell>
                         <TableCell>Status</TableCell>
                       </TableRow>
@@ -611,6 +656,18 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                   </IconButton>
                                 )}
                               </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size="small"
+                                startIcon={<MedicalInformation />}
+                                onClick={() => handleOpenPrescription(test)}
+                                variant="outlined"
+                                color="secondary"
+                                disabled={!isPaid}
+                              >
+                                Add
+                              </Button>
                             </TableCell>
                             <TableCell>
                               {hasRes ? (
@@ -717,6 +774,18 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           <Button onClick={() => setViewingFiles(null)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Prescription Modal */}
+      {selectedOpForPrescription && (
+        <PrescriptionModal
+          open={prescriptionOpen}
+          onClose={() => setPrescriptionOpen(false)}
+          medicineId={selectedOpForPrescription?.lab_test_id || selectedOpForPrescription?.id || ''}
+          patientName={patientName}
+          operationName={getTestDisplayName(selectedOpForPrescription)}
+          onSubmit={handlePrescriptionSubmit}
+        />
+      )}
     </Dialog>
   );
 };

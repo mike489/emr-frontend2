@@ -294,7 +294,7 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
                     <TableCell padding="checkbox">Select</TableCell>
                     <TableCell>Name</TableCell>
                     <TableCell>Code</TableCell>
-                    <TableCell>Price</TableCell>
+                    {/* <TableCell>Price</TableCell> */}
                     <TableCell>Description</TableCell>
                   </TableRow>
                 </TableHead>
@@ -322,7 +322,7 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
                       <TableCell>
                         <Chip label={medicine.default_code} size="small" variant="outlined" />
                       </TableCell>
-                      <TableCell>${parseFloat(medicine.price).toFixed(2)}</TableCell>
+                      {/* <TableCell>${parseFloat(medicine.price).toFixed(2)}</TableCell> */}
                       <TableCell>{medicine.description}</TableCell>
                     </TableRow>
                   ))}
@@ -389,7 +389,7 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
 
                   <Box sx={{ maxHeight: 400, overflowY: 'auto', pr: 1 }}>
                     {selectedMedicines.map(medicine => {
-                      const subtotal = parseFloat(medicine.price) * medicine.quantity;
+                      // const subtotal = parseFloat(medicine.price) * medicine.quantity;
                       return (
                         <Card
                           key={medicine.id}
@@ -412,10 +412,10 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
                                 <Typography variant="caption" color="text.secondary">
                                   Code: {medicine.default_code}
                                 </Typography>
-                                <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
+                                {/* <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
                                   ${parseFloat(medicine.price).toFixed(2)} × {medicine.quantity} = $
                                   {subtotal.toFixed(2)}
-                                </Typography>
+                                </Typography> */}
                               </Box>
 
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -476,12 +476,12 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
 
                 {/* Order summary */}
                 <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                  {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                     <Typography variant="h6">Total Amount:</Typography>
                     <Typography variant="h6" color="primary" fontWeight="bold">
                       ${calculateTotal().toFixed(2)}
                     </Typography>
-                  </Box>
+                  </Box> */}
 
                   <Button
                     variant="contained"
