@@ -11,7 +11,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  TextField,
+  // TextField,
   Chip,
   CircularProgress,
   Table,
@@ -68,10 +68,10 @@ interface LabTestGroup {
   tests: LabTestResult[];
 }
 
-interface TestNoteInput {
-  id: string;
-  note: any;
-}
+// interface TestNoteInput {
+//   id: string;
+//   note: any;
+// }
 
 interface UploadedFile {
   id: string;
@@ -172,7 +172,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       const hasResult = !!test.result || !!testNotes[test.id];
       // Must have existing files OR newly uploaded files
       const hasFiles = (test.files && test.files.length > 0) || getFilesForTest(test.id).length > 0;
-      
+
       return hasResult && hasFiles;
     });
   };
@@ -180,16 +180,16 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   const getMissingRequirements = () => {
     const tests = getAllTests();
     const missing: string[] = [];
-    
+
     tests.forEach(test => {
       const hasResult = !!test.result || !!testNotes[test.id];
       const hasFiles = (test.files && test.files.length > 0) || getFilesForTest(test.id).length > 0;
-      
+
       if (!hasResult || !hasFiles) {
         missing.push(getTestDisplayName(test));
       }
     });
-    
+
     return missing;
   };
 
@@ -304,7 +304,10 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
         // Include note if added locally
         if (testNotes[test.id]) {
           Object.keys(testNotes[test.id]).forEach(key => {
-            formData.append(`patient_services[${index}][result][operation_note][${key}]`, testNotes[test.id][key]);
+            formData.append(
+              `patient_services[${index}][result][operation_note][${key}]`,
+              testNotes[test.id][key]
+            );
           });
         } else if (test.result) {
           // Re-send existing result if present
@@ -389,7 +392,8 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           {!canSubmitResults() && getAllTests().length > 0 && (
             <Alert severity="info" sx={{ mb: 2 }}>
               <Typography variant="body2">
-                <strong>Submission Requirement:</strong> The backend requires results and files for <strong>all</strong> operations in this request.
+                <strong>Submission Requirement:</strong> The backend requires results and files for{' '}
+                <strong>all</strong> operations in this request.
               </Typography>
               {getMissingRequirements().length > 0 && (
                 <Typography variant="caption" display="block" sx={{ mt: 1 }}>
@@ -533,7 +537,10 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                     </TableCell>
                                     <TableCell>
                                       {hasRes || hasNoteForTest(test.id) ? (
-                                        <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+                                        >
                                           {hasRes ? 'Submitted' : 'Note added'}
                                         </Typography>
                                       ) : (
@@ -620,24 +627,27 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                 )}
                               </Box>
                             </TableCell>
-                             <TableCell>
-                               {hasRes || hasNoteForTest(test.id) ? (
-                                 <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-                                   {hasRes ? 'Submitted' : 'Note added'}
-                                 </Typography>
-                               ) : (
-                                 <Button
-                                   size="small"
-                                   variant="outlined"
-                                   color="secondary"
-                                   onClick={() => setActiveTestForNote(test)}
-                                   disabled={submitting || !isPaid}
-                                   fullWidth
-                                 >
-                                   Add Result
-                                 </Button>
-                               )}
-                             </TableCell>
+                            <TableCell>
+                              {hasRes || hasNoteForTest(test.id) ? (
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+                                >
+                                  {hasRes ? 'Submitted' : 'Note added'}
+                                </Typography>
+                              ) : (
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  color="secondary"
+                                  onClick={() => setActiveTestForNote(test)}
+                                  disabled={submitting || !isPaid}
+                                  fullWidth
+                                >
+                                  Add Result
+                                </Button>
+                              )}
+                            </TableCell>
                             <TableCell>
                               <Chip
                                 label={getTestStatus(test).status}
