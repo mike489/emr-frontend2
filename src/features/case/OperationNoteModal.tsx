@@ -104,7 +104,7 @@ const OperationNoteModal: React.FC<OperationNoteModalProps> = ({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3} sx={{ mt: 0.5 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               name="pre_op_diagnosis"
               label="Pre-op Diagnosis"
@@ -118,7 +118,7 @@ const OperationNoteModal: React.FC<OperationNoteModalProps> = ({
               helperText={`${formData.pre_op_diagnosis.length}/2000`}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               name="post_op_diagnosis"
               label="Post-op Diagnosis"
@@ -132,7 +132,7 @@ const OperationNoteModal: React.FC<OperationNoteModalProps> = ({
               helperText={`${formData.post_op_diagnosis.length}/2000`}
             />
           </Grid>
-          <Grid item xs={12} sm={8}>
+          <Grid size={{ xs: 12, sm: 8 }}>
             <TextField
               name="procedure"
               label="Procedure"
@@ -146,7 +146,7 @@ const OperationNoteModal: React.FC<OperationNoteModalProps> = ({
               helperText={`${formData.procedure.length}/2000`}
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField
               name="anesthesia_type"
               label="Anesthesia Type"
@@ -163,7 +163,7 @@ const OperationNoteModal: React.FC<OperationNoteModalProps> = ({
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               name="findings"
               label="Findings"
@@ -176,7 +176,7 @@ const OperationNoteModal: React.FC<OperationNoteModalProps> = ({
               helperText={`${formData.findings.length}/5000`}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               name="post_op_plan"
               label="Post-op Plan"
@@ -195,12 +195,7 @@ const OperationNoteModal: React.FC<OperationNoteModalProps> = ({
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          color="primary"
-          disabled={!isFormValid}
-        >
+        <Button variant="contained" onClick={handleSubmit} color="primary" disabled={!isFormValid}>
           Save Note
         </Button>
       </DialogActions>
