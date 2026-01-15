@@ -48,7 +48,7 @@ const MedTab = () => {
               </Box>
             </Box>
 
-            <PharmacyMedicinesOrder patientId={patient?.id} />
+            <PharmacyMedicinesOrder patientId={patient?.id} patientName={patient?.full_name || ''} />
           </>
         ) : (
           <Box color="error.main">No FollowUp ID found</Box>

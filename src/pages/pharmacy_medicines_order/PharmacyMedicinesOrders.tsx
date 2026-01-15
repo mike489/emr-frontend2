@@ -29,8 +29,10 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 import { LaboratoryService } from '../../shared/api/services/laboratory.service';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import PrescriptionModal from '../../features/case/PrescriptionModal';
 
 interface PharmacyMedicine {
   id: string;
@@ -48,9 +50,13 @@ interface SelectedMedicine extends PharmacyMedicine {
 
 interface PharmacyMedicinesOrderProps {
   patientId: string;
+  patientName: string;
 }
 
-const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patientId }) => {
+const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({
+  patientId,
+  patientName,
+}) => {
   const [medicines, setMedicines] = useState<PharmacyMedicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<PharmacyMedicine[]>([]);
   const [selectedMedicines, setSelectedMedicines] = useState<SelectedMedicine[]>([]);
@@ -60,6 +66,11 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
   const [success, setSuccess] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const [prescriptionOpen, setPrescriptionOpen] = useState(false);
+  const [selectedMedicineForPrescription, setSelectedMedicineForPrescription] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchMedicines();
@@ -194,6 +205,30 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
     } catch (err) {
       setError('Failed to create order. Please try again.');
       console.error('Error creating order:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleOpenPrescription = (medicine: SelectedMedicine | PharmacyMedicine) => {
+    setSelectedMedicineForPrescription({ id: medicine.id, name: medicine.name });
+    setPrescriptionOpen(true);
+  };
+
+  const handlePrescriptionSubmit = async (data: any) => {
+    try {
+      setSubmitting(true);
+      const orderData = {
+        medicines: [data],
+        order_date: new Date().toISOString(),
+        notes: `Prescription for: ${selectedMedicineForPrescription?.name}`,
+      };
+      await LaboratoryService.createPharmacyMedicinesOrder(patientId, orderData);
+      toast.success('Prescription saved successfully!');
+      setSelectedMedicines([]);
+    } catch (err: any) {
+      console.error('Failed to save prescription:', err);
+      toast.error(err.response?.data?.message || 'Failed to save prescription');
     } finally {
       setSubmitting(false);
     }
@@ -457,6 +492,16 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
                                     </IconButton>
                                   </Tooltip>
                                 </Box>
+                                <Tooltip title="Add Prescription">
+                                  <IconButton
+                                    size="small"
+                                    color="secondary"
+                                    onClick={() => handleOpenPrescription(medicine)}
+                                    sx={{ ml: 1 }}
+                                  >
+                                    <MedicalInformationIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
                                 <IconButton
                                   size="small"
                                   color="error"
@@ -505,6 +550,16 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({ patient
         </Box>
       </Box>
       <ToastContainer />
+      {selectedMedicineForPrescription && (
+        <PrescriptionModal
+          open={prescriptionOpen}
+          onClose={() => setPrescriptionOpen(false)}
+          medicineId={selectedMedicineForPrescription.id}
+          patientName={patientName}
+          operationName={selectedMedicineForPrescription.name}
+          onSubmit={handlePrescriptionSubmit}
+        />
+      )}
     </Container>
   );
 };

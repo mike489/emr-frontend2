@@ -39,11 +39,9 @@ import {
   Description,
   InsertDriveFile,
   Visibility,
-  MedicalInformation,
 } from '@mui/icons-material';
 import { OperationalService } from '../../shared/api/services/operations.service';
-import { LaboratoryService } from '../../shared/api/services/laboratory.service';
-import PrescriptionModal from './PrescriptionModal';
+import OperationNoteModal from './OperationNoteModal';
 import { toast } from 'react-toastify';
 
 interface LabTestFile {
@@ -70,9 +68,9 @@ interface LabTestGroup {
   tests: LabTestResult[];
 }
 
-interface TestResultInput {
+interface TestNoteInput {
   id: string;
-  result: string;
+  note: any;
 }
 
 interface UploadedFile {
@@ -98,7 +96,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   onResultSubmit,
 }) => {
   const [labTests, setLabTests] = useState<LabTestResult[] | LabTestGroup[]>([]);
-  const [testResults, setTestResults] = useState<TestResultInput[]>([]);
+  const [testNotes, setTestNotes] = useState<Record<string, any>>({});
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -106,8 +104,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   const [success, setSuccess] = useState(false);
   const [viewingFiles, setViewingFiles] = useState<LabTestFile[] | null>(null);
   const [viewDialogTestName, setViewDialogTestName] = useState<string>('');
-  const [prescriptionOpen, setPrescriptionOpen] = useState(false);
-  const [selectedOpForPrescription, setSelectedOpForPrescription] = useState<LabTestResult | null>(null);
+  const [activeTestForNote, setActiveTestForNote] = useState<LabTestResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Helper to check if data is in grouped format
@@ -138,15 +135,12 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       try {
         setLoading(true);
         setError(null);
-        setTestResults([]);
-        setUploadedFiles([]);
-        setSuccess(false);
-
         const response = await OperationalService.getOperationRequest(patientId);
         setLabTests(response.data?.data || []);
+        setTestNotes({});
       } catch (err: any) {
         console.error('Error fetching laboratory tests:', err);
-        setError(err.response?.data?.message || 'Failed to fetch laboratory tests');
+        setError(err.response?.data?.message || 'Failed to fetch laboratory tests ');
         setLabTests([]);
       } finally {
         setLoading(false);
@@ -156,34 +150,47 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
     fetchLabTests();
   }, [open, patientId]);
 
-  const handleResultChange = (testId: string, result: string) => {
-    setTestResults(prev => {
-      const existingIndex = prev.findIndex(tr => tr.id === testId);
+  const handleNoteSave = (noteData: any) => {
+    if (!activeTestForNote) return;
+    setTestNotes(prev => ({
+      ...prev,
+      [activeTestForNote.id]: noteData,
+    }));
+    setActiveTestForNote(null);
+  };
 
-      if (existingIndex >= 0) {
-        // Update existing result
-        const updated = [...prev];
-        updated[existingIndex] = { id: testId, result };
-        return updated;
-      } else {
-        // Add new result
-        return [...prev, { id: testId, result }];
-      }
+  const hasNoteForTest = (testId: string) => {
+    return !!testNotes[testId];
+  };
+
+  const canSubmitResults = () => {
+    const tests = getAllTests();
+    if (tests.length === 0) return false;
+
+    return tests.every(test => {
+      // Must have an existing result OR a staged note
+      const hasResult = !!test.result || !!testNotes[test.id];
+      // Must have existing files OR newly uploaded files
+      const hasFiles = (test.files && test.files.length > 0) || getFilesForTest(test.id).length > 0;
+      
+      return hasResult && hasFiles;
     });
   };
 
-  const getResultValue = (testId: string) => {
-    const result = testResults.find(tr => tr.id === testId);
-    return result ? result.result : '';
-  };
-
-  // const hasPendingTests = () => {
-  //   const tests = getAllTests();
-  //   return tests.some(test => !test.result);
-  // };
-
-  const canSubmitResults = () => {
-    return testResults.length > 0 || uploadedFiles.length > 0;
+  const getMissingRequirements = () => {
+    const tests = getAllTests();
+    const missing: string[] = [];
+    
+    tests.forEach(test => {
+      const hasResult = !!test.result || !!testNotes[test.id];
+      const hasFiles = (test.files && test.files.length > 0) || getFilesForTest(test.id).length > 0;
+      
+      if (!hasResult || !hasFiles) {
+        missing.push(getTestDisplayName(test));
+      }
+    });
+    
+    return missing;
   };
 
   const handleFileUpload = (
@@ -291,54 +298,35 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
       const formData = new FormData();
       const tests = getAllTests();
 
-      const testsPayload = tests
-        .map(test => {
-          const resultEntry = testResults.find(r => r.id === test.id);
-          const result = resultEntry?.result;
-          const files = uploadedFiles.filter(f => f.testId === test.id);
+      tests.forEach((test, index) => {
+        formData.append(`patient_services[${index}][id]`, test.id);
 
-          if (!result?.trim() && files.length === 0) {
-            return null;
-          }
-
-          return {
-            id: test.id,
-            result: result?.trim(),
-            files,
-          };
-        })
-        .filter(Boolean) as {
-        id: string;
-        result?: string;
-        files: UploadedFile[];
-      }[];
-
-      if (testsPayload.length === 0) {
-        setError('Please enter a result or upload files');
-        setSubmitting(false);
-        return;
-      }
-
-      testsPayload.forEach((test, testIndex) => {
-        formData.append(`patient_services[${testIndex}][id]`, test.id);
-
-        if (test.result) {
-          formData.append(`patient_services[${testIndex}][result]`, test.result);
+        // Include note if added locally
+        if (testNotes[test.id]) {
+          Object.keys(testNotes[test.id]).forEach(key => {
+            formData.append(`patient_services[${index}][result][operation_note][${key}]`, testNotes[test.id][key]);
+          });
+        } else if (test.result) {
+          // Re-send existing result if present
+          formData.append(`patient_services[${index}][result]`, test.result);
         }
 
-        test.files.forEach((fileObj, fileIndex) => {
-          formData.append(`patient_services[${testIndex}][files][${fileIndex}]`, fileObj.file);
+        // Include files
+        const testFiles = uploadedFiles.filter(f => f.testId === test.id);
+        testFiles.forEach((fileObj, fileIndex) => {
+          formData.append(`patient_services[${index}][files][${fileIndex}]`, fileObj.file);
         });
       });
 
       await OperationalService.createOperationResult(patientId, formData);
 
+      toast.success('Results submitted successfully!');
       setSuccess(true);
       onResultSubmit?.();
 
       setTimeout(() => {
         onClose();
-        setTestResults([]);
+        setTestNotes({});
         setUploadedFiles([]);
         setSuccess(false);
       }, 1500);
@@ -365,30 +353,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
 
   const getFilesForTest = (testId: string) => {
     return uploadedFiles.filter(file => file.testId === testId);
-  };
-
-  const handleOpenPrescription = (test: LabTestResult) => {
-    setSelectedOpForPrescription(test);
-    setPrescriptionOpen(true);
-  };
-
-  const handlePrescriptionSubmit = async (data: any) => {
-    try {
-      setSubmitting(true);
-      const orderData = {
-        medicines: [data],
-        order_date: new Date().toISOString(),
-        notes: `Prescription for operation: ${selectedOpForPrescription ? getTestDisplayName(selectedOpForPrescription) : 'Unknown'}`,
-      };
-      await LaboratoryService.createPharmacyMedicinesOrder(patientId, orderData);
-      toast.success('Prescription saved successfully!');
-    } catch (err: any) {
-      console.error('Failed to save prescription:', err);
-      setError(err.response?.data?.message || 'Failed to save prescription');
-      toast.error('Failed to save prescription');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const getTestDisplayName = (test: LabTestResult) => {
@@ -419,6 +383,19 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
+            </Alert>
+          )}
+
+          {!canSubmitResults() && getAllTests().length > 0 && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              <Typography variant="body2">
+                <strong>Submission Requirement:</strong> The backend requires results and files for <strong>all</strong> operations in this request.
+              </Typography>
+              {getMissingRequirements().length > 0 && (
+                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                  Pending: {getMissingRequirements().join(', ')}
+                </Typography>
+              )}
             </Alert>
           )}
 
@@ -508,7 +485,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                 <TableCell>Operation</TableCell>
                                 <TableCell>Payment</TableCell>
                                 <TableCell>Files</TableCell>
-                                <TableCell>Prescription</TableCell>
                                 <TableCell width="250px">Result</TableCell>
                                 <TableCell>Status</TableCell>
                               </TableRow>
@@ -556,33 +532,21 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                       </Box>
                                     </TableCell>
                                     <TableCell>
-                                      <Button
-                                        size="small"
-                                        startIcon={<MedicalInformation />}
-                                        onClick={() => handleOpenPrescription(test)}
-                                        variant="outlined"
-                                        color="secondary"
-                                        disabled={!isPaid}
-                                      >
-                                        Add
-                                      </Button>
-                                    </TableCell>
-                                    <TableCell>
-                                      {hasRes ? (
-                                        <Typography variant="body2">{test.result}</Typography>
+                                      {hasRes || hasNoteForTest(test.id) ? (
+                                        <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                                          {hasRes ? 'Submitted' : 'Note added'}
+                                        </Typography>
                                       ) : (
-                                        <TextField
-                                          fullWidth
+                                        <Button
                                           size="small"
-                                          placeholder={
-                                            isPaid ? 'Enter result...' : 'Payment required'
-                                          }
-                                          value={getResultValue(test.id)}
-                                          onChange={e =>
-                                            handleResultChange(test.id, e.target.value)
-                                          }
+                                          variant="outlined"
+                                          color="secondary"
+                                          onClick={() => setActiveTestForNote(test)}
                                           disabled={submitting || !isPaid}
-                                        />
+                                          fullWidth
+                                        >
+                                          Add Result
+                                        </Button>
                                       )}
                                     </TableCell>
                                     <TableCell>
@@ -610,7 +574,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                         <TableCell>Operation</TableCell>
                         <TableCell>Payment</TableCell>
                         <TableCell>Files</TableCell>
-                        <TableCell>Prescription</TableCell>
                         <TableCell width="250px">Result</TableCell>
                         <TableCell>Status</TableCell>
                       </TableRow>
@@ -657,32 +620,24 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                 )}
                               </Box>
                             </TableCell>
-                            <TableCell>
-                              <Button
-                                size="small"
-                                startIcon={<MedicalInformation />}
-                                onClick={() => handleOpenPrescription(test)}
-                                variant="outlined"
-                                color="secondary"
-                                disabled={!isPaid}
-                              >
-                                Add
-                              </Button>
-                            </TableCell>
-                            <TableCell>
-                              {hasRes ? (
-                                <Typography variant="body2">{test.result}</Typography>
-                              ) : (
-                                <TextField
-                                  fullWidth
-                                  size="small"
-                                  placeholder={isPaid ? 'Enter result...' : 'Payment required'}
-                                  value={getResultValue(test.id)}
-                                  onChange={e => handleResultChange(test.id, e.target.value)}
-                                  disabled={submitting || !isPaid}
-                                />
-                              )}
-                            </TableCell>
+                             <TableCell>
+                               {hasRes || hasNoteForTest(test.id) ? (
+                                 <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                                   {hasRes ? 'Submitted' : 'Note added'}
+                                 </Typography>
+                               ) : (
+                                 <Button
+                                   size="small"
+                                   variant="outlined"
+                                   color="secondary"
+                                   onClick={() => setActiveTestForNote(test)}
+                                   disabled={submitting || !isPaid}
+                                   fullWidth
+                                 >
+                                   Add Result
+                                 </Button>
+                               )}
+                             </TableCell>
                             <TableCell>
                               <Chip
                                 label={getTestStatus(test).status}
@@ -775,15 +730,13 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
         </DialogActions>
       </Dialog>
 
-      {/* Prescription Modal */}
-      {selectedOpForPrescription && (
-        <PrescriptionModal
-          open={prescriptionOpen}
-          onClose={() => setPrescriptionOpen(false)}
-          medicineId={selectedOpForPrescription?.lab_test_id || selectedOpForPrescription?.id || ''}
+      {activeTestForNote && (
+        <OperationNoteModal
+          open={!!activeTestForNote}
+          onClose={() => setActiveTestForNote(null)}
+          operationName={getTestDisplayName(activeTestForNote)}
           patientName={patientName}
-          operationName={getTestDisplayName(selectedOpForPrescription)}
-          onSubmit={handlePrescriptionSubmit}
+          onSubmit={handleNoteSave}
         />
       )}
     </Dialog>

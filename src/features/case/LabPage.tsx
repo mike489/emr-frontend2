@@ -17,11 +17,14 @@ import {
   Stack,
   Card,
   CardContent,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { ExpandMore, Science, CheckCircle, Delete } from '@mui/icons-material';
 import { LaboratoryService } from '../../shared/api/services/laboratory.service';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import ResultPage from './ResultPage';
 
 interface LabTest {
   id: string;
@@ -50,12 +53,13 @@ interface LabPageProps {
   patientName: string;
 }
 
-const LabPage: React.FC<LabPageProps> = ({ patientId }) => {
+const LabPage: React.FC<LabPageProps> = ({ patientId, patientName }) => {
   const navigate = useNavigate();
   const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
   const [selectedTests, setSelectedTests] = useState<SelectedTest[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [tabValue, setTabValue] = useState<number>(0);
 
   useEffect(() => {
     const fetchLabs = async () => {
@@ -170,231 +174,253 @@ const LabPage: React.FC<LabPageProps> = ({ patientId }) => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
-      {/* Header */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} aria-label="lab tasks">
+          <Tab label="New Lab Request" />
+          <Tab label="Lab Results" />
+        </Tabs>
+      </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 3 }}>
-        {/* Left Column - Selected Tests Summary */}
-        <Box sx={{ width: { xs: '100%', lg: '65%' } }}>
-          <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
-              Available Laboratories
-            </Typography>
+      {tabValue === 0 && (
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 3 }}>
+          {/* Left Column - Selected Tests Summary */}
+          <Box sx={{ width: { xs: '100%', lg: '65%' } }}>
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+                Available Laboratories
+              </Typography>
 
-            {loading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 8 }}>
-                <CircularProgress />
-                <Typography sx={{ ml: 2 }}>Loading laboratories...</Typography>
-              </Box>
-            ) : (
-              <Box>
-                {laboratories.length === 0 ? (
-                  <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <Typography variant="body1" color="textSecondary">
-                      No laboratories available.
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                      Please check the API response structure.
-                    </Typography>
-                  </Box>
-                ) : (
-                  laboratories.map(lab => (
-                    <Accordion key={lab.id} sx={{ mb: 2 }}>
-                      <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Box sx={{ width: '100%' }}>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center">
-                            <Typography variant="subtitle1" fontWeight="bold">
-                              {lab.name}
-                            </Typography>
-                            <Chip
-                              label={`${lab.tests?.length || 0} tests`}
-                              size="small"
-                              color="primary"
-                              variant="outlined"
-                            />
-                          </Stack>
-                          {lab.description && (
-                            <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
-                              {lab.description}
+              {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" sx={{ py: 8 }}>
+                  <CircularProgress />
+                  <Typography sx={{ ml: 2 }}>Loading laboratories...</Typography>
+                </Box>
+              ) : (
+                <Box>
+                  {laboratories.length === 0 ? (
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="body1" color="textSecondary">
+                        No laboratories available.
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                        Please check the API response structure.
+                      </Typography>
+                    </Box>
+                  ) : (
+                    laboratories.map(lab => (
+                      <Accordion key={lab.id} sx={{ mb: 2 }}>
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                          <Box sx={{ width: '100%' }}>
+                            <Stack
+                              direction="row"
+                              justifyContent="space-between"
+                              alignItems="center"
+                            >
+                              <Typography variant="subtitle1" fontWeight="bold">
+                                {lab.name}
+                              </Typography>
+                              <Chip
+                                label={`${lab.tests?.length || 0} tests`}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                              />
+                            </Stack>
+                            {lab.description && (
+                              <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+                                {lab.description}
+                              </Typography>
+                            )}
+                          </Box>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          {lab.tests && lab.tests.length > 0 ? (
+                            <FormGroup>
+                              {lab.tests.map(test => (
+                                <FormControlLabel
+                                  key={test.id}
+                                  control={
+                                    <Checkbox
+                                      checked={isTestSelected(test.id)}
+                                      onChange={() => handleTestToggle(lab, test)}
+                                      icon={<Science />}
+                                      checkedIcon={<Science color="primary" />}
+                                    />
+                                  }
+                                  label={
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        width: '100%',
+                                      }}
+                                    >
+                                      <Typography variant="body1">{test.name}</Typography>
+                                    </Box>
+                                  }
+                                  sx={{
+                                    mb: 1,
+                                    px: 1,
+                                    py: 0.5,
+                                    '&:hover': {
+                                      backgroundColor: 'action.hover',
+                                      borderRadius: 1,
+                                    },
+                                    width: '100%',
+                                  }}
+                                />
+                              ))}
+                            </FormGroup>
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">
+                              No tests available for this laboratory.
                             </Typography>
                           )}
-                        </Box>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        {lab.tests && lab.tests.length > 0 ? (
-                          <FormGroup>
-                            {lab.tests.map(test => (
-                              <FormControlLabel
-                                key={test.id}
-                                control={
-                                  <Checkbox
-                                    checked={isTestSelected(test.id)}
-                                    onChange={() => handleTestToggle(lab, test)}
-                                    icon={<Science />}
-                                    checkedIcon={<Science color="primary" />}
-                                  />
-                                }
-                                label={
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      width: '100%',
-                                    }}
-                                  >
-                                    <Typography variant="body1">{test.name}</Typography>
-                                  </Box>
-                                }
-                                sx={{
-                                  mb: 1,
-                                  px: 1,
-                                  py: 0.5,
-                                  '&:hover': {
-                                    backgroundColor: 'action.hover',
-                                    borderRadius: 1,
-                                  },
-                                  width: '100%',
-                                }}
-                              />
-                            ))}
-                          </FormGroup>
-                        ) : (
-                          <Typography variant="body2" color="textSecondary">
-                            No tests available for this laboratory.
-                          </Typography>
-                        )}
-                      </AccordionDetails>
-                    </Accordion>
-                  ))
-                )}
-              </Box>
-            )}
-
-            {!loading && selectedTests.length === 0 && laboratories.length > 0 && (
-              <Box
-                sx={{
-                  textAlign: 'center',
-                  mt: 4,
-                  py: 3,
-                  border: '1px dashed',
-                  borderColor: 'divider',
-                  borderRadius: 1,
-                }}
-              >
-                <Typography variant="body1" color="textSecondary">
-                  Select tests from the laboratory categories above
-                </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                  Your selections will appear in the summary panel
-                </Typography>
-              </Box>
-            )}
-          </Paper>
-        </Box>
-
-        {/* Right Column - Laboratories List */}
-
-        <Box sx={{ width: { xs: '100%', lg: '35%' } }}>
-          <Paper elevation={2} sx={{ p: 3, position: 'sticky', top: 20 }}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 3 }}
-            >
-              <Typography variant="h6" fontWeight="bold">
-                Selected Tests
-              </Typography>
-              {selectedTests.length > 0 && (
-                <Button size="small" color="error" startIcon={<Delete />} onClick={handleClearAll}>
-                  Clear All
-                </Button>
+                        </AccordionDetails>
+                      </Accordion>
+                    ))
+                  )}
+                </Box>
               )}
-            </Stack>
 
-            {selectedTests.length > 0 ? (
-              <>
-                <Box sx={{ mb: 3 }}>
-                  <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      {selectedTests.length} test(s) selected
-                    </Typography>
-                    {totalPrice > 0 && (
-                      <Typography variant="h6" color="primary" fontWeight="bold">
-                        Total: ${totalPrice}
+              {!loading && selectedTests.length === 0 && laboratories.length > 0 && (
+                <Box
+                  sx={{
+                    textAlign: 'center',
+                    mt: 4,
+                    py: 3,
+                    border: '1px dashed',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                  }}
+                >
+                  <Typography variant="body1" color="textSecondary">
+                    Select tests from the laboratory categories above
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                    Your selections will appear in the summary panel
+                  </Typography>
+                </Box>
+              )}
+            </Paper>
+          </Box>
+
+          {/* Right Column - Laboratories List */}
+
+          <Box sx={{ width: { xs: '100%', lg: '35%' } }}>
+            <Paper elevation={2} sx={{ p: 3, position: 'sticky', top: 20 }}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 3 }}
+              >
+                <Typography variant="h6" fontWeight="bold">
+                  Selected Tests
+                </Typography>
+                {selectedTests.length > 0 && (
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={<Delete />}
+                    onClick={handleClearAll}
+                  >
+                    Clear All
+                  </Button>
+                )}
+              </Stack>
+
+              {selectedTests.length > 0 ? (
+                <>
+                  <Box sx={{ mb: 3 }}>
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        {selectedTests.length} test(s) selected
                       </Typography>
-                    )}
-                  </Stack>
+                      {totalPrice > 0 && (
+                        <Typography variant="h6" color="primary" fontWeight="bold">
+                          Total: ${totalPrice}
+                        </Typography>
+                      )}
+                    </Stack>
 
-                  <Box sx={{ maxHeight: 400, overflowY: 'auto', pr: 1 }}>
-                    {selectedTests.map(test => (
-                      <Card
-                        key={test.testId}
-                        variant="outlined"
-                        sx={{
-                          mb: 2,
-                          borderColor: 'primary.main',
-                        }}
-                      >
-                        <CardContent sx={{ py: 2, px: 2 }}>
-                          <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            alignItems="flex-start"
-                          >
-                            <Box>
-                              <Typography variant="subtitle2" fontWeight="bold">
-                                {test.testName}
-                              </Typography>
-                              <Typography variant="caption" color="textSecondary">
-                                {test.labName}
-                              </Typography>
-                              {/* {test.price && test.price > 0 && (
+                    <Box sx={{ maxHeight: 400, overflowY: 'auto', pr: 1 }}>
+                      {selectedTests.map(test => (
+                        <Card
+                          key={test.testId}
+                          variant="outlined"
+                          sx={{
+                            mb: 2,
+                            borderColor: 'primary.main',
+                          }}
+                        >
+                          <CardContent sx={{ py: 2, px: 2 }}>
+                            <Stack
+                              direction="row"
+                              justifyContent="space-between"
+                              alignItems="flex-start"
+                            >
+                              <Box>
+                                <Typography variant="subtitle2" fontWeight="bold">
+                                  {test.testName}
+                                </Typography>
+                                <Typography variant="caption" color="textSecondary">
+                                  {test.labName}
+                                </Typography>
+                                {/* {test.price && test.price > 0 && (
                                 <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
                                   ${test.price}
                                 </Typography>
                               )} */}
-                            </Box>
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleRemoveTest(test.testId)}
-                              sx={{ ml: 1 }}
-                            >
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    ))}
+                              </Box>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleRemoveTest(test.testId)}
+                                sx={{ ml: 1 }}
+                              >
+                                <Delete fontSize="small" />
+                              </IconButton>
+                            </Stack>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </Box>
                   </Box>
-                </Box>
 
-                <Button
-                  fullWidth
-                  variant="contained"
-                  size="large"
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  startIcon={submitting ? <CircularProgress size={20} /> : <CheckCircle />}
-                  sx={{ py: 1.5 }}
-                >
-                  {submitting ? 'Submitting...' : `Submit ${selectedTests.length} Test(s)`}
-                </Button>
-              </>
-            ) : (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Science sx={{ fontSize: 60, color: 'action.disabled', mb: 2 }} />
-                <Typography variant="body1" color="textSecondary" gutterBottom>
-                  No tests selected
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Select tests from the laboratories list
-                </Typography>
-              </Box>
-            )}
-          </Paper>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    startIcon={submitting ? <CircularProgress size={20} /> : <CheckCircle />}
+                    sx={{ py: 1.5 }}
+                  >
+                    {submitting ? 'Submitting...' : `Submit ${selectedTests.length} Test(s)`}
+                  </Button>
+                </>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Science sx={{ fontSize: 60, color: 'action.disabled', mb: 2 }} />
+                  <Typography variant="body1" color="textSecondary" gutterBottom>
+                    No tests selected
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Select tests from the laboratories list
+                  </Typography>
+                </Box>
+              )}
+            </Paper>
+          </Box>
         </Box>
-      </Box>
+      )}
+
+      {tabValue === 1 && (
+        <Paper elevation={2}>
+          <ResultPage patientId={patientId} patientName={patientName} />
+        </Paper>
+      )}
       <ToastContainer />
     </Container>
   );

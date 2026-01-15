@@ -20,11 +20,15 @@ import {
   TextField,
   InputAdornment,
   Grid,
+  Tabs,
+  Tab,
 } from '@mui/material';
-import { ExpandMore, Science, CheckCircle, Delete, Search, Clear } from '@mui/icons-material';
+import { ExpandMore, Science, CheckCircle, Delete, Search, Clear, MedicalInformation } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { OperationalService } from '../../shared/api/services/operations.service';
+import OperationNoteModal from './OperationNoteModal';
+import ResultOperationPage from './ResultOperationPage';
 import { Pagination } from '@mui/material';
 
 interface Operation {
@@ -40,6 +44,7 @@ interface SelectedOperation {
   id: string;
   name: string;
   price?: number | string;
+  note?: any;
 }
 
 interface LabPageProps {
@@ -47,7 +52,7 @@ interface LabPageProps {
   patientName: string;
 }
 
-const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
+const OperPage: React.FC<LabPageProps> = ({ patientId, patientName }) => {
   const navigate = useNavigate();
   const [operations, setOperations] = useState<Operation[]>([]);
   const [filteredOperations, setFilteredOperations] = useState<Operation[]>([]);
@@ -57,6 +62,9 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [noteModalOpen, setNoteModalOpen] = useState(false);
+  const [selectedOpForNote, setSelectedOpForNote] = useState<SelectedOperation | null>(null);
+  const [tabValue, setTabValue] = useState(0);
   const rowsPerPage = 10;
 
   useEffect(() => {
@@ -152,6 +160,19 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
     });
   };
 
+  const handleOpenNoteModal = (operation: SelectedOperation) => {
+    setSelectedOpForNote(operation);
+    setNoteModalOpen(true);
+  };
+
+  const handleNoteSubmit = (noteData: any) => {
+    if (selectedOpForNote) {
+      setSelectedOperations(prev =>
+        prev.map(op => (op.id === selectedOpForNote.id ? { ...op, note: noteData } : op))
+      );
+    }
+  };
+
   const isOperationSelected = (operationId: string) => {
     return selectedOperations.some(op => op.id === operationId);
   };
@@ -168,6 +189,7 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
           service_ids: op.id,
           operation_name: op.name,
           price: op.price || 0,
+          operation_note: op.note,
         })),
       };
 
@@ -212,7 +234,15 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} aria-label="operation tasks">
+          <Tab label="New Operation Request" />
+          <Tab label="Operation Results" />
+        </Tabs>
+      </Box>
+
+      {tabValue === 0 && (
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 3 }}>
         {/* Left Column - Available Operations */}
         <Box sx={{ width: { xs: '100%', lg: '65%' } }}>
           <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
@@ -436,14 +466,24 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
                                 </Typography>
                               )} */}
                             </Box>
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleRemoveOperation(operation.id)}
-                              sx={{ ml: 1 }}
-                            >
-                              <Delete fontSize="small" />
-                            </IconButton>
+                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <IconButton
+                                  size="small"
+                                  color={operation.note ? 'success' : 'secondary'}
+                                  onClick={() => handleOpenNoteModal(operation)}
+                                  sx={{ ml: 1 }}
+                                >
+                                  <MedicalInformation fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleRemoveOperation(operation.id)}
+                                  sx={{ ml: 1 }}
+                                >
+                                  <Delete fontSize="small" />
+                                </IconButton>
+                              </Box>
                           </Stack>
                         </CardContent>
                       </Card>
@@ -479,6 +519,24 @@ const OperPage: React.FC<LabPageProps> = ({ patientId }) => {
           </Paper>
         </Box>
       </Box>
+    )}
+
+    {tabValue === 1 && (
+      <Paper elevation={2}>
+        <ResultOperationPage patientId={patientId} patientName={patientName} />
+      </Paper>
+    )}
+
+    {selectedOpForNote && (
+        <OperationNoteModal
+          open={noteModalOpen}
+          onClose={() => setNoteModalOpen(false)}
+          operationName={selectedOpForNote.name}
+          patientName={patientName}
+          onSubmit={handleNoteSubmit}
+          initialData={selectedOpForNote.note}
+        />
+      )}
     </Container>
   );
 };
