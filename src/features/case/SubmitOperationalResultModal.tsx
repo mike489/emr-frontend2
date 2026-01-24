@@ -1,3 +1,4 @@
+// cspell:ignore msword
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
@@ -43,6 +44,7 @@ import {
 import { OperationalService } from '../../shared/api/services/operations.service';
 import OperationNoteModal from './OperationNoteModal';
 import { toast } from 'react-toastify';
+import OperationResultViewModal from './OperationResultViewModal';
 
 interface LabTestFile {
   uuid: string;
@@ -50,11 +52,28 @@ interface LabTestFile {
   mime_type: string;
 }
 
+interface OperationNoteData {
+  pre_op_diagnosis?: string;
+  post_op_diagnosis?: string;
+  procedure?: string;
+  anesthesia_type?: string;
+  findings?: string;
+  post_op_plan?: string;
+}
+
+type OperationResultPayload =
+  | {
+      operation_note?: OperationNoteData;
+      [key: string]: unknown;
+    }
+  | string
+  | null;
+
 interface LabTestResult {
   id: string;
   test?: string; // From old format
   service_name?: string; // From new API format
-  result: string | null;
+  result: OperationResultPayload;
   amount: string;
   is_payment_completed: boolean;
   technician: string | null;
@@ -104,6 +123,11 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   const [success, setSuccess] = useState(false);
   const [viewingFiles, setViewingFiles] = useState<LabTestFile[] | null>(null);
   const [viewDialogTestName, setViewDialogTestName] = useState<string>('');
+  const [resultViewer, setResultViewer] = useState<{
+    testName: string;
+    noteData?: OperationNoteData;
+    plainText?: string;
+  } | null>(null);
   const [activeTestForNote, setActiveTestForNote] = useState<LabTestResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -121,10 +145,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
     }
 
     return labTests as LabTestResult[];
-  };
-
-  const getCompletedTestsWithFiles = () => {
-    return getAllTests().filter(test => test.files && test.files.length > 0 && !!test.result);
   };
 
   // Fetch laboratory tests when modal opens
@@ -309,8 +329,20 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
               testNotes[test.id][key]
             );
           });
-        } else if (test.result) {
-          // Re-send existing result if present
+        } else if (
+          test.result &&
+          typeof test.result === 'object' &&
+          'operation_note' in test.result
+        ) {
+          Object.entries(test.result.operation_note || {}).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+              formData.append(
+                `patient_services[${index}][result][operation_note][${key}]`,
+                String(value)
+              );
+            }
+          });
+        } else if (typeof test.result === 'string') {
           formData.append(`patient_services[${index}][result]`, test.result);
         }
 
@@ -342,8 +374,39 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
   };
 
   const getTestStatus = (test: LabTestResult) => {
-    if (test.result) return { status: 'Completed', color: 'success' as const };
+    const hasResultPayload =
+      !!getOperationNoteData(test) || !!getPlainResult(test) || hasNoteForTest(test.id);
+
+    if (hasResultPayload) return { status: 'Completed', color: 'success' as const };
     return { status: 'Awaiting Results', color: 'warning' as const };
+  };
+
+  const getOperationNoteData = (test: LabTestResult): OperationNoteData | null => {
+    if (testNotes[test.id]) return testNotes[test.id];
+    if (!test.result || typeof test.result === 'string') return null;
+    return test.result.operation_note || null;
+  };
+
+  const getPlainResult = (test: LabTestResult): string | null => {
+    if (testNotes[test.id] && typeof testNotes[test.id] === 'string') {
+      return String(testNotes[test.id]);
+    }
+
+    if (typeof test.result === 'string') return test.result;
+    return null;
+  };
+
+  const handleViewResult = (test: LabTestResult) => {
+    const noteData = getOperationNoteData(test);
+    const plainText = getPlainResult(test);
+
+    if (!noteData && !plainText) return;
+
+    setResultViewer({
+      testName: getTestDisplayName(test),
+      noteData: noteData || undefined,
+      plainText: !noteData ? plainText || undefined : undefined,
+    });
   };
 
   const handleUploadForTest = (testId: string, testName: string) => {
@@ -392,7 +455,7 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           {!canSubmitResults() && getAllTests().length > 0 && (
             <Alert severity="info" sx={{ mb: 2 }}>
               <Typography variant="body2">
-                <strong>Submission Requirement:</strong> The backend requires results and files for{' '}
+                <strong>Submission Requirement:</strong> The requires results and files for{' '}
                 <strong>all</strong> operations in this request.
               </Typography>
               {getMissingRequirements().length > 0 && (
@@ -432,35 +495,6 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
             </Box>
           ) : (
             <Box>
-              {/* Completed Tests with Files */}
-              {getCompletedTestsWithFiles().length > 0 && (
-                <Box mb={3}>
-                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                    Completed Operations with Files
-                  </Typography>
-                  <Box display="flex" flexWrap="wrap" gap={2}>
-                    {getCompletedTestsWithFiles().map(test => (
-                      <Paper key={test.id} variant="outlined" sx={{ p: 1.5, minWidth: 200 }}>
-                        <Typography variant="body2" fontWeight="bold">
-                          {getTestDisplayName(test)}
-                        </Typography>
-                        <Button
-                          size="small"
-                          startIcon={<Visibility />}
-                          onClick={() => {
-                            setViewingFiles(test.files || null);
-                            setViewDialogTestName(getTestDisplayName(test));
-                          }}
-                        >
-                          View {test.files?.length} Files
-                        </Button>
-                      </Paper>
-                    ))}
-                  </Box>
-                </Box>
-              )}
-
-              {/* Pending or Unsubmitted Results */}
               {isGroupedFormat(labTests) ? (
                 labTests.map((group, idx) => {
                   const hasVisibleTests = group.tests.length > 0;
@@ -496,7 +530,10 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                             <TableBody>
                               {group.tests.map(test => {
                                 const isPaid = test.is_payment_completed;
-                                const hasRes = !!test.result;
+                                const noteData = getOperationNoteData(test);
+                                const plainResult = getPlainResult(test);
+                                const hasRes =
+                                  !!noteData || !!plainResult || hasNoteForTest(test.id);
                                 const testFiles = getFilesForTest(test.id);
                                 return (
                                   <TableRow key={test.id} sx={{ opacity: hasRes ? 0.7 : 1 }}>
@@ -536,13 +573,23 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                       </Box>
                                     </TableCell>
                                     <TableCell>
-                                      {hasRes || hasNoteForTest(test.id) ? (
-                                        <Typography
-                                          variant="body2"
-                                          sx={{ fontStyle: 'italic', color: 'text.secondary' }}
-                                        >
-                                          {hasRes ? 'Submitted' : 'Note added'}
-                                        </Typography>
+                                      {hasRes ? (
+                                        <Box display="flex" alignItems="center" gap={1}>
+                                          <Typography
+                                            variant="body2"
+                                            sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+                                          >
+                                            Submitted
+                                          </Typography>
+                                          <Button
+                                            size="small"
+                                            variant="text"
+                                            startIcon={<Visibility fontSize="small" />}
+                                            onClick={() => handleViewResult(test)}
+                                          >
+                                            View
+                                          </Button>
+                                        </Box>
                                       ) : (
                                         <Button
                                           size="small"
@@ -588,7 +635,9 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                     <TableBody>
                       {getAllTests().map(test => {
                         const isPaid = test.is_payment_completed;
-                        const hasRes = !!test.result;
+                        const noteData = getOperationNoteData(test);
+                        const plainResult = getPlainResult(test);
+                        const hasRes = !!noteData || !!plainResult || hasNoteForTest(test.id);
                         const testFiles = getFilesForTest(test.id);
                         return (
                           <TableRow key={test.id} sx={{ opacity: hasRes ? 0.7 : 1 }}>
@@ -617,24 +666,37 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
                                 {test.files && test.files.length > 0 && (
                                   <IconButton
                                     size="small"
+                                    sx={{ color: 'primary.main', p: 1 }}
                                     onClick={() => {
                                       setViewingFiles(test.files || null);
                                       setViewDialogTestName(getTestDisplayName(test));
                                     }}
                                   >
-                                    <Visibility fontSize="small" />
+                                    <Typography fontSize="small" sx={{ color: 'primary.main' }}>
+                                      View File
+                                    </Typography>
                                   </IconButton>
                                 )}
                               </Box>
                             </TableCell>
                             <TableCell>
-                              {hasRes || hasNoteForTest(test.id) ? (
-                                <Typography
-                                  variant="body2"
-                                  sx={{ fontStyle: 'italic', color: 'text.secondary' }}
-                                >
-                                  {hasRes ? 'Submitted' : 'Note added'}
-                                </Typography>
+                              {hasRes ? (
+                                <Box display="flex" alignItems="center" gap={1}>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+                                  >
+                                    Submitted
+                                  </Typography>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<Visibility fontSize="small" />}
+                                    onClick={() => handleViewResult(test)}
+                                  >
+                                    View
+                                  </Button>
+                                </Box>
                               ) : (
                                 <Button
                                   size="small"
@@ -719,6 +781,17 @@ const SubmitOperationalResultModal: React.FC<SubmitOperationalResultModalProps> 
           {submitting ? 'Submitting...' : 'Submit Results'}
         </Button>
       </DialogActions>
+
+      {/* Operation Result Viewer */}
+      {resultViewer && (
+        <OperationResultViewModal
+          open={!!resultViewer}
+          onClose={() => setResultViewer(null)}
+          testName={resultViewer.testName}
+          noteData={resultViewer.noteData}
+          plainText={resultViewer.plainText}
+        />
+      )}
 
       {/* File List Dialog */}
       <Dialog open={!!viewingFiles} onClose={() => setViewingFiles(null)} maxWidth="xs" fullWidth>

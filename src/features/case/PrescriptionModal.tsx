@@ -189,18 +189,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               required
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              label="Quantity"
-              type="number"
-              fullWidth
-              size="small"
-              value={formData.quantity}
-              onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
-              required
-              inputProps={{ min: 1 }}
-            />
-          </Grid>
+
           <Grid size={{ xs: 12 }}>
             <TextField
               label="Instructions"
@@ -213,17 +202,7 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, instructions: e.target.value }))}
             />
           </Grid>
-          <Grid size={{ xs: 12 }}>
-            <TextField
-              label="Note"
-              fullWidth
-              multiline
-              rows={2}
-              size="small"
-              value={formData.note}
-              onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
-            />
-          </Grid>
+
         </Grid>
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>

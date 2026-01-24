@@ -64,6 +64,12 @@ interface PharmacyPatient {
 interface PharmacyOrderItemResponse {
   id: string;
   quantity: string;
+  dose?: string | null;
+  route?: string | null;
+  duration?: string | null;
+  form?: string | null;
+  strength?: string | null;
+  instructions?: string | null;
   note: string | null;
   frequency: string | null;
   is_payment_completed: string;
@@ -106,6 +112,16 @@ interface LocalOrderItem {
   status: string;
   default_code: string;
   is_payment_completed: any;
+  dose?: string;
+  route?: string;
+  duration?: string;
+  form?: string;
+  strength?: string;
+  instructions?: string;
+  note?: string;
+  frequency?: string;
+  created_at?: string;
+  medicine?: PharmacyOrderItemResponse['medicine'];
 }
 
 interface PaginationState {
@@ -279,14 +295,14 @@ const PharmacyTodayCases: React.FC = () => {
     const items: LocalOrderItem[] = orderItems.map((item: any) => ({
       id: item.id,
       medicine_id: item.medicine_id,
-      name: item.medicine.name,
+      name: item.medicine?.name || 'Unknown',
       quantity: parseInt(item.quantity) || 0,
-      price: item.medicine.price,
+      price: item.medicine?.price || '0',
       total_price: (
-        (parseInt(item.quantity) || 0) * (parseFloat(item.medicine.price) || 0)
+        (parseInt(item.quantity) || 0) * (parseFloat(item.medicine?.price) || 0)
       ).toFixed(2),
-      status: item.medicine.status,
-      default_code: item.medicine.default_code,
+      status: item.medicine?.status || '0',
+      default_code: item.medicine?.default_code || '',
       is_payment_completed:
         String(item.is_payment_completed) === '1' ||
         item.is_payment_completed === 1 ||
@@ -294,6 +310,16 @@ const PharmacyTodayCases: React.FC = () => {
         String(item.is_payment_completed).toLowerCase() === 'true'
           ? '1'
           : '0',
+      dose: item.dose || undefined,
+      route: item.route || undefined,
+      duration: item.duration || undefined,
+      form: item.form || undefined,
+      strength: item.strength || undefined,
+      instructions: item.instructions || undefined,
+      note: item.note || undefined,
+      frequency: item.frequency || undefined,
+      created_at: item.created_at,
+      medicine: item.medicine,
     }));
 
     // Get the most recent order date

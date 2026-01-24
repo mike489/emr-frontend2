@@ -16,7 +16,7 @@ import {
   Alert,
   CircularProgress,
   IconButton,
-  Tooltip,
+  // Tooltip,
   Container,
   InputAdornment,
   Grid,
@@ -24,8 +24,8 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+// import AddIcon from '@mui/icons-material/Add';
+// import RemoveIcon from '@mui/icons-material/Remove';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -137,26 +137,26 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({
     }
   };
 
-  const handleQuantityChange = (medicineId: string, delta: number) => {
-    setSelectedMedicines(prev =>
-      prev.map(item => {
-        if (item.id === medicineId) {
-          const newQuantity = item.quantity + delta;
-          return { ...item, quantity: newQuantity > 0 ? newQuantity : 1 };
-        }
-        return item;
-      })
-    );
-  };
+  // const handleQuantityChange = (medicineId: string, delta: number) => {
+  //   setSelectedMedicines(prev =>
+  //     prev.map(item => {
+  //       if (item.id === medicineId) {
+  //         const newQuantity = item.quantity + delta;
+  //         return { ...item, quantity: newQuantity > 0 ? newQuantity : 1 };
+  //       }
+  //       return item;
+  //     })
+  //   );
+  // };
 
-  const handleQuantityInputChange = (medicineId: string, value: string) => {
-    const quantity = parseInt(value) || 1;
-    setSelectedMedicines(prev =>
-      prev.map(item =>
-        item.id === medicineId ? { ...item, quantity: quantity > 0 ? quantity : 1 } : item
-      )
-    );
-  };
+  // const handleQuantityInputChange = (medicineId: string, value: string) => {
+  //   const quantity = parseInt(value) || 1;
+  //   setSelectedMedicines(prev =>
+  //     prev.map(item =>
+  //       item.id === medicineId ? { ...item, quantity: quantity > 0 ? quantity : 1 } : item
+  //     )
+  //   );
+  // };
 
   const handleRemoveMedicine = (medicineId: string) => {
     setSelectedMedicines(prev => prev.filter(item => item.id !== medicineId));
@@ -225,7 +225,9 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({
       };
       await LaboratoryService.createPharmacyMedicinesOrder(patientId, orderData);
       toast.success('Prescription saved successfully!');
-      setSelectedMedicines([]);
+      if (selectedMedicineForPrescription) {
+        setSelectedMedicines(prev => prev.filter(item => item.id !== selectedMedicineForPrescription.id));
+      }
     } catch (err: any) {
       console.error('Failed to save prescription:', err);
       toast.error(err.response?.data?.message || 'Failed to save prescription');
@@ -444,17 +446,10 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({
                                 <Typography variant="subtitle2" fontWeight="bold">
                                   {medicine.name}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  Code: {medicine.default_code}
-                                </Typography>
-                                {/* <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
-                                  ${parseFloat(medicine.price).toFixed(2)} × {medicine.quantity} = $
-                                  {subtotal.toFixed(2)}
-                                </Typography> */}
                               </Box>
 
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Box
+                                {/* <Box
                                   sx={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -491,17 +486,7 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({
                                       <AddIcon fontSize="small" />
                                     </IconButton>
                                   </Tooltip>
-                                </Box>
-                                <Tooltip title="Add Prescription">
-                                  <IconButton
-                                    size="small"
-                                    color="secondary"
-                                    onClick={() => handleOpenPrescription(medicine)}
-                                    sx={{ ml: 1 }}
-                                  >
-                                    <MedicalInformationIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
+                                </Box> */}
                                 <IconButton
                                   size="small"
                                   color="error"
@@ -512,6 +497,15 @@ const PharmacyMedicinesOrder: React.FC<PharmacyMedicinesOrderProps> = ({
                                 </IconButton>
                               </Box>
                             </Stack>
+                            <Button
+                              size="small"
+                              color="secondary"
+                              startIcon={<MedicalInformationIcon fontSize="small" />}
+                              onClick={() => handleOpenPrescription(medicine)}
+                              sx={{ mt: 1, textTransform: 'none', pl: 0 }}
+                            >
+                              Add Prescription
+                            </Button>
                           </CardContent>
                         </Card>
                       );

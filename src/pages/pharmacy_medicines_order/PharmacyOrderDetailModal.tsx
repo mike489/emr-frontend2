@@ -7,13 +7,7 @@ import {
   IconButton,
   Typography,
   Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
+  // Chip,
   CircularProgress,
   Alert,
   Button,
@@ -24,18 +18,38 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
-import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+// import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+
+interface MedicineInfo {
+  id: string;
+  name: string;
+  price?: string;
+  description?: string;
+  default_code?: string;
+  status?: string;
+  created_at?: string;
+}
 
 interface OrderItem {
   id: string;
   medicine_id: string;
-  name: string;
-  quantity: number;
-  price: string;
-  total_price: string;
-  status: string | number;
-  default_code: string;
-  is_payment_completed: any;
+  name?: string;
+  quantity: number | string;
+  price?: string;
+  total_price?: string;
+  status?: string | number;
+  default_code?: string;
+  is_payment_completed: string | number | boolean;
+  dose?: string;
+  route?: string;
+  frequency?: string;
+  duration?: string;
+  form?: string;
+  strength?: string;
+  instructions?: string;
+  note?: string;
+  created_at?: string;
+  medicine?: MedicineInfo;
 }
 
 interface PharmacyOrder {
@@ -59,7 +73,6 @@ interface PharmacyOrderDetailModalProps {
   onResultSubmit?: () => void;
 }
 
-
 // Styled component for screen-only content
 const ScreenOnlyContent = styled(Box)(({}) => ({
   '@media print': {
@@ -79,6 +92,44 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
   const [results, setResults] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const isPaid = (value: OrderItem['is_payment_completed']) => {
+    return value === true || value === '1' || value === 1;
+  };
+
+  const getItemName = (item: OrderItem) => item.name || item.medicine?.name || 'Unknown';
+
+  const getItemCode = (item: OrderItem) => item.default_code || item.medicine?.default_code || '';
+
+  // const getItemPrice = (item: OrderItem) => {
+  //   const price = item.price || item.medicine?.price;
+  //   return price ? parseFloat(price) : 0;
+  // };
+
+  const DetailField: React.FC<{ label: string; value?: string | null }> = ({ label, value }) => (
+    <Box>
+      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        {value && String(value).trim() !== '' ? value : '—'}
+      </Typography>
+    </Box>
+  );
+
+  const DetailLongField: React.FC<{ label: string; value?: string | null }> = ({
+    label,
+    value,
+  }) => (
+    <Box>
+      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.25 }}>
+        {value && String(value).trim() !== '' ? value : '—'}
+      </Typography>
+    </Box>
+  );
 
   const handleResultChange = (itemId: string, value: string) => {
     setResults(prev => ({ ...prev, [itemId]: value }));
@@ -178,7 +229,8 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
               max-width: 800px;
               margin: 0 auto;
               position: relative;
-              min-height: 1000px;
+              min-height: 900px;
+              padding-bottom: 80px;
             }
             .header {
               text-align: center;
@@ -230,11 +282,12 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
               font-size: 18px;
             }
             .footer {
-              position: absolute;
-              bottom: 100px;
+              position: relative;
               width: 100%;
               display: flex;
               justify-content: flex-end;
+              margin-top: 40px;
+              page-break-inside: avoid;
             }
             .signature-box {
               text-align: center;
@@ -271,34 +324,32 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
             </div>
             
             <div class="rx-symbol">℞</div>
-            
-            <table class="medication-table">
-              <thead>
-                <tr>
-                  <th>Medication Details</th>
-                  <th style="text-align: center; width: 100px;">Qty</th>
-                  <th style="text-align: right; width: 150px;">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsToPrint
-                  .map(
-                    item => `
-                  <tr style="${item.is_payment_completed === '1' ? 'text-decoration: line-through;' : ''}">
-                    <td>
-                      <div style="font-weight: bold;">${item.name}</div>
-                      <div style="font-size: 14px; color: #666;">Unit Price: Birr ${parseFloat(item.price).toFixed(2)}</div>
-                    </td>
-                    <td style="text-align: center;">${item.quantity}</td>
-                    <td style="text-align: right; font-style: italic; color: ${item.is_payment_completed === '1' ? '#27ae60' : '#e74c3c'}">
-                      ${item.is_payment_completed === '1' ? 'Paid' : 'Unpaid'}
-                    </td>
-                  </tr>
-                `
-                  )
-                  .join('')}
-              </tbody>
-            </table>
+            <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 10px;">
+              ${itemsToPrint
+                .map(
+                  item => `
+                <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px 16px; background: ${isPaid(item.is_payment_completed) ? '#f8fff8' : '#fff'}; box-shadow: 0 6px 18px rgba(0,0,0,0.05); text-decoration: ${isPaid(item.is_payment_completed) ? 'line-through' : 'none'};">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                    <div>
+                      <div style="font-weight: 700; font-size: 18px;">${getItemName(item)}${getItemCode(item) ? ' • ' + getItemCode(item) : ''}</div>
+                      <div style="font-size: 14px; color: #555;">Qty: ${item.quantity}</div>
+                      ${item.created_at ? `<div style=\"font-size: 13px; color: #777;\">${formatDate(item.created_at)}</div>` : ''}
+                    </div>
+                    <span style="padding: 0; min-width: 12px;"></span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; font-size: 14px; color: #333;">
+                    <div><strong>Dose:</strong> ${item.dose || '-'}</div>
+                    <div><strong>Route:</strong> ${item.route || '-'}</div>
+                    <div><strong>Frequency:</strong> ${item.frequency || '-'}</div>
+                    <div><strong>Duration:</strong> ${item.duration || '-'}</div>
+                    <div><strong>Form:</strong> ${item.form || '-'}</div>
+                    <div><strong>Strength:</strong> ${item.strength || '-'}</div>
+                  </div>
+                </div>
+              `
+                )
+                .join('')}
+            </div>
             
             ${
               order.notes
@@ -350,12 +401,15 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
   //   return statusMap[status] || { label: 'Unknown', color: 'default' };
   // };
 
-  const calculateSelectedTotal = () => {
-    if (!order) return 0;
-    return order.items
-      .filter(item => selectedItems.includes(item.id))
-      .reduce((sum, item) => sum + parseFloat(item.total_price), 0);
-  };
+  // const calculateSelectedTotal = () => {
+  //   if (!order) return 0;
+  //   return order.items
+  //     .filter(item => selectedItems.includes(item.id))
+  //     .reduce((sum, item) => {
+  //       const qty = typeof item.quantity === 'string' ? parseFloat(item.quantity) : item.quantity;
+  //       return sum + getItemPrice(item) * (qty || 0);
+  //     }, 0);
+  // };
 
   return (
     <Dialog
@@ -439,13 +493,25 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
             </Box>
 
             {/* Patient Info Bar */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4, borderBottom: '1px solid #eee', pb: 1 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                mb: 4,
+                borderBottom: '1px solid #eee',
+                pb: 1,
+              }}
+            >
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Typography variant="body1" fontWeight="bold">Patient Name:</Typography>
+                <Typography variant="body1" fontWeight="bold">
+                  Patient Name:
+                </Typography>
                 <Typography variant="body1">{order.patient_name}</Typography>
               </Box>
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Typography variant="body1" fontWeight="bold">Date:</Typography>
+                <Typography variant="body1" fontWeight="bold">
+                  Date:
+                </Typography>
                 <Typography variant="body1">{formatDate(order.created_at)}</Typography>
               </Box>
             </Box>
@@ -467,19 +533,23 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={order.items.length > 0 && selectedItems.length === order.items.length}
-                      indeterminate={selectedItems.length > 0 && selectedItems.length < order.items.length}
+                      checked={
+                        order.items.length > 0 && selectedItems.length === order.items.length
+                      }
+                      indeterminate={
+                        selectedItems.length > 0 && selectedItems.length < order.items.length
+                      }
                       onChange={handleSelectAll}
                       size="small"
                     />
                   }
                   label={
                     <Typography variant="body2" fontWeight="medium">
-                      Select for Print (${selectedItems.length}/${order.items.length})
+                      Select for Print
                     </Typography>
                   }
                 />
-                <Stack direction="row" spacing={2}>
+                {/* <Stack direction="row" spacing={2}>
                   <Chip
                     icon={<LocalPharmacyIcon />}
                     label={`Bill: Birr ${calculateSelectedTotal().toFixed(2)}`}
@@ -487,7 +557,7 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
                     variant="outlined"
                     size="small"
                   />
-                </Stack>
+                </Stack> */}
               </Box>
             </ScreenOnlyContent>
 
@@ -506,65 +576,84 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
             </Typography>
 
             {/* Medication List */}
-            <Box sx={{ mt: 2 }}>
-              <TableContainer component={Box}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ borderBottom: '2px solid #1a237e', fontWeight: 'bold' }}>Medication</TableCell>
-                      <TableCell align="center" sx={{ borderBottom: '2px solid #1a237e', fontWeight: 'bold' }}>Qty</TableCell>
-                      <TableCell align="right" sx={{ borderBottom: '2px solid #1a237e', fontWeight: 'bold' }}>Status</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {order.items.map(item => (
-                      <TableRow
-                        key={item.id}
-                        sx={{
-                          '& td': { borderBottom: '1px solid #f5f5f5', py: 2 },
-                          textDecoration: (item.is_payment_completed === '1' && selectedItems.length === 0) || (selectedItems.includes(item.id) && item.is_payment_completed === '1') ? 'line-through' : 'none',
-                          opacity: (selectedItems.length > 0 && !selectedItems.includes(item.id)) ? 0.5 : 1,
-                          transition: 'opacity 0.2s',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => handleSelectItem(item.id)}
+            <Box sx={{ mt: 1 }}>
+              <Stack spacing={1}>
+                {order.items.map(item => {
+                  const selected = selectedItems.includes(item.id);
+                  return (
+                    <Box
+                      key={item.id}
+                      onClick={() => handleSelectItem(item.id)}
+                      data-paid={isPaid(item.is_payment_completed) ? 'true' : 'false'}
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: selected ? 'primary.main' : 'grey.200',
+                        boxShadow: selected
+                          ? '0 4px 12px rgba(26,35,126,0.12)'
+                          : '0 2px 6px rgba(0,0,0,0.04)',
+                        backgroundColor: selected ? 'rgba(26,35,126,0.04)' : 'white',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        textDecoration: isPaid(item.is_payment_completed) ? 'line-through' : 'none',
+                      }}
+                    >
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        gap={1}
                       >
-                        <TableCell>
-                          <Typography variant="body1" fontWeight="bold">{item.name}</Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Unit Price: Birr {parseFloat(item.price).toFixed(2)}
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 0.5 }}>
+                            {getItemName(item)}
+                            {getItemCode(item) ? ` • ${getItemCode(item)}` : ''}
                           </Typography>
-                        </TableCell>
-                        <TableCell align="center">
-                          <Typography variant="body1">{item.quantity}</Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Chip
-                            label={item.is_payment_completed === '1' ? 'Paid' : 'Unpaid'}
-                            size="small"
-                            color={item.is_payment_completed === '1' ? 'success' : 'error'}
-                            variant="outlined"
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                          <Typography variant="caption" color="text.secondary">
+                            Quantity: {item.quantity}
+                          </Typography>
+                          <Typography variant="caption" display="block" color="text.secondary">
+                            {item.created_at ? formatDate(item.created_at) : '—'}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ minWidth: 24 }} />
+                      </Box>
+
+                      <Box
+                        sx={{
+                          mt: 1,
+                          display: 'grid',
+                          gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
+                          gap: 1,
+                        }}
+                      >
+                        <DetailField label="Dose" value={item.dose} />
+                        <DetailField label="Route" value={item.route} />
+                        <DetailField label="Frequency" value={item.frequency} />
+                        <DetailField label="Duration" value={item.duration} />
+                        <DetailField label="Form" value={item.form} />
+                        <DetailField label="Strength" value={item.strength} />
+                      </Box>
+
+                      <Box
+                        sx={{
+                          mt: 1,
+                          display: 'grid',
+                          gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                          gap: 1,
+                        }}
+                      >
+                        <DetailLongField label="Instructions" value={item.instructions} />
+                        <DetailLongField label="Note" value={item.note} />
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Stack>
             </Box>
 
             {/* Instructions / Notes */}
-            {order.notes && (
-              <Box sx={{ mt: 4 }}>
-                <Typography variant="subtitle2" fontWeight="bold" sx={{ color: '#1a237e' }}>
-                  Instructions:
-                </Typography>
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1, p: 2, bgcolor: '#fafafa', borderRadius: 1 }}>
-                  {order.notes}
-                </Typography>
-              </Box>
-            )}
-
             {/* Footer Signature Area */}
             <Box
               sx={{
@@ -577,7 +666,9 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
             >
               <Box sx={{ width: '250px' }}>
                 <Box sx={{ borderTop: '1px solid #1a237e', pt: 1 }}>
-                  <Typography variant="body2" fontWeight="bold">Doctor's Signature & Stamp</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    Doctor's Signature & Stamp
+                  </Typography>
                 </Box>
               </Box>
             </Box>
