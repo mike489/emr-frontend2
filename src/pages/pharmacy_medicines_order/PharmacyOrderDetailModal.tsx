@@ -99,37 +99,47 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
 
   const getItemName = (item: OrderItem) => item.name || item.medicine?.name || 'Unknown';
 
-  const getItemCode = (item: OrderItem) => item.default_code || item.medicine?.default_code || '';
+  // const getItemCode = (item: OrderItem) => item.default_code || item.medicine?.default_code || '';
 
   // const getItemPrice = (item: OrderItem) => {
   //   const price = item.price || item.medicine?.price;
   //   return price ? parseFloat(price) : 0;
   // };
+  const getMedicationSentence = (item: OrderItem) => {
+    const dose = item.dose || '';
+    const form = item.form || 'units';
+    const route = item.route ? `by ${item.route}` : '';
+    const freq = item.frequency ? `${item.frequency}` : '';
+    const dur = item.duration ? `for ${item.duration}` : '';
 
-  const DetailField: React.FC<{ label: string; value?: string | null }> = ({ label, value }) => (
-    <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
-        {label}
-      </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-        {value && String(value).trim() !== '' ? value : '—'}
-      </Typography>
-    </Box>
-  );
+    // Clean up extra spaces and return a natural sentence
+    return `Take ${dose} ${form} ${route} ${freq} ${dur}`.replace(/\s+/g, ' ').trim() + '.';
+  };
 
-  const DetailLongField: React.FC<{ label: string; value?: string | null }> = ({
-    label,
-    value,
-  }) => (
-    <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
-        {label}
-      </Typography>
-      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.25 }}>
-        {value && String(value).trim() !== '' ? value : '—'}
-      </Typography>
-    </Box>
-  );
+  // const DetailField: React.FC<{ label: string; value?: string | null }> = ({ label, value }) => (
+  //   <Box>
+  //     <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+  //       {label}
+  //     </Typography>
+  //     <Typography variant="body2" sx={{ fontWeight: 600 }}>
+  //       {value && String(value).trim() !== '' ? value : '—'}
+  //     </Typography>
+  //   </Box>
+  // );
+
+  // const DetailLongField: React.FC<{ label: string; value?: string | null }> = ({
+  //   label,
+  //   value,
+  // }) => (
+  //   <Box>
+  //     <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+  //       {label}
+  //     </Typography>
+  //     <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.25 }}>
+  //       {value && String(value).trim() !== '' ? value : '—'}
+  //     </Typography>
+  //   </Box>
+  // );
 
   const handleResultChange = (itemId: string, value: string) => {
     setResults(prev => ({ ...prev, [itemId]: value }));
@@ -201,15 +211,11 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
   const handlePrint = () => {
     if (!order) return;
 
-    // Filter items based on selection
     const itemsToPrint =
       selectedItems.length > 0
         ? order.items.filter(item => selectedItems.includes(item.id))
         : order.items;
 
-    // Calculate total for selected items
-
-    // Create print-specific window
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
@@ -221,166 +227,142 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
             @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap');
             body {
               font-family: 'Crimson Pro', serif;
-              margin: 40px;
+              margin: 50px;
               color: #1a1a1a;
-              line-height: 1.6;
-            }
-            .prescription-pad {
-              max-width: 800px;
-              margin: 0 auto;
-              position: relative;
-              min-height: 900px;
-              padding-bottom: 80px;
+              line-height: 1.5;
             }
             .header {
               text-align: center;
-              margin-bottom: 40px;
-              border-bottom: 2px double #2c3e50;
-              padding-bottom: 20px;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #1a237e;
+              padding-bottom: 15px;
             }
             .clinic-name {
-              font-size: 32px;
+              font-size: 28px;
               font-weight: 700;
-              color: #2c3e50;
-              letter-spacing: 1px;
+              color: #1a237e;
+              text-transform: uppercase;
             }
-            .clinic-details {
-              font-size: 14px;
-              color: #7f8c8d;
-            }
-            .patient-section {
-              display: grid;
-              grid-template-columns: 2fr 1fr;
-              margin-bottom: 40px;
-              font-size: 18px;
+            .patient-info {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 30px;
+              font-size: 16px;
               border-bottom: 1px solid #eee;
               padding-bottom: 10px;
             }
             .rx-symbol {
-              font-size: 60px;
-              font-family: 'Times New Roman', serif;
+              font-size: 45px;
               font-weight: bold;
-              color: #2c3e50;
-              margin: 20px 0;
+              margin: 10px 0;
+              color: #1a237e;
             }
-            .medication-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 50px;
+            .medication-list {
+              margin-left: 20px;
             }
-            .medication-table th {
-              text-align: left;
-              border-bottom: 2px solid #2c3e50;
-              padding: 12px;
-              font-size: 16px;
-              text-transform: uppercase;
-              color: #2c3e50;
+            .medication-item {
+              margin-bottom: 25px;
             }
-            .medication-table td {
-              padding: 15px 12px;
-              border-bottom: 1px solid #eee;
+            .med-name {
               font-size: 18px;
+              font-weight: 700;
+              text-decoration: underline;
+            }
+            .med-sentence {
+              font-size: 17px;
+              margin-top: 5px;
+              font-style: italic;
+              color: #333;
+            }
+            .instructions {
+              margin-top: 5px;
+              font-size: 15px;
+              color: #555;
+              padding-left: 20px;
+              border-left: 2px solid #eee;
             }
             .footer {
-              position: relative;
-              width: 100%;
+              margin-top: 100px;
               display: flex;
               justify-content: flex-end;
-              margin-top: 40px;
-              page-break-inside: avoid;
             }
-            .signature-box {
+            .sig-box {
               text-align: center;
               width: 250px;
             }
-            .signature-line {
-              border-top: 1px solid #2c3e50;
-              margin-top: 50px;
-              padding-top: 10px;
-              font-weight: 600;
-            }
-            @media print {
-              .no-print { display: none; }
-              body { margin: 0; }
+            .sig-line {
+              border-top: 1px solid #000;
+              padding-top: 5px;
+              font-weight: bold;
             }
           </style>
         </head>
         <body>
-          <div class="prescription-pad">
-            <div class="header">
-              <div class="clinic-name">DROGA TECHNOLOGY EMR</div>
-              <div class="clinic-details">
-                Addis Ababa, Ethiopia | Tel: +251 112 345 678 | Email: contact@drogatech.com
-              </div>
-            </div>
-            
-            <div class="patient-section">
-              <div>
-                <strong>Patient Name:</strong> ${order.patient_name}
-              </div>
-              <div style="text-align: right;">
-                <strong>Date:</strong> ${formatDate(order.created_at)}
-              </div>
-            </div>
-            
-            <div class="rx-symbol">℞</div>
-            <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 10px;">
-              ${itemsToPrint
-                .map(
-                  item => `
-                <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px 16px; background: ${isPaid(item.is_payment_completed) ? '#f8fff8' : '#fff'}; box-shadow: 0 6px 18px rgba(0,0,0,0.05); text-decoration: ${isPaid(item.is_payment_completed) ? 'line-through' : 'none'};">
-                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-                    <div>
-                      <div style="font-weight: 700; font-size: 18px;">${getItemName(item)}${getItemCode(item) ? ' • ' + getItemCode(item) : ''}</div>
-                      <div style="font-size: 14px; color: #555;">Qty: ${item.quantity}</div>
-                      ${item.created_at ? `<div style=\"font-size: 13px; color: #777;\">${formatDate(item.created_at)}</div>` : ''}
-                    </div>
-                    <span style="padding: 0; min-width: 12px;"></span>
-                  </div>
-                  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; font-size: 14px; color: #333;">
-                    <div><strong>Dose:</strong> ${item.dose || '-'}</div>
-                    <div><strong>Route:</strong> ${item.route || '-'}</div>
-                    <div><strong>Frequency:</strong> ${item.frequency || '-'}</div>
-                    <div><strong>Duration:</strong> ${item.duration || '-'}</div>
-                    <div><strong>Form:</strong> ${item.form || '-'}</div>
-                    <div><strong>Strength:</strong> ${item.strength || '-'}</div>
-                  </div>
-                </div>
-              `
-                )
-                .join('')}
-            </div>
-            
-            ${
-              order.notes
-                ? `
-              <div style="margin-top: 20px;">
-                <strong>Instructions:</strong>
-                <p style="white-space: pre-wrap;">${order.notes}</p>
-              </div>
-            `
-                : ''
-            }
-            
-            <div class="footer">
-              <div class="signature-box">
-                <div class="signature-line">Doctor's Signature & Stamp</div>
-              </div>
-            </div>
+          <div class="header">
+            <div class="clinic-name">DROGA TECHNOLOGY EMR</div>
+            <div style="font-size: 14px;">Addis Ababa, Ethiopia | Tel: +251 112 345 678</div>
           </div>
           
+          <div class="patient-info">
+            <div><strong>Patient:</strong> ${order.patient_name}</div>
+            <div><strong>Date:</strong> ${formatDate(order.created_at)}</div>
+          </div>
+          
+          <div class="rx-symbol">℞</div>
+          
+          <div class="medication-list">
+            ${itemsToPrint
+              .map(item => {
+                // Create the sentence logic
+                const dose = item.dose ? item.dose : '';
+                const form = item.form ? item.form : 'units';
+                const route = item.route ? `by ${item.route}` : '';
+                const freq = item.frequency ? `${item.frequency}` : '';
+                const dur = item.duration ? `for ${item.duration}` : '';
+
+                // Formatting the sentence: "Take 2 Tablet by mouth Daily for 7 days"
+                const sentence = `Take ${dose} ${form} ${route} ${freq} ${dur}.`
+                  .replace(/\s+/g, ' ')
+                  .trim();
+
+                return `
+                <div class="medication-item">
+                  <div class="med-name">${getItemName(item)} ${item.strength || ''} (Qty: ${item.quantity})</div>
+                  <div class="med-sentence">Sig: ${sentence}</div>
+                  ${item.instructions ? `<div class="instructions"><strong>Note:</strong> ${item.instructions}</div>` : ''}
+                </div>
+              `;
+              })
+              .join('')}
+          </div>
+
+          ${
+            order.notes
+              ? `
+            <div style="margin-top: 30px;">
+              <strong>General Consultation Notes:</strong>
+              <p>${order.notes}</p>
+            </div>
+          `
+              : ''
+          }
+          
+          <div class="footer">
+            <div class="sig-box">
+              <br><br>
+              <div class="sig-line">Doctor's Signature & Stamp</div>
+            </div>
+          </div>
+
           <script>
             window.onload = function() {
               window.print();
-              setTimeout(function() {
-                window.close();
-              }, 100);
+              setTimeout(() => window.close(), 500);
             };
           </script>
         </body>
         </html>
       `);
-
       printWindow.document.close();
     }
   };
@@ -576,77 +558,77 @@ const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> = ({
             </Typography>
 
             {/* Medication List */}
-            <Box sx={{ mt: 1 }}>
-              <Stack spacing={1}>
-                {order.items.map(item => {
-                  const selected = selectedItems.includes(item.id);
+            <Box sx={{ mt: 3, px: 2 }}>
+              <Stack spacing={4}>
+                {order.items.map((item, index) => {
+                  // const selected = selectedItems.includes(item.id);
+                  const paid = isPaid(item.is_payment_completed);
+
                   return (
                     <Box
                       key={item.id}
                       onClick={() => handleSelectItem(item.id)}
-                      data-paid={isPaid(item.is_payment_completed) ? 'true' : 'false'}
                       sx={{
-                        p: 1.5,
-                        borderRadius: 2,
-                        border: '1px solid',
-                        borderColor: selected ? 'primary.main' : 'grey.200',
-                        boxShadow: selected
-                          ? '0 4px 12px rgba(26,35,126,0.12)'
-                          : '0 2px 6px rgba(0,0,0,0.04)',
-                        backgroundColor: selected ? 'rgba(26,35,126,0.04)' : 'white',
-                        transition: 'all 0.2s ease',
+                        position: 'relative',
+                        pl: 4,
                         cursor: 'pointer',
-                        textDecoration: isPaid(item.is_payment_completed) ? 'line-through' : 'none',
+                        transition: 'all 0.2s',
+                        opacity: paid ? 0.6 : 1,
+                        '&:hover': { transform: 'translateX(5px)' },
                       }}
                     >
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="flex-start"
-                        gap={1}
+                      {/* Selection Indicator */}
+                      {/* <Box sx={{ position: 'absolute', left: 0, top: 0 }}>
+                        <Checkbox checked={selected} size="small" sx={{ p: 0, color: '#1a237e' }} />
+                      </Box> */}
+
+                      {/* Medicine Name & Strength */}
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          color: '#1a237e',
+                          textDecoration: paid ? 'line-through' : 'none',
+                          fontSize: '1.1rem',
+                          mb: 0.5,
+                        }}
                       >
-                        <Box>
-                          <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 0.5 }}>
-                            {getItemName(item)}
-                            {getItemCode(item) ? ` • ${getItemCode(item)}` : ''}
+                        {index + 1}. {getItemName(item)} {item.strength || ''}
+                      </Typography>
+
+                      {/* The "Sentence" Instruction */}
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontStyle: 'italic',
+                          color: '#333',
+                          fontSize: '1.05rem',
+                          lineHeight: 1.4,
+                          pl: 1,
+                          borderLeft: '3px solid #e0e0e0',
+                        }}
+                      >
+                        Sig: {getMedicationSentence(item)}
+                      </Typography>
+
+                      {/* Instructions/Notes */}
+                      {(item.instructions || item.note) && (
+                        <Box sx={{ mt: 1, ml: 1 }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontWeight: 700,
+                              color: 'text.secondary',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            Additional Notes:
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Quantity: {item.quantity}
-                          </Typography>
-                          <Typography variant="caption" display="block" color="text.secondary">
-                            {item.created_at ? formatDate(item.created_at) : '—'}
+                          <Typography variant="body2" color="text.secondary">
+                            {item.instructions} {item.note}
                           </Typography>
                         </Box>
-                        <Box sx={{ minWidth: 24 }} />
-                      </Box>
-
-                      <Box
-                        sx={{
-                          mt: 1,
-                          display: 'grid',
-                          gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
-                          gap: 1,
-                        }}
-                      >
-                        <DetailField label="Dose" value={item.dose} />
-                        <DetailField label="Route" value={item.route} />
-                        <DetailField label="Frequency" value={item.frequency} />
-                        <DetailField label="Duration" value={item.duration} />
-                        <DetailField label="Form" value={item.form} />
-                        <DetailField label="Strength" value={item.strength} />
-                      </Box>
-
-                      <Box
-                        sx={{
-                          mt: 1,
-                          display: 'grid',
-                          gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-                          gap: 1,
-                        }}
-                      >
-                        <DetailLongField label="Instructions" value={item.instructions} />
-                        <DetailLongField label="Note" value={item.note} />
-                      </Box>
+                      )}
                     </Box>
                   );
                 })}

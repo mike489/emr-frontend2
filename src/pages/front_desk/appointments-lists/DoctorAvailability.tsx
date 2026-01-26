@@ -27,17 +27,7 @@ import {
   Checkbox,
   FormGroup,
 } from '@mui/material';
-import {
-  Calendar,
-  Plus,
-  Edit,
-  Trash2,
-  Clock,
-  User,
-  Save,
-  X,
-  Repeat,
-} from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, Clock, User, Save, X, Repeat } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -154,7 +144,7 @@ const DoctorAvailability: React.FC = () => {
       const response = await doctorsService.getAll();
       const doctorsList = response.data?.data || [];
       setDoctors(doctorsList);
-      
+
       // Set first doctor as selected by default
       if (doctorsList.length > 0 && !selectedDoctor) {
         setSelectedDoctor(doctorsList[0]);
@@ -185,12 +175,16 @@ const DoctorAvailability: React.FC = () => {
     }
   };
 
-  const fetchMonthlyCalendarAvailability = async (doctorId: string, startDate?: string, endDate?: string) => {
+  const fetchMonthlyCalendarAvailability = async (
+    doctorId: string,
+    startDate?: string,
+    endDate?: string
+  ) => {
     try {
       const params: any = {};
       if (startDate) params.start = startDate;
       if (endDate) params.end = endDate;
-      
+
       const response = await doctorsService.getMonthlyCalendarAvailability(doctorId, params);
       setCalendarEvents(response.data?.data || []);
     } catch (error) {
@@ -218,82 +212,80 @@ const DoctorAvailability: React.FC = () => {
       setLoading(false);
     }
   };
-const handleCreateAvailabilityRule = async () => {
-  if (!selectedDoctor) {
-    toast.error('Please select a doctor');
-    return;
-  }
-
-  if (!newTimeSlot.start_time || !newTimeSlot.end_time) {
-    toast.error('Please provide start and end time');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    // Create base payload with required fields
-    const payload: any = {
-      doctor_id: selectedDoctor.id,
-      frequency: newTimeSlot.frequency,
-      start_time: newTimeSlot.start_time,
-      end_time: newTimeSlot.end_time,
-      title: newTimeSlot.title || 'Available Appointment',
-      appointment_type: newTimeSlot.appointment_type,
-      max_patients: newTimeSlot.max_patients,
-    };
-
-    // Add frequency-specific fields
-    switch (newTimeSlot.frequency) {
-      case 'DAILY':
-        payload.interval = newTimeSlot.interval;
-        if (newTimeSlot.until) payload.until = newTimeSlot.until;
-        if (newTimeSlot.count) payload.count = newTimeSlot.count;
-        break;
-
-      case 'WEEKLY':
-        payload.interval = newTimeSlot.interval;
-        // Ensure we have weekdays selected, use default if empty
-        payload.byweekday = newTimeSlot.byweekday.length > 0 
-          ? newTimeSlot.byweekday 
-          : getDefaultWeekdays();
-        if (newTimeSlot.until) payload.until = newTimeSlot.until;
-        if (newTimeSlot.count) payload.count = newTimeSlot.count;
-        break;
-
-      case 'MONTHLY':
-        payload.interval = newTimeSlot.interval;
-        payload.bymonthday = newTimeSlot.bymonthday;
-        if (newTimeSlot.until) payload.until = newTimeSlot.until;
-        if (newTimeSlot.count) payload.count = newTimeSlot.count;
-        break;
-
-      case 'YEARLY':
-        payload.bymonthday = newTimeSlot.bymonthday;
-        if (newTimeSlot.until) payload.until = newTimeSlot.until;
-        if (newTimeSlot.count) payload.count = newTimeSlot.count;
-        break;
+  const handleCreateAvailabilityRule = async () => {
+    if (!selectedDoctor) {
+      toast.error('Please select a doctor');
+      return;
     }
 
-    console.log('Sending payload:', payload); // Debug log
+    if (!newTimeSlot.start_time || !newTimeSlot.end_time) {
+      toast.error('Please provide start and end time');
+      return;
+    }
 
-    // FIXED: Remove selectedDoctor.id parameter
-    await doctorsService.createAvailabilityRule(payload);
-    toast.success('Availability rule created successfully');
-    await fetchMonthlyCalendarAvailability(selectedDoctor.id);
-    setSlotDialogOpen(false);
-    resetNewTimeSlot();
-  } catch (error: any) {
-    console.error('Error creating availability rule:', error);
-    toast.error(error.response?.data?.message || 'Failed to create availability rule');
-  } finally {
-    setLoading(false);
-  }
-};
-useEffect(() => {
+    setLoading(true);
+    try {
+      // Create base payload with required fields
+      const payload: any = {
+        doctor_id: selectedDoctor.id,
+        frequency: newTimeSlot.frequency,
+        start_time: newTimeSlot.start_time,
+        end_time: newTimeSlot.end_time,
+        title: newTimeSlot.title || 'Available Appointment',
+        appointment_type: newTimeSlot.appointment_type,
+        max_patients: newTimeSlot.max_patients,
+      };
+
+      // Add frequency-specific fields
+      switch (newTimeSlot.frequency) {
+        case 'DAILY':
+          payload.interval = newTimeSlot.interval;
+          if (newTimeSlot.until) payload.until = newTimeSlot.until;
+          if (newTimeSlot.count) payload.count = newTimeSlot.count;
+          break;
+
+        case 'WEEKLY':
+          payload.interval = newTimeSlot.interval;
+          // Ensure we have weekdays selected, use default if empty
+          payload.byweekday =
+            newTimeSlot.byweekday.length > 0 ? newTimeSlot.byweekday : getDefaultWeekdays();
+          if (newTimeSlot.until) payload.until = newTimeSlot.until;
+          if (newTimeSlot.count) payload.count = newTimeSlot.count;
+          break;
+
+        case 'MONTHLY':
+          payload.interval = newTimeSlot.interval;
+          payload.bymonthday = newTimeSlot.bymonthday;
+          if (newTimeSlot.until) payload.until = newTimeSlot.until;
+          if (newTimeSlot.count) payload.count = newTimeSlot.count;
+          break;
+
+        case 'YEARLY':
+          payload.bymonthday = newTimeSlot.bymonthday;
+          if (newTimeSlot.until) payload.until = newTimeSlot.until;
+          if (newTimeSlot.count) payload.count = newTimeSlot.count;
+          break;
+      }
+
+      console.log('Sending payload:', payload); // Debug log
+
+      // FIXED: Remove selectedDoctor.id parameter
+      await doctorsService.createAvailabilityRule(payload);
+      toast.success('Availability rule created successfully');
+      await fetchMonthlyCalendarAvailability(selectedDoctor.id);
+      setSlotDialogOpen(false);
+      resetNewTimeSlot();
+    } catch (error: any) {
+      console.error('Error creating availability rule:', error);
+      toast.error(error.response?.data?.message || 'Failed to create availability rule');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     if (newTimeSlot.repeat === 'none') {
       setNewTimeSlot(prev => ({ ...prev, frequency: 'DAILY' }));
     } else if (newTimeSlot.repeat === 'daily') {
-
       setNewTimeSlot(prev => ({ ...prev, frequency: 'DAILY' }));
     } else if (newTimeSlot.repeat === 'weekdays') {
       setNewTimeSlot(prev => ({ ...prev, frequency: 'WEEKLY', byweekday: getDefaultWeekdays() }));
@@ -337,7 +329,7 @@ useEffect(() => {
     try {
       await doctorsService.createAvailability(selectedDoctor.id, selectedDate, []);
       toast.success('Availability deleted successfully');
-      setAvailabilities(prev => 
+      setAvailabilities(prev =>
         prev.filter(a => !(a.doctor_id === selectedDoctor.id && a.date === selectedDate))
       );
       setEditingTimeSlots([]);
@@ -400,16 +392,29 @@ useEffect(() => {
   };
 
   const handleEventClick = (clickInfo: any) => {
-    const event = calendarEvents.find((event: CalendarEvent) => event.rule_id === clickInfo.event.id);
+    const event = calendarEvents.find(
+      (event: CalendarEvent) => event.rule_id === clickInfo.event.id
+    );
     if (event) {
       console.log('Event clicked:', event);
     }
   };
 
+  // Use view interval (month start/end) instead of padded visible range to avoid over-fetching
   const handleDatesSet = (dateInfo: any) => {
-    if (selectedDoctor) {
-      fetchMonthlyCalendarAvailability(selectedDoctor.id, dateInfo.startStr, dateInfo.endStr);
-    }
+    if (!selectedDoctor) return;
+
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const start = formatDate(dateInfo.view.currentStart); // first day of the current month
+    const end = formatDate(dateInfo.view.currentEnd); // first day of the next month
+
+    fetchMonthlyCalendarAvailability(selectedDoctor.id, start, end);
   };
 
   const handleOpenSlotDialog = () => {
@@ -422,7 +427,8 @@ useEffect(() => {
   };
 
   const handleSaveCustomSlots = () => {
-    const datesToSave = newTimeSlot.repeat === "custom" ? [...customDates, selectedDate] : [selectedDate];
+    const datesToSave =
+      newTimeSlot.repeat === 'custom' ? [...customDates, selectedDate] : [selectedDate];
 
     datesToSave.forEach(() => {
       const slot: TimeSlot = {
@@ -442,37 +448,37 @@ useEffect(() => {
     setCustomRepeatOpen(false);
     setCustomDates([]);
   };
-// const handleRepeatChange = (value: string) => {
-//   if (value === 'custom') {
-//     setCustomRepeatOpen(true);
-//   } else {
-//     // Map UI repeat options to API frequency values
-//     const frequencyMap: { [key: string]: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' } = {
-//       'none': 'DAILY',
-//       'daily': 'DAILY',
-//       'weekdays': 'WEEKLY',
-//       'weekly': 'WEEKLY', 
-//       'monthly': 'MONTHLY',
-//       'yearly': 'YEARLY',
-//     };
-    
-//     const frequency = frequencyMap[value];
-    
-//     setNewTimeSlot(prev => ({ 
-//       ...prev, 
-//       repeat: value,
-//       frequency: frequency,
-//       // Set default weekdays for weekly frequency
-//       byweekday: value === 'weekdays' || value === 'weekly' ? getDefaultWeekdays() : prev.byweekday
-//     }));
-//   }
-// };
+  // const handleRepeatChange = (value: string) => {
+  //   if (value === 'custom') {
+  //     setCustomRepeatOpen(true);
+  //   } else {
+  //     // Map UI repeat options to API frequency values
+  //     const frequencyMap: { [key: string]: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' } = {
+  //       'none': 'DAILY',
+  //       'daily': 'DAILY',
+  //       'weekdays': 'WEEKLY',
+  //       'weekly': 'WEEKLY',
+  //       'monthly': 'MONTHLY',
+  //       'yearly': 'YEARLY',
+  //     };
+
+  //     const frequency = frequencyMap[value];
+
+  //     setNewTimeSlot(prev => ({
+  //       ...prev,
+  //       repeat: value,
+  //       frequency: frequency,
+  //       // Set default weekdays for weekly frequency
+  //       byweekday: value === 'weekdays' || value === 'weekly' ? getDefaultWeekdays() : prev.byweekday
+  //     }));
+  //   }
+  // };
   const handleWeekdayToggle = (weekday: string) => {
     setNewTimeSlot(prev => ({
       ...prev,
       byweekday: prev.byweekday.includes(weekday)
         ? prev.byweekday.filter(w => w !== weekday)
-        : [...prev.byweekday, weekday]
+        : [...prev.byweekday, weekday],
     }));
   };
 
@@ -482,11 +488,23 @@ useEffect(() => {
 
   const hasAvailability = currentAvailability && currentAvailability.time_slots.length > 0;
 
+  // Normalize backend UTC timestamps to local wall time for FullCalendar
+  const normalizeToLocal = (isoUtc: string): string => {
+    const d = new Date(isoUtc);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  };
+
   const fullCalendarEvents = calendarEvents.map(event => ({
     id: event.rule_id,
     title: event.title,
-    start: event.start,
-    end: event.end,
+    start: normalizeToLocal(event.start),
+    end: normalizeToLocal(event.end),
     color: event.color,
     extendedProps: { type: event.type },
   }));
@@ -500,7 +518,7 @@ useEffect(() => {
             type="date"
             label="End Date (Optional)"
             value={newTimeSlot.until}
-            onChange={(e) => setNewTimeSlot(prev => ({ ...prev, until: e.target.value }))}
+            onChange={e => setNewTimeSlot(prev => ({ ...prev, until: e.target.value }))}
             InputLabelProps={{ shrink: true }}
           />
         </Grid>
@@ -510,7 +528,12 @@ useEffect(() => {
             type="number"
             label="Number of Occurrences (Optional)"
             value={newTimeSlot.count || ''}
-            onChange={(e) => setNewTimeSlot(prev => ({ ...prev, count: e.target.value ? parseInt(e.target.value) : undefined }))}
+            onChange={e =>
+              setNewTimeSlot(prev => ({
+                ...prev,
+                count: e.target.value ? parseInt(e.target.value) : undefined,
+              }))
+            }
             InputProps={{ inputProps: { min: 1 } }}
           />
         </Grid>
@@ -527,7 +550,9 @@ useEffect(() => {
                 type="number"
                 label="Interval (days)"
                 value={newTimeSlot.interval}
-                onChange={(e) => setNewTimeSlot(prev => ({ ...prev, interval: parseInt(e.target.value) }))}
+                onChange={e =>
+                  setNewTimeSlot(prev => ({ ...prev, interval: parseInt(e.target.value) }))
+                }
                 InputProps={{ inputProps: { min: 1 } }}
               />
             </Grid>
@@ -544,14 +569,18 @@ useEffect(() => {
                 type="number"
                 label="Interval (weeks)"
                 value={newTimeSlot.interval}
-                onChange={(e) => setNewTimeSlot(prev => ({ ...prev, interval: parseInt(e.target.value) }))}
+                onChange={e =>
+                  setNewTimeSlot(prev => ({ ...prev, interval: parseInt(e.target.value) }))
+                }
                 InputProps={{ inputProps: { min: 1 } }}
               />
             </Grid>
             <Grid size={12}>
-              <Typography variant="subtitle2" gutterBottom>Repeat on:</Typography>
+              <Typography variant="subtitle2" gutterBottom>
+                Repeat on:
+              </Typography>
               <FormGroup row>
-                {weekdays.map((day) => (
+                {weekdays.map(day => (
                   <FormControlLabel
                     key={day.value}
                     control={
@@ -578,7 +607,9 @@ useEffect(() => {
                 type="number"
                 label="Interval (months)"
                 value={newTimeSlot.interval}
-                onChange={(e) => setNewTimeSlot(prev => ({ ...prev, interval: parseInt(e.target.value) }))}
+                onChange={e =>
+                  setNewTimeSlot(prev => ({ ...prev, interval: parseInt(e.target.value) }))
+                }
                 InputProps={{ inputProps: { min: 1 } }}
               />
             </Grid>
@@ -588,7 +619,9 @@ useEffect(() => {
                 type="number"
                 label="Day of Month"
                 value={newTimeSlot.bymonthday}
-                onChange={(e) => setNewTimeSlot(prev => ({ ...prev, bymonthday: parseInt(e.target.value) }))}
+                onChange={e =>
+                  setNewTimeSlot(prev => ({ ...prev, bymonthday: parseInt(e.target.value) }))
+                }
                 InputProps={{ inputProps: { min: 1, max: 31 } }}
               />
             </Grid>
@@ -605,7 +638,9 @@ useEffect(() => {
                 type="number"
                 label="Day of Month"
                 value={newTimeSlot.bymonthday}
-                onChange={(e) => setNewTimeSlot(prev => ({ ...prev, bymonthday: parseInt(e.target.value) }))}
+                onChange={e =>
+                  setNewTimeSlot(prev => ({ ...prev, bymonthday: parseInt(e.target.value) }))
+                }
                 InputProps={{ inputProps: { min: 1, max: 31 } }}
               />
             </Grid>
@@ -635,20 +670,20 @@ useEffect(() => {
   }, [selectedDoctor]);
 
   return (
-    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt:-14 }}>
+    <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -14 }}>
       <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2c3e50' }}>
         Doctor Availability
       </Typography>
 
       <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
         <Grid container spacing={3} alignItems="center">
-          <Grid size={{xs:12, md:6}}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               select
               fullWidth
               label="Select Doctor"
               value={selectedDoctor?.id || ''}
-              onChange={(e) => {
+              onChange={e => {
                 const doctor = doctors.find(d => d.id === e.target.value);
                 setSelectedDoctor(doctor || null);
                 setSelectedDate('');
@@ -659,7 +694,7 @@ useEffect(() => {
                 startAdornment: <User size={20} style={{ marginRight: 8, color: '#666' }} />,
               }}
             >
-              {doctors.map((doctor) => (
+              {doctors.map(doctor => (
                 <MenuItem key={doctor.id} value={doctor.id}>
                   {doctor.name} {doctor.specialization && `- ${doctor.specialization}`}
                 </MenuItem>
@@ -672,8 +707,13 @@ useEffect(() => {
       {selectedDoctor && (
         <>
           <Paper sx={{ p: 3, mb: 3, borderRadius: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 600 }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 600 }}
+              >
                 <Calendar size={24} color="#4285f4" />
                 {selectedDoctor.name}'s Schedule
               </Typography>
@@ -695,7 +735,8 @@ useEffect(() => {
             <Box sx={{ height: 600 }}>
               <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="timeGridWeek"
+                initialView="dayGridMonth"
+                timeZone="local"
                 headerToolbar={{
                   left: 'prev,next today',
                   center: 'title',
@@ -727,17 +768,28 @@ useEffect(() => {
 
           {selectedDate && (
             <Paper sx={{ p: 3, borderRadius: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 600 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 3,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 600 }}
+                >
                   <Clock size={20} color="#4285f4" />
-                  Managing {new Date(selectedDate).toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                  Managing{' '}
+                  {new Date(selectedDate).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
                   })}
                 </Typography>
-                
+
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   {hasAvailability && (
                     <>
@@ -760,7 +812,7 @@ useEffect(() => {
                       </Button>
                     </>
                   )}
-                  
+
                   {isEditing && (
                     <Button
                       variant="contained"
@@ -772,7 +824,7 @@ useEffect(() => {
                       {loading ? <CircularProgress size={16} /> : 'Save Changes'}
                     </Button>
                   )}
-                  
+
                   {isEditing && (
                     <Button
                       variant="outlined"
@@ -797,32 +849,41 @@ useEffect(() => {
                 </Box>
               ) : (
                 <Grid container spacing={3}>
-                        <Grid size={{xs:12, md:8}}>
+                  <Grid size={{ xs: 12, md: 8 }}>
                     <Card>
                       <CardContent>
                         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                           {isEditing ? 'Editing Time Slots' : 'Scheduled Time Slots'}
                         </Typography>
-                        
+
                         {editingTimeSlots.length > 0 ? (
                           <List>
                             {editingTimeSlots.map((slot, index) => (
                               <React.Fragment key={index}>
-                                <ListItem sx={{ 
-                                  borderRadius: 2, 
-                                  mb: 1,
-                                  backgroundColor: '#f8f9fa',
-                                  border: '1px solid #e9ecef',
-                                }}>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
-                                    <Box sx={{ 
-                                      width: 8, 
-                                      height: 40, 
-                                      borderRadius: 1,
-                                      backgroundColor: 
-                                        slot.appointment_type === 'video' ? '#4285f4' :
-                                        slot.appointment_type === 'phone' ? '#34a853' : '#ea4335',
-                                    }} />
+                                <ListItem
+                                  sx={{
+                                    borderRadius: 2,
+                                    mb: 1,
+                                    backgroundColor: '#f8f9fa',
+                                    border: '1px solid #e9ecef',
+                                  }}
+                                >
+                                  <Box
+                                    sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        width: 8,
+                                        height: 40,
+                                        borderRadius: 1,
+                                        backgroundColor:
+                                          slot.appointment_type === 'video'
+                                            ? '#4285f4'
+                                            : slot.appointment_type === 'phone'
+                                              ? '#34a853'
+                                              : '#ea4335',
+                                      }}
+                                    />
                                     <Box sx={{ flex: 1 }}>
                                       <Typography variant="subtitle1" fontWeight="600">
                                         {slot.title}
@@ -831,19 +892,23 @@ useEffect(() => {
                                         {slot.start_time} - {slot.end_time}
                                       </Typography>
                                       <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                                        <Chip 
-                                          label={slot.appointment_type} 
+                                        <Chip
+                                          label={slot.appointment_type}
                                           size="small"
                                           variant="outlined"
                                         />
-                                        <Chip 
+                                        <Chip
                                           label={`${slot.max_patients} patient(s)`}
                                           size="small"
                                           variant="outlined"
                                         />
                                       </Box>
                                       {slot.notes && (
-                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                          sx={{ mt: 0.5 }}
+                                        >
                                           {slot.notes}
                                         </Typography>
                                       )}
@@ -866,9 +931,7 @@ useEffect(() => {
                             ))}
                           </List>
                         ) : (
-                          <Alert severity="info">
-                            No time slots scheduled for this date.
-                          </Alert>
+                          <Alert severity="info">No time slots scheduled for this date.</Alert>
                         )}
                       </CardContent>
                     </Card>
@@ -880,10 +943,10 @@ useEffect(() => {
         </>
       )}
 
-      <Dialog 
-        open={slotDialogOpen} 
-        onClose={() => setSlotDialogOpen(false)} 
-        maxWidth="md" 
+      <Dialog
+        open={slotDialogOpen}
+        onClose={() => setSlotDialogOpen(false)}
+        maxWidth="md"
         fullWidth
         PaperProps={{ sx: { borderRadius: 2 } }}
       >
@@ -894,23 +957,25 @@ useEffect(() => {
               variant="standard"
               placeholder="Add title"
               value={newTimeSlot.title}
-              onChange={(e) => setNewTimeSlot(prev => ({ ...prev, title: e.target.value }))}
+              onChange={e => setNewTimeSlot(prev => ({ ...prev, title: e.target.value }))}
               InputProps={{
                 disableUnderline: true,
-                sx: { 
+                sx: {
                   fontSize: '22px',
                   fontWeight: 400,
-                }
+                },
               }}
             />
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
               <Clock size={16} color="#5f6368" />
               <Typography variant="body2" color="#5f6368">
-                {selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric'
-                }) : 'Select date'}
+                {selectedDate
+                  ? new Date(selectedDate).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric',
+                    })
+                  : 'Select date'}
               </Typography>
             </Box>
           </Box>
@@ -923,7 +988,7 @@ useEffect(() => {
               type="date"
               label="Date"
               value={selectedDate || ''}
-              onChange={(e) => {
+              onChange={e => {
                 setSelectedDate(e.target.value);
                 setNewTimeSlot(prev => ({ ...prev, date: e.target.value }));
               }}
@@ -931,8 +996,12 @@ useEffect(() => {
           </Box>
 
           <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #e0e0e0' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight="500">Time Slots</Typography>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+            >
+              <Typography variant="h6" fontWeight="500">
+                Time Slots
+              </Typography>
               <Button
                 startIcon={<Plus size={16} />}
                 onClick={() => {
@@ -964,7 +1033,7 @@ useEffect(() => {
                   type="time"
                   label="Start time"
                   value={newTimeSlot.start_time}
-                  onChange={(e) => setNewTimeSlot(prev => ({ ...prev, start_time: e.target.value }))}
+                  onChange={e => setNewTimeSlot(prev => ({ ...prev, start_time: e.target.value }))}
                 />
               </Grid>
               <Grid size={6}>
@@ -973,7 +1042,7 @@ useEffect(() => {
                   type="time"
                   label="End time"
                   value={newTimeSlot.end_time}
-                  onChange={(e) => setNewTimeSlot(prev => ({ ...prev, end_time: e.target.value }))}
+                  onChange={e => setNewTimeSlot(prev => ({ ...prev, end_time: e.target.value }))}
                 />
               </Grid>
             </Grid>
@@ -985,13 +1054,15 @@ useEffect(() => {
                 </Typography>
                 <List dense sx={{ maxHeight: 200, overflow: 'auto' }}>
                   {editingTimeSlots.map((slot, index) => (
-                    <ListItem 
+                    <ListItem
                       key={slot.id}
                       secondaryAction={
                         <IconButton
                           edge="end"
                           size="small"
-                          onClick={() => setEditingTimeSlots(prev => prev.filter((_, i) => i !== index))}
+                          onClick={() =>
+                            setEditingTimeSlots(prev => prev.filter((_, i) => i !== index))
+                          }
                         >
                           <X size={16} />
                         </IconButton>
@@ -1015,21 +1086,26 @@ useEffect(() => {
               select
               label="Repeat"
               value={newTimeSlot.repeat}
-              onChange={(e) => {
+              onChange={e => {
                 const value = e.target.value;
                 if (value === 'custom') {
                   setCustomRepeatOpen(true);
                 } else {
-                  const frequencyMap: { [key: string]: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' } = {
-                    'none': 'DAILY', 'daily': 'DAILY', 'weekdays': 'WEEKLY', 
-                    'weekly': 'WEEKLY', 'monthly': 'MONTHLY', 'yearly': 'YEARLY',
-                  };
-                  
-                  setNewTimeSlot(prev => ({ 
-                    ...prev, 
+                  const frequencyMap: { [key: string]: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' } =
+                    {
+                      none: 'DAILY',
+                      daily: 'DAILY',
+                      weekdays: 'WEEKLY',
+                      weekly: 'WEEKLY',
+                      monthly: 'MONTHLY',
+                      yearly: 'YEARLY',
+                    };
+
+                  setNewTimeSlot(prev => ({
+                    ...prev,
                     repeat: value,
                     frequency: frequencyMap[value] || 'DAILY',
-                    byweekday: value === 'weekdays' ? getDefaultWeekdays() : prev.byweekday
+                    byweekday: value === 'weekdays' ? getDefaultWeekdays() : prev.byweekday,
                   }));
                 }
               }}
@@ -1041,7 +1117,7 @@ useEffect(() => {
                 ),
               }}
             >
-              {repeatOptions.map((option) => (
+              {repeatOptions.map(option => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
@@ -1051,17 +1127,21 @@ useEffect(() => {
 
           {newTimeSlot.repeat !== 'none' && newTimeSlot.repeat !== 'custom' && (
             <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #e0e0e0' }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Recurrence Settings</Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Recurrence Settings
+              </Typography>
               {renderFrequencyFields()}
             </Box>
           )}
 
           {customRepeatOpen && (
             <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #e0e0e0' }}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>Custom Repeat – Select Dates</Typography>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                Custom Repeat – Select Dates
+              </Typography>
               <Button
                 variant="outlined"
-                onClick={() => setCustomDates(prev => [...prev, selectedDate || ""])}
+                onClick={() => setCustomDates(prev => [...prev, selectedDate || ''])}
                 disabled={!selectedDate}
                 sx={{ mb: 2 }}
               >
@@ -1074,9 +1154,12 @@ useEffect(() => {
                     <ListItem
                       key={i}
                       secondaryAction={
-                        <IconButton size="small" onClick={() =>
-                          setCustomDates(prev => prev.filter((_, index) => index !== i))
-                        }>
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            setCustomDates(prev => prev.filter((_, index) => index !== i))
+                          }
+                        >
                           <X size={16} />
                         </IconButton>
                       }
@@ -1095,7 +1178,7 @@ useEffect(() => {
         </DialogContent>
 
         <DialogActions sx={{ p: 2, borderTop: '1px solid #e0e0e0' }}>
-          <Button 
+          <Button
             onClick={() => {
               setSlotDialogOpen(false);
               setEditingTimeSlots([]);
@@ -1106,48 +1189,48 @@ useEffect(() => {
           >
             Cancel
           </Button>
-         <Button 
-  variant="contained"
-  onClick={() => {
-    if (newTimeSlot.repeat === 'none') {
-      // Single time slot - just add to editing list
-      if (newTimeSlot.start_time && newTimeSlot.end_time) {
-        const slot: TimeSlot = {
-          id: Date.now().toString(),
-          start_time: newTimeSlot.start_time,
-          end_time: newTimeSlot.end_time,
-          is_available: true,
-          appointment_type: newTimeSlot.appointment_type,
-          max_patients: newTimeSlot.max_patients,
-          notes: newTimeSlot.notes,
-          title: newTimeSlot.title,
-        };
-        setEditingTimeSlots(prev => [...prev, slot]);
-        setSlotDialogOpen(false);
-        setIsEditing(true);
-        resetNewTimeSlot();
-        toast.success('Time slot added successfully');
-      } else {
-        toast.error('Please fill both start and end time');
-      }
-    } else if (newTimeSlot.repeat === 'custom') {
-      handleSaveCustomSlots();
-    } else {
-      // Recurring availability rule
-      handleCreateAvailabilityRule();
-    }
-  }}
-  disabled={
-    newTimeSlot.repeat === 'none' 
-      ? !newTimeSlot.start_time || !newTimeSlot.end_time
-      : newTimeSlot.repeat === 'custom'
-      ? customDates.length === 0
-      : !newTimeSlot.start_time || !newTimeSlot.end_time
-  }
-  sx={{ backgroundColor: '#1a73e8', '&:hover': { backgroundColor: '#1669d6' } }}
->
-  {loading ? <CircularProgress size={16} /> : 'Save'}
-</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (newTimeSlot.repeat === 'none') {
+                // Single time slot - just add to editing list
+                if (newTimeSlot.start_time && newTimeSlot.end_time) {
+                  const slot: TimeSlot = {
+                    id: Date.now().toString(),
+                    start_time: newTimeSlot.start_time,
+                    end_time: newTimeSlot.end_time,
+                    is_available: true,
+                    appointment_type: newTimeSlot.appointment_type,
+                    max_patients: newTimeSlot.max_patients,
+                    notes: newTimeSlot.notes,
+                    title: newTimeSlot.title,
+                  };
+                  setEditingTimeSlots(prev => [...prev, slot]);
+                  setSlotDialogOpen(false);
+                  setIsEditing(true);
+                  resetNewTimeSlot();
+                  toast.success('Time slot added successfully');
+                } else {
+                  toast.error('Please fill both start and end time');
+                }
+              } else if (newTimeSlot.repeat === 'custom') {
+                handleSaveCustomSlots();
+              } else {
+                // Recurring availability rule
+                handleCreateAvailabilityRule();
+              }
+            }}
+            disabled={
+              newTimeSlot.repeat === 'none'
+                ? !newTimeSlot.start_time || !newTimeSlot.end_time
+                : newTimeSlot.repeat === 'custom'
+                  ? customDates.length === 0
+                  : !newTimeSlot.start_time || !newTimeSlot.end_time
+            }
+            sx={{ backgroundColor: '#1a73e8', '&:hover': { backgroundColor: '#1669d6' } }}
+          >
+            {loading ? <CircularProgress size={16} /> : 'Save'}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -1155,14 +1238,15 @@ useEffect(() => {
         <DialogTitle>Delete All Time Slots</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete all time slots for {new Date(selectedDate).toLocaleDateString()}?
+            Are you sure you want to delete all time slots for{' '}
+            {new Date(selectedDate).toLocaleDateString()}?
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleDeleteAvailability} 
-            color="error" 
+          <Button
+            onClick={handleDeleteAvailability}
+            color="error"
             variant="contained"
             disabled={loading}
           >

@@ -4,29 +4,13 @@ import {
   Typography,
   Paper,
   Grid,
-  Card,
-  CardContent,
-  Avatar,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Divider,
   CircularProgress,
-  Chip,
   TextField,
   MenuItem,
   InputAdornment,
   Button,
 } from '@mui/material';
-import {
-  Calendar,
-  User,
-  Clock,
-  Phone,
-  Mail,
-  Search,
-} from 'lucide-react';
+import { Calendar, Search } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -34,7 +18,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { toast } from 'react-toastify';
 import { doctorsService } from '../../../shared/api/services/Doctor.service';
 import { AppointmentsService } from '../../../shared/api/services/appointments.services';
-import Fallbacks from '../../../features/shared/components/Fallbacks';
+// import Fallbacks from '../../../features/shared/components/Fallbacks';
 
 interface Appointment {
   id: string;
@@ -102,7 +86,7 @@ const AppointmentCalendars: React.FC = () => {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedAppointments, setSelectedAppointments] = useState<Appointment[]>([]);
+  const [_selectedAppointments, setSelectedAppointments] = useState<Appointment[]>([]);
 
   const [filters, setFilters] = useState<Filters>({
     page: 1,
@@ -206,9 +190,9 @@ const AppointmentCalendars: React.FC = () => {
   const handleDateSelect = (selectInfo: any) => {
     const selectedDate = selectInfo.startStr;
     setSelectedDate(selectedDate);
-    
+
     // Filter appointments for selected date
-    const filteredAppointments = appointments.filter(appointment => 
+    const filteredAppointments = appointments.filter(appointment =>
       appointment.appointment_date.startsWith(selectedDate)
     );
     setSelectedAppointments(filteredAppointments);
@@ -222,23 +206,23 @@ const AppointmentCalendars: React.FC = () => {
   };
 
   // Format time for display
-  const formatTime = (time: string): string => {
-    return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
+  // const formatTime = (time: string): string => {
+  //   return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
+  //     hour: '2-digit',
+  //     minute: '2-digit',
+  //     hour12: true,
+  //   });
+  // };
 
   // Format date for display
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+  // const formatDate = (dateString: string): string => {
+  //   return new Date(dateString).toLocaleDateString('en-US', {
+  //     weekday: 'long',
+  //     year: 'numeric',
+  //     month: 'long',
+  //     day: 'numeric',
+  //   });
+  // };
 
   useEffect(() => {
     fetchAppointments();
@@ -248,7 +232,7 @@ const AppointmentCalendars: React.FC = () => {
   useEffect(() => {
     // Update selected appointments when appointments change
     if (selectedDate) {
-      const filteredAppointments = appointments.filter(appointment => 
+      const filteredAppointments = appointments.filter(appointment =>
         appointment.appointment_date.startsWith(selectedDate)
       );
       setSelectedAppointments(filteredAppointments);
@@ -265,7 +249,7 @@ const AppointmentCalendars: React.FC = () => {
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           {/* Search */}
-          <Grid size={{xs:12, sm:6, md:4}}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
               Search
             </Typography>
@@ -286,7 +270,7 @@ const AppointmentCalendars: React.FC = () => {
           </Grid>
 
           {/* Select Consultant */}
-          <Grid size={{xs:12, sm:6, md:2}}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
               Select Consultant
             </Typography>
@@ -307,7 +291,7 @@ const AppointmentCalendars: React.FC = () => {
           </Grid>
 
           {/* Select Source */}
-          <Grid size={{xs:12, sm:6, md:2}}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
               Select Source
             </Typography>
@@ -328,7 +312,7 @@ const AppointmentCalendars: React.FC = () => {
           </Grid>
 
           {/* Gender */}
-          <Grid size={{xs:12, sm:6, md:2}}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
               Gender
             </Typography>
@@ -349,7 +333,7 @@ const AppointmentCalendars: React.FC = () => {
         {/* Second row of filters */}
         <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
           {/* Created From */}
-          <Grid size={{xs:12, sm:6, md:2}}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
               Date From
             </Typography>
@@ -363,7 +347,7 @@ const AppointmentCalendars: React.FC = () => {
           </Grid>
 
           {/* Created To */}
-          <Grid size={{xs:12, sm:6, md:2}}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
               Date To
             </Typography>
@@ -377,7 +361,7 @@ const AppointmentCalendars: React.FC = () => {
           </Grid>
 
           {/* Clear Filters */}
-          <Grid size={{xs:12, sm:6, md:2}}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <Button
               variant="outlined"
               fullWidth
@@ -390,9 +374,9 @@ const AppointmentCalendars: React.FC = () => {
         </Grid>
       </Paper>
 
-      <Grid container spacing={3} display="flex" flexDirection='column'>
+      <Grid container spacing={3} display="flex" flexDirection="column">
         {/* Calendar Section */}
-        <Grid size={{xs:12}}>
+        <Grid size={{ xs: 12 }}>
           <Paper sx={{ p: 3, borderRadius: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
               <Calendar size={24} color="#4285f4" />
@@ -403,13 +387,20 @@ const AppointmentCalendars: React.FC = () => {
 
             <Box sx={{ height: 600 }}>
               {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                  }}
+                >
                   <CircularProgress />
                 </Box>
               ) : (
                 <FullCalendar
                   plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                  initialView="timeGridWeek"
+                  initialView="dayGridMonth"
                   headerToolbar={{
                     left: 'prev,next today',
                     center: 'title',
@@ -441,9 +432,19 @@ const AppointmentCalendars: React.FC = () => {
         </Grid>
 
         {/* Appointments List Section */}
-        <Grid size={{xs:12, md:4}}>
-          <Paper sx={{ p: 3, borderRadius: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.1)', height: 'fit-content' }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+        {/* <Grid size={{ xs: 12, md: 4 }}>
+          <Paper
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+              height: 'fit-content',
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
+            >
               <Clock size={20} />
               {selectedDate ? `Appointments for ${formatDate(selectedDate)}` : 'Select a Date'}
             </Typography>
@@ -456,7 +457,15 @@ const AppointmentCalendars: React.FC = () => {
               <List sx={{ maxHeight: 600, overflow: 'auto' }}>
                 {selectedAppointments.map((appointment, index) => (
                   <React.Fragment key={appointment.id}>
-                    <ListItem sx={{ alignItems: 'flex-start', mb: 2, p: 2, backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+                    <ListItem
+                      sx={{
+                        alignItems: 'flex-start',
+                        mb: 2,
+                        p: 2,
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: 2,
+                      }}
+                    >
                       <ListItemAvatar>
                         <Avatar src={appointment.doctor.user.profile_photo_url}>
                           {appointment.doctor.name.charAt(0)}
@@ -464,14 +473,21 @@ const AppointmentCalendars: React.FC = () => {
                       </ListItemAvatar>
                       <ListItemText
                         primary={
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'flex-start',
+                              mb: 1,
+                            }}
+                          >
                             <Typography variant="subtitle1" fontWeight="600">
                               {appointment.patient_name}
                             </Typography>
-                            <Chip 
-                              label={appointment.status} 
+                            <Chip
+                              label={appointment.status}
                               size="small"
-                              sx={{ 
+                              sx={{
                                 backgroundColor: getStatusColor(appointment.status),
                                 color: 'white',
                                 fontWeight: '600',
@@ -481,7 +497,6 @@ const AppointmentCalendars: React.FC = () => {
                         }
                         secondary={
                           <Box sx={{ mt: 1 }}>
-                            {/* Patient Info */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                               <User size={16} />
                               <Typography variant="body2">
@@ -489,7 +504,6 @@ const AppointmentCalendars: React.FC = () => {
                               </Typography>
                             </Box>
 
-                            {/* Contact Info */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                               <Phone size={16} />
                               <Typography variant="body2">{appointment.phone_number}</Typography>
@@ -500,9 +514,15 @@ const AppointmentCalendars: React.FC = () => {
                               <Typography variant="body2">{appointment.email}</Typography>
                             </Box>
 
-                            {/* Time & Doctor */}
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-                              <Chip 
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                mt: 2,
+                              }}
+                            >
+                              <Chip
                                 icon={<Clock size={14} />}
                                 label={formatTime(appointment.time)}
                                 variant="outlined"
@@ -513,9 +533,8 @@ const AppointmentCalendars: React.FC = () => {
                               </Typography>
                             </Box>
 
-                            {/* Source */}
                             <Box sx={{ mt: 1 }}>
-                              <Chip 
+                              <Chip
                                 label={`Source: ${appointment.source}`}
                                 variant="outlined"
                                 size="small"
@@ -532,21 +551,26 @@ const AppointmentCalendars: React.FC = () => {
               </List>
             ) : (
               <>
-                {selectedDate 
-                  ? <Fallbacks title='empty' description='No appointments scheduled for this date' />
-                  : <Fallbacks title='empty' description='Click on a date in the calendar to view appointments' />
-                }
+                {selectedDate ? (
+                  <Fallbacks title="empty" description="No appointments scheduled for this date" />
+                ) : (
+                  <Fallbacks
+                    title="empty"
+                    description="Click on a date in the calendar to view appointments"
+                  />
+                )}
               </>
             )}
           </Paper>
 
-          {/* Summary Card */}
           <Card sx={{ mt: 3, borderRadius: 2 }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Summary
               </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+              <Box
+                sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}
+              >
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="h4" color="primary" fontWeight="bold">
                     {appointments.length}
@@ -574,7 +598,7 @@ const AppointmentCalendars: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Box>
   );

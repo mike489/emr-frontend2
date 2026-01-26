@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import { Calendar, X } from 'lucide-react';
 
-import { Search, ArrowDropDown } from '@mui/icons-material';
+import { Search, ArrowDropDown, Attachment, Add } from '@mui/icons-material';
 
 import { toast } from 'react-toastify';
 import AttachmentsModal from '../../../features/triage/components/AttachmentsModal';
@@ -129,7 +129,7 @@ const AppointmentsLists: React.FC = () => {
   // Handle successful reschedule
   const handleRescheduleSuccess = () => {
     handleCloseReschedule();
-    fetchPatients(); // Refresh the list
+    fetchPatients();
     toast.success('Appointment rescheduled successfully!');
   };
   const [filters, setFilters] = React.useState({
@@ -166,8 +166,6 @@ const AppointmentsLists: React.FC = () => {
     const newPerPage = parseInt(event.target.value, 10);
     setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
   };
-
-
 
   const clearFilters = () => {
     setFilters({
@@ -270,8 +268,6 @@ const AppointmentsLists: React.FC = () => {
     }
   };
 
-  
-
   useEffect(() => {
     fetchPatients();
     fetchDepartments();
@@ -279,7 +275,6 @@ const AppointmentsLists: React.FC = () => {
     fetchSummary();
     fetchDoctors();
   }, [filters]);
-
 
   return (
     <Box sx={{ px: 3, backgroundColor: '#f5f5f5', mt: -12 }}>
@@ -556,7 +551,7 @@ const AppointmentsLists: React.FC = () => {
                     width: 120,
                   }}
                 >
-                   Date
+                  Date
                 </TableCell>
                 <TableCell
                   sx={{
@@ -616,10 +611,10 @@ const AppointmentsLists: React.FC = () => {
                     <TableCell>{appointment.gender}</TableCell>
                     <TableCell>{appointment.doctor?.name || 'N/A'}</TableCell>
                     <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                         {new Date(appointment.appointment_date).toLocaleDateString()}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.primary" sx={{ fontWeight: 'bold' }}>
                         {appointment.time}
                       </Typography>
                     </TableCell>
@@ -663,15 +658,14 @@ const AppointmentsLists: React.FC = () => {
                           flexWrap: 'nowrap',
                         }}
                       >
-                  
                         <Tooltip title="Reschedule Appointment" arrow placement="top">
                           <IconButton
                             size="small"
                             onClick={() => handleOpenReschedule(appointment)}
                             sx={{
-                             backgroundColor: 'primary.main',
+                              backgroundColor: 'primary.main',
                               color: 'white',
-                              borderRadius: '50%', 
+                              borderRadius: '50%',
                               width: 32,
                               height: 32,
                               '&:hover': {
@@ -684,6 +678,27 @@ const AppointmentsLists: React.FC = () => {
                             <Calendar size={16} />
                           </IconButton>
                         </Tooltip>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            _setCurrentAttachments(appointment.attachments || []);
+                            // setAttachModalOpen(true);
+                          }}
+                          sx={{
+                            backgroundColor: 'secondary.main',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: 32,
+                            height: 32,
+                            '&:hover': {
+                              backgroundColor: 'secondary.dark',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <Add fontSize="small" />
+                        </IconButton>
                       </Box>
                     </TableCell>
                   </TableRow>
