@@ -16,16 +16,23 @@ import {
   DialogTitle,
   Container,
   Divider,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormHelperText,
 } from '@mui/material';
-import { Person, Save, CheckCircle } from '@mui/icons-material';
+import { Person, Save, CheckCircle, CalendarToday } from '@mui/icons-material';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 
 import { PatientService } from '../../../shared/api/services/patient.service';
+import PhoneField from '../../../features/shared/components/PhoneInput';
 import { toast, ToastContainer } from 'react-toastify';
 
-const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+// const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const genders = ['Male', 'Female', 'Other'];
 const titles = ['Mr.', 'Ms.', 'Mrs.', 'Dr.'];
 // const cities = ['Addis Ababa', 'Dire Dawa', 'Hawassa', 'Bahir Dar', 'Mekelle', 'Jimma'];
@@ -47,41 +54,46 @@ const patientSchema = Yup.object()
       .required('Full name is required')
       .min(2, 'Full name must be at least 2 characters')
       .max(100, 'Full name too long'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
+    email: Yup.string().email('Invalid email').notRequired(),
     phone: Yup.string()
       .required('Phone number is required')
       .matches(/^251[0-9]{9}$/, 'Must start with 251 and be 12 digits total'),
     date_of_birth: Yup.date()
-      .required('Date of birth is required')
       .max(new Date(), 'Cannot be future date')
       .test('min-age', 'Patient must be at least 1 year old', value => {
-        if (!value) return false;
+        if (!value) return true; // optional: skip when not provided
         const today = new Date();
         const birth = new Date(value);
         let age = today.getFullYear() - birth.getFullYear();
         const m = today.getMonth() - birth.getMonth();
         if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
         return age >= 1;
-      }),
+      })
+      .notRequired()
+      .nullable(),
     gender: Yup.string().required('Gender is required'),
     // address: Yup.object().shape({
     //   wereda: Yup.string().required('Wereda is required'),
     //   kifle_ketema: Yup.string().required('Kifle Ketema is required'),
     //   city: Yup.string().required('City is required'),
     // }),
-    blood_type: Yup.string().required('Blood type is required'),
+    blood_type: Yup.string().nullable().notRequired(),
     height: Yup.number()
+      .transform((value, originalValue) => (originalValue === '' ? null : value))
       .typeError('Height must be a number')
       .positive('Height must be positive')
       .min(50, 'Min 50 cm')
       .max(250, 'Max 250 cm')
-      .required('Height is required'),
+      .nullable()
+      .notRequired(),
     weight: Yup.number()
+      .transform((value, originalValue) => (originalValue === '' ? null : value))
       .typeError('Weight must be a number')
       .positive('Weight must be positive')
       .min(20, 'Min 20 kg')
       .max(300, 'Max 300 kg')
-      .required('Weight is required'),
+      .nullable()
+      .notRequired(),
     national_id: Yup.string(),
     passport_number: Yup.string(),
   })
@@ -129,8 +141,11 @@ const EmergencyPatientForm: React.FC = () => {
             try {
               const payload = {
                 ...values,
-                height: Number(values.height),
-                weight: Number(values.weight),
+                email: values.email || null,
+                date_of_birth: values.date_of_birth || null,
+                blood_type: values.blood_type || null,
+                height: values.height ? Number(values.height) : null,
+                weight: values.weight ? Number(values.weight) : null,
                 national_id: values.national_id || null,
                 passport_number: values.passport_number || null,
                 visit_type: 'Emergency',
@@ -161,13 +176,13 @@ const EmergencyPatientForm: React.FC = () => {
             }
           }}
         >
-          {({ isSubmitting, touched, errors /*values, /* setFieldValue */ }) => (
+          {({ isSubmitting, touched, errors, values, setFieldValue }) => (
             <Card elevation={6}>
               <CardContent sx={{ p: { xs: 3, md: 4 } }}>
                 <Form>
-                  <Grid container spacing={3}>
+                  <Grid container spacing={3} justifyContent="center">
                     {/* Left Column */}
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid size={{ xs: 12, md: 8, lg: 6 }}>
                       <Card variant="outlined" sx={{ mb: 3 }}>
                         <CardContent sx={{ p: 3 }}>
                           <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
@@ -212,37 +227,69 @@ const EmergencyPatientForm: React.FC = () => {
                                 }}
                               />
                             </Grid>
-
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                              <Field
-                                as={TextField}
-                                name="gender"
-                                label="Gender *"
-                                select
-                                fullWidth
-                                size="small"
-                                error={touched.gender && !!errors.gender}
-                                helperText={<ErrorMessage name="gender" />}
-                              >
-                                {genders.map(g => (
-                                  <MenuItem key={g} value={g}>
-                                    {g}
-                                  </MenuItem>
-                                ))}
+                            <Grid size={{ xs: 12, sm: 12 }}>
+                              {/* Match AddNewPatient gender UI: RadioGroup */}
+                              <Field name="gender">
+                                {({ field, form }: any) => (
+                                  <FormControl
+                                    component="fieldset"
+                                    error={touched.gender && !!errors.gender}
+                                  >
+                                    <FormLabel>Gender *</FormLabel>
+                                    <RadioGroup
+                                      row
+                                      value={field.value}
+                                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                        form.setFieldValue('gender', e.target.value)
+                                      }
+                                    >
+                                      {genders.map(g => (
+                                        <FormControlLabel
+                                          key={g}
+                                          value={g}
+                                          control={<Radio />}
+                                          label={g}
+                                        />
+                                      ))}
+                                    </RadioGroup>
+                                    <FormHelperText>
+                                      <ErrorMessage name="gender" />
+                                    </FormHelperText>
+                                  </FormControl>
+                                )}
                               </Field>
                             </Grid>
 
-                            <Grid size={{ xs: 12, sm: 6 }}>
+                            <Grid size={{ xs: 12, sm: 12 }}>
                               <Field
                                 as={TextField}
                                 name="date_of_birth"
-                                label="Date of Birth *"
+                                label={
+                                  <span>
+                                    Date of Birth
+                                    <Typography
+                                      component="span"
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {' '}
+                                      (Optional)
+                                    </Typography>
+                                  </span>
+                                }
                                 type="date"
                                 fullWidth
                                 size="small"
                                 InputLabelProps={{ shrink: true }}
                                 error={touched.date_of_birth && !!errors.date_of_birth}
                                 helperText={<ErrorMessage name="date_of_birth" />}
+                                InputProps={{
+                                  endAdornment: (
+                                    <InputAdornment position="end">
+                                      <CalendarToday fontSize="small" />
+                                    </InputAdornment>
+                                  ),
+                                }}
                               />
                             </Grid>
 
@@ -259,7 +306,19 @@ const EmergencyPatientForm: React.FC = () => {
                               <Field
                                 as={TextField}
                                 name="email"
-                                label="Email Address *"
+                                label={
+                                  <span>
+                                    Email Address
+                                    <Typography
+                                      component="span"
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {' '}
+                                      (Optional)
+                                    </Typography>
+                                  </span>
+                                }
                                 type="email"
                                 fullWidth
                                 size="small"
@@ -269,21 +328,15 @@ const EmergencyPatientForm: React.FC = () => {
                             </Grid>
 
                             <Grid size={{ xs: 12 }}>
-                              <Field
-                                as={TextField}
-                                name="phone"
-                                label="Phone Number *"
-                                fullWidth
-                                size="small"
-                                placeholder="2519xxxxxxxx"
-                                error={touched.phone && !!errors.phone}
-                                helperText={<ErrorMessage name="phone" />}
-                                InputProps={{
-                                  startAdornment: (
-                                    <InputAdornment position="start">+</InputAdornment>
-                                  ),
-                                }}
+                              <PhoneField
+                                value={values.phone}
+                                onChange={(val: string) => setFieldValue('phone', val)}
                               />
+                              {touched.phone && errors.phone && (
+                                <Typography color="error" variant="caption">
+                                  <ErrorMessage name="phone" />
+                                </Typography>
+                              )}
                             </Grid>
                           </Grid>
                         </CardContent>
@@ -291,116 +344,8 @@ const EmergencyPatientForm: React.FC = () => {
                     </Grid>
 
                     {/* Right Column */}
-                    <Grid size={{ xs: 12, md: 6 }}>
-                      {/*
-                      <Card variant="outlined" sx={{ mb: 3 }}>
-                        <CardContent sx={{ p: 3 }}>
-                          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                            Address & Identification
-                          </Typography>
-
-                          <Grid container spacing={2}>
-                            <Grid size={{ xs: 12 }}>
-                              <Field
-                                as={TextField}
-                                name="address.city"
-                                label="City *"
-                                select
-                                fullWidth
-                                size="small"
-                                value={values.address.city}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                  const city = e.target.value;
-                                  setFieldValue('address.city', city);
-                                  setFieldValue('address.kifle_ketema', '');
-                                  setSubCities(cityToSubCities[city] || []);
-                                }}
-                                error={touched.address?.city && !!errors.address?.city}
-                                helperText={<ErrorMessage name="address.city" />}
-                              >
-                                {cities.map(city => (
-                                  <MenuItem key={city} value={city}>
-                                    {city}
-                                  </MenuItem>
-                                ))}
-                              </Field>
-                            </Grid>
-
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                              <Field
-                                as={TextField}
-                                name="address.kifle_ketema"
-                                label="Sub-City *"
-                                select
-                                fullWidth
-                                size="small"
-                                disabled={subCities.length === 0}
-                                value={values.address.kifle_ketema}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                  setFieldValue('address.kifle_ketema', e.target.value)
-                                }
-                                error={
-                                  touched.address?.kifle_ketema && !!errors.address?.kifle_ketema
-                                }
-                                helperText={<ErrorMessage name="address.kifle_ketema" />}
-                              >
-                                {subCities.map(sub => (
-                                  <MenuItem key={sub} value={sub}>
-                                    {sub}
-                                  </MenuItem>
-                                ))}
-                              </Field>
-                            </Grid>
-
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                              <Field
-                                as={TextField}
-                                name="address.wereda"
-                                label="Wereda *"
-                                select
-                                fullWidth
-                                size="small"
-                                value={values.address.wereda}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                  setFieldValue('address.wereda', e.target.value)
-                                }
-                                error={touched.address?.wereda && !!errors.address?.wereda}
-                                helperText={<ErrorMessage name="address.wereda" />}
-                              >
-                                {weredas.map(w => (
-                                  <MenuItem key={w} value={w}>
-                                    {w}
-                                  </MenuItem>
-                                ))}
-                              </Field>
-                            </Grid>
-
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                              <Field
-                                as={TextField}
-                                name="national_id"
-                                label="National ID"
-                                fullWidth
-                                size="small"
-                                placeholder="Optional if passport provided"
-                              />
-                            </Grid>
-
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                              <Field
-                                as={TextField}
-                                name="passport_number"
-                                label="Passport Number"
-                                fullWidth
-                                size="small"
-                                placeholder="Optional if National ID provided"
-                              />
-                            </Grid>
-                          </Grid>
-                        </CardContent>
-                      </Card>
-                      */}
-
+                    {/* Medical Information temporarily hidden per request */}
+                    {/* <Grid size={{ xs: 12, md: 6 }}>
                       <Card variant="outlined">
                         <CardContent sx={{ p: 3 }}>
                           <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
@@ -461,7 +406,7 @@ const EmergencyPatientForm: React.FC = () => {
                           </Grid>
                         </CardContent>
                       </Card>
-                    </Grid>
+                    </Grid> */}
                   </Grid>
 
                   <Divider sx={{ my: 3 }} />

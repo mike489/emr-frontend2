@@ -101,6 +101,7 @@ const DoctorAvailability: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [customRepeatOpen, setCustomRepeatOpen] = useState(false);
   const [customDates, setCustomDates] = useState<string[]>([]);
+  const [viewRange, setViewRange] = useState<{ start: string; end: string } | null>(null);
 
   const weekdays = [
     { value: 'MO', label: 'Monday' },
@@ -204,7 +205,9 @@ const DoctorAvailability: React.FC = () => {
       await doctorsService.createAvailability(selectedDoctor.id, selectedDate, editingTimeSlots);
       toast.success('Availability created successfully');
       await fetchAvailability(selectedDoctor.id, selectedDate);
-      await fetchMonthlyCalendarAvailability(selectedDoctor.id);
+      if (viewRange) {
+        await fetchMonthlyCalendarAvailability(selectedDoctor.id, viewRange.start, viewRange.end);
+      }
       setIsEditing(false);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to create availability');
@@ -212,6 +215,7 @@ const DoctorAvailability: React.FC = () => {
       setLoading(false);
     }
   };
+
   const handleCreateAvailabilityRule = async () => {
     if (!selectedDoctor) {
       toast.error('Please select a doctor');
@@ -272,7 +276,9 @@ const DoctorAvailability: React.FC = () => {
       // FIXED: Remove selectedDoctor.id parameter
       await doctorsService.createAvailabilityRule(payload);
       toast.success('Availability rule created successfully');
-      await fetchMonthlyCalendarAvailability(selectedDoctor.id);
+      if (viewRange) {
+        await fetchMonthlyCalendarAvailability(selectedDoctor.id, viewRange.start, viewRange.end);
+      }
       setSlotDialogOpen(false);
       resetNewTimeSlot();
     } catch (error: any) {
@@ -296,7 +302,6 @@ const DoctorAvailability: React.FC = () => {
     } else if (newTimeSlot.repeat === 'yearly') {
       setNewTimeSlot(prev => ({ ...prev, frequency: 'YEARLY' }));
     }
-    fetchMonthlyCalendarAvailability(selectedDoctor?.id || '');
   }, [newTimeSlot.repeat]);
 
   const getDefaultWeekdays = (): string[] => ['MO', 'TU', 'WE', 'TH', 'FR'];
@@ -334,7 +339,9 @@ const DoctorAvailability: React.FC = () => {
       );
       setEditingTimeSlots([]);
       setDeleteDialogOpen(false);
-      await fetchMonthlyCalendarAvailability(selectedDoctor.id);
+      if (viewRange) {
+        await fetchMonthlyCalendarAvailability(selectedDoctor.id, viewRange.start, viewRange.end);
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to delete availability');
     } finally {
@@ -377,14 +384,12 @@ const DoctorAvailability: React.FC = () => {
 
   const handleDateSelect = (selectInfo: any) => {
     const date = selectInfo.startStr.split('T')[0];
-    const endDate = selectInfo.endStr.split('T')[0];
 
     setSelectedDate(date);
     setNewTimeSlot(prev => ({ ...prev, date }));
 
     if (selectedDoctor) {
       fetchAvailability(selectedDoctor.id, date);
-      fetchMonthlyCalendarAvailability(selectedDoctor.id, date, endDate);
     }
 
     setIsEditing(false);
@@ -413,7 +418,7 @@ const DoctorAvailability: React.FC = () => {
 
     const start = formatDate(dateInfo.view.currentStart); // first day of the current month
     const end = formatDate(dateInfo.view.currentEnd); // first day of the next month
-
+    setViewRange({ start, end });
     fetchMonthlyCalendarAvailability(selectedDoctor.id, start, end);
   };
 
@@ -664,10 +669,10 @@ const DoctorAvailability: React.FC = () => {
   }, [selectedDate]);
 
   useEffect(() => {
-    if (selectedDoctor) {
-      fetchMonthlyCalendarAvailability(selectedDoctor.id);
+    if (selectedDoctor && viewRange) {
+      fetchMonthlyCalendarAvailability(selectedDoctor.id, viewRange.start, viewRange.end);
     }
-  }, [selectedDoctor]);
+  }, [selectedDoctor, viewRange]);
 
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: -14 }}>
