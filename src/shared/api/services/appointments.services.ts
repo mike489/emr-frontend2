@@ -7,7 +7,7 @@ export const AppointmentsService = {
   getList: (filters?: Record<string, any>) => {
     return appointmentsApi.get('/appointments', { params: filters });
   },
-   getPatientCheckout: (filters?: Record<string, any>) => {
+  getPatientCheckout: (filters?: Record<string, any>) => {
     return appointmentsApi.get('/patient-checked-out', { params: filters });
   },
   getById: (id: string) => appointmentsApi.get(`/appointments/${id}`),
@@ -16,8 +16,8 @@ export const AppointmentsService = {
   update: (id: string, data: any) => appointmentsApi.put(`/appointments/${id}`, data),
   delete: (id: string) => appointmentsApi.delete(`/appointments/${id}`),
   reschedule: (id: string, data: { appointment_date: string; start_time: string }) =>
-  appointmentsApi.put(`/appointments/${id}/reschedule`, data),
+    appointmentsApi.put(`/appointments/${id}/reschedule`, data),
 
-
-  
+  ChangeAppointmentToPatient: (id: string, data: { patient_category_id: string }) =>
+    appointmentsApi.post(`/appointment-to-patient/${id}`, data),
 };

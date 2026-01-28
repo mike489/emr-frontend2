@@ -22,6 +22,7 @@ import {
   DialogContent,
   Dialog,
   DialogTitle,
+  DialogActions,
 } from '@mui/material';
 import { Calendar, X } from 'lucide-react';
 
@@ -113,6 +114,9 @@ const AppointmentsLists: React.FC = () => {
   );
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [converting, setConverting] = useState(false);
 
   // Open reschedule modal
   const handleOpenReschedule = (appointment: Appointment) => {
@@ -131,6 +135,43 @@ const AppointmentsLists: React.FC = () => {
     handleCloseReschedule();
     fetchPatients();
     toast.success('Appointment rescheduled successfully!');
+  };
+
+  const handleOpenCategoryModal = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setCategoryModalOpen(true);
+  };
+
+  const handleCloseCategoryModal = () => {
+    setCategoryModalOpen(false);
+    setSelectedAppointment(null);
+    setSelectedCategoryId('');
+  };
+
+  const handleConvert = async () => {
+    if (!selectedAppointment || !selectedCategoryId) {
+      toast.error('Please select a category');
+      return;
+    }
+    setConverting(true);
+    try {
+      await AppointmentsService.ChangeAppointmentToPatient(selectedAppointment.id, {
+        patient_category_id: selectedCategoryId,
+      });
+      toast.success('Appointment converted to patient successfully!');
+      handleCloseCategoryModal();
+      fetchPatients();
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.message ||
+        err.response?.data?.data?.message ||
+        err.message ||
+        'Failed to convert appointment';
+      toast.error(errorMsg);
+      console.error('Error converting appointment:', err);
+    } finally {
+      setConverting(false);
+    }
   };
   const [filters, setFilters] = React.useState({
     page: 1,
@@ -678,27 +719,26 @@ const AppointmentsLists: React.FC = () => {
                             <Calendar size={16} />
                           </IconButton>
                         </Tooltip>
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            _setCurrentAttachments(appointment.attachments || []);
-                            // setAttachModalOpen(true);
-                          }}
-                          sx={{
-                            backgroundColor: 'secondary.main',
-                            color: 'white',
-                            borderRadius: '50%',
-                            width: 32,
-                            height: 32,
-                            '&:hover': {
-                              backgroundColor: 'secondary.dark',
-                              transform: 'scale(1.1)',
-                            },
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          <Add fontSize="small" />
-                        </IconButton>
+                        <Tooltip title="Convert to Regular Patient" arrow placement="top">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenCategoryModal(appointment)}
+                            sx={{
+                              backgroundColor: 'secondary.main',
+                              color: 'white',
+                              borderRadius: '50%',
+                              width: 32,
+                              height: 32,
+                              '&:hover': {
+                                backgroundColor: 'secondary.dark',
+                                transform: 'scale(1.1)',
+                              },
+                              transition: 'all 0.2s ease',
+                            }}
+                          >
+                            <Add fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -778,6 +818,51 @@ const AppointmentsLists: React.FC = () => {
             />
           )}
         </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={categoryModalOpen}
+        onClose={handleCloseCategoryModal}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 2 },
+        }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>Select Patient Category</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Choose a category to convert <strong>{selectedAppointment?.patient_name}</strong> to a regular patient.
+          </Typography>
+          <TextField
+            select
+            fullWidth
+            label="Category"
+            value={selectedCategoryId}
+            onChange={e => setSelectedCategoryId(e.target.value)}
+            disabled={converting}
+          >
+            {_patientCategories.map(cat => (
+              <MenuItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={handleCloseCategoryModal} color="inherit" disabled={converting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConvert}
+            variant="contained"
+            color="primary"
+            disabled={!selectedCategoryId || converting}
+            startIcon={converting && <CircularProgress size={20} color="inherit" />}
+          >
+            {converting ? 'Converting...' : 'Convert'}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

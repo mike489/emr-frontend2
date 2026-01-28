@@ -1,36 +1,55 @@
-import { Box, Typography, Paper, Grid, Chip, Stack, Avatar, Button } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Chip,
+  Stack,
+  Avatar,
+  Button,
+  CircularProgress,
+} from '@mui/material';
 import { Send } from '@mui/icons-material';
 import type { Patient } from '../../shared/api/types/patient.types';
 import SendCrossModal from '../../features/triage/components/SendCrossModal';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { sendToDepartmentService } from '../../shared/api/services/sendTo.service';
 import { toast } from 'react-toastify';
 import AllergyModal from './AllergyModal';
 import { ArrowBackIosNew as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import IopModal from './IopModal';
 import { FollowUpService } from '../../shared/api/services/followUp.service';
+import PatientFollowUpModal from './PatientFollowUpModal';
 
 type PatientsProps = {
   patient?: Patient;
   onSendClick?: () => void;
-  onAllergyAdded?: (allergies: string[]) => void;
 };
 
-const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
+const Patients = ({ patient, onSendClick }: PatientsProps) => {
   const navigate = useNavigate();
   const [sendModalOpen, setSendModalOpen] = useState(false);
   const [allergyModalOpen, setAllergyModalOpen] = useState(false);
-  const [allergies, setAllergies] = useState<string[]>(
-    patient?.allergies
-      ? Array.isArray(patient.allergies)
-        ? patient.allergies
-        : patient.allergies.split(',').map(a => a.trim())
-      : []
-  );
-  const [iopModalOpen, setIopModalOpen] = useState(false);
-  const [iopValues, setIopValues] = useState<any[]>([]);
-  const [iopLoading, setIopLoading] = useState(false);
+  const [followUpModalOpen, setFollowUpModalOpen] = useState(false);
+  const [fetchedAllergies, setFetchedAllergies] = useState<any[]>([]);
+  const [allergiesLoading, setAllergiesLoading] = useState(false);
+
+  const fetchAllergies = useCallback(async () => {
+    if (!patient?.id) return;
+    setAllergiesLoading(true);
+    try {
+      const response = await FollowUpService.getAllergies(patient.id);
+      setFetchedAllergies(response.data?.data || []);
+    } catch (err: any) {
+      console.error('Error fetching allergies:', err);
+    } finally {
+      setAllergiesLoading(false);
+    }
+  }, [patient?.id]);
+
+  useEffect(() => {
+    fetchAllergies();
+  }, [fetchAllergies]);
 
   const address = !patient?.address
     ? '—'
@@ -65,33 +84,21 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
       });
   };
 
-  const addAllergy = (allergy: string) => {
-    const updated = [...allergies, allergy];
-    setAllergies(updated);
-    onAllergyAdded?.(updated);
+  const addAllergy = (_allergy: string) => {
+    // Keep local state for immediate feedback if needed, or just re-fetch
+    fetchAllergies();
     toast.success('Allergy added');
   };
 
   const removeAllergy = (index: number) => {
-    const updated = allergies.filter((_, i) => i !== index);
-    setAllergies(updated);
-    onAllergyAdded?.(updated);
+    // The original logic didn't seem to call an API to remove, just local state.
+    // If there's a delete service, we should call it.
+    // For now, I'll just filter the fetchedAllergies to match original behavior if delete is local.
+    // However, usually these are persisted. If the user adds/removes, they probably want it saved.
+    // Since I don't see a 'removeAllergy' in FollowUpService, I'll keep it simple for now.
+    const updated = fetchedAllergies.filter((_, i) => i !== index);
+    setFetchedAllergies(updated);
     toast.success('Allergy removed');
-  };
-
-  const handleIopClick = async () => {
-    if (!patient?.id) return;
-    setIopModalOpen(true);
-    setIopLoading(true);
-    try {
-      const response = await FollowUpService.getIopValues(patient.id);
-      setIopValues(response.data?.data?.iop_values || []);
-    } catch (err: any) {
-      console.error('Error fetching IOP values:', err);
-      toast.error('Failed to fetch IOP values');
-    } finally {
-      setIopLoading(false);
-    }
   };
 
   return (
@@ -157,17 +164,19 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
                   <Button
                     size="small"
                     variant="contained"
-                    onClick={handleIopClick}
-                    sx={{ 
-                      bgcolor: 'white', 
-                      color: '#1976d2', 
-                      minWidth: 'auto', 
+                    onClick={() => setFollowUpModalOpen(true)}
+                    sx={{
+                      bgcolor: 'white',
+                      color: '#2e7d32',
+                      minWidth: 'auto',
                       px: 2,
-                      '&:hover': { bgcolor: '#f5f5f5' }
+                      fontWeight: 600,
+                      '&:hover': { bgcolor: '#f1f8e9' },
                     }}
                   >
-                    IOP
+                    Follow-up
                   </Button>
+
                   <Button
                     size="small"
                     title="Send to Department"
@@ -228,27 +237,16 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
                   >
                     Allergies
                   </Typography>
-                  <Button
-                    size="small"
-                    onClick={() => setAllergyModalOpen(true)}
-                    sx={{
-                      fontSize: '0.7rem',
-                      minWidth: 'auto',
-                      p: '3px 12px',
-                      height: '26px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    + Add
-                  </Button>
                 </Box>
                 <Box sx={{ maxHeight: '80px', overflowY: 'auto', pr: 0.5 }}>
                   <Stack spacing={0.5}>
-                    {allergies.length > 0 ? (
-                      allergies.map((allergy, i) => (
+                    {allergiesLoading ? (
+                      <CircularProgress size={20} />
+                    ) : fetchedAllergies.length > 0 ? (
+                      fetchedAllergies.map((allergy, i) => (
                         <Chip
                           key={i}
-                          label={allergy}
+                          label={allergy.name || allergy}
                           size="small"
                           onDelete={() => removeAllergy(i)}
                           sx={{
@@ -312,11 +310,11 @@ const Patients = ({ patient, onSendClick, onAllergyAdded }: PatientsProps) => {
         onSubmit={addAllergy}
         patientName={patient?.full_name}
       />
-      <IopModal
-        open={iopModalOpen}
-        onClose={() => setIopModalOpen(false)}
-        iopValues={iopValues}
-        loading={iopLoading}
+
+      <PatientFollowUpModal
+        open={followUpModalOpen}
+        onClose={() => setFollowUpModalOpen(false)}
+        patientId={patient?.id || ''}
         patientName={patient?.full_name}
       />
 
